@@ -3,7 +3,7 @@
  * Генерирует встраиваемый CSS на основе дизайн-токенов
  */
 
-import { colors, typography, spacing, shadows, borderRadius } from './design-tokens.js';
+import { colors, typography, spacing, shadows, borderRadius } from './design-tokens';
 
 /**
  * Генерирует базовые стили для отчёта

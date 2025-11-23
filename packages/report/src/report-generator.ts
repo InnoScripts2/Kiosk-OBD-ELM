@@ -13,12 +13,12 @@ import {
   ReportGenerationOptions,
   ReportGenerationResult,
   ReportMetadata,
-} from '../types/index.js';
-import { validateReport } from '../utils/validators.js';
-import { computeHash, generateFileId } from '../utils/formatters.js';
-import { generateThicknessHTML } from '../templates/thickness-template.js';
-import { generateDiagnosticsHTML } from '../templates/diagnostics-template.js';
-import { htmlToPDF, mockPDFRenderer } from '../renderers/pdf-renderer.js';
+} from './types/index';
+import { validateReport } from './utils/validators';
+import { computeHash, generateFileId } from './utils/formatters';
+import { generateThicknessHTML } from './templates/thickness-template';
+import { generateDiagnosticsHTML } from './templates/diagnostics-template';
+import { htmlToPDF, mockPDFRenderer } from './renderers/pdf-renderer';
 
 /**
  * Главный класс генератора отчётов

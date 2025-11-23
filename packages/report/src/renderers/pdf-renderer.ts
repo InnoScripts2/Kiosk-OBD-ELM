@@ -30,6 +30,7 @@ export async function htmlToPDF(html: string, options: PDFRenderOptions = {}): P
   try {
     // Динамический импорт Puppeteer (не включён в devDependencies на данном этапе)
     // В реальной реализации нужно добавить puppeteer в package.json
+    // @ts-ignore - optional dependency
     const puppeteer = await import('puppeteer').catch(() => {
       throw new Error('Puppeteer не установлен. Выполните: npm install puppeteer');
     });
@@ -93,6 +94,7 @@ export async function htmlToPDF(html: string, options: PDFRenderOptions = {}): P
  */
 export async function htmlToPDFWithPlaywright(html: string, options: PDFRenderOptions = {}): Promise<Buffer> {
   try {
+    // @ts-ignore - optional dependency
     const playwright = await import('playwright').catch(() => {
       throw new Error('Playwright не установлен. Выполните: npm install playwright');
     });

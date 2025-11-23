@@ -2,16 +2,16 @@
  * Шаблон отчёта толщиномера
  */
 
-import { ThicknessReport } from '../types/index.js';
-import { generateBaseStyles } from '../styles/base.js';
-import { colors } from '../styles/design-tokens.js';
+import { ThicknessReport } from '../types/index';
+import { generateBaseStyles } from '../styles/base';
+import { colors } from '../styles/design-tokens';
 import {
   formatTimestamp,
   formatThickness,
   formatPrice,
   formatPercent,
   escapeHtml,
-} from '../utils/formatters.js';
+} from '../utils/formatters';
 import {
   logoSVG,
   thicknessGaugeSVG,
@@ -19,7 +19,7 @@ import {
   checkIconSVG,
   warningIconSVG,
   errorIconSVG,
-} from '../components/svg-icons.js';
+} from '../components/svg-icons';
 
 /**
  * Генерирует HTML для отчёта толщиномера

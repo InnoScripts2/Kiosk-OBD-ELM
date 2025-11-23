@@ -6,25 +6,25 @@
  */
 
 // Типы
-export * from './types/index.js';
+export * from './types/index';
 
 // Стили и дизайн-система
-export * from './styles/design-tokens.js';
-export * from './styles/base.js';
+export * from './styles/design-tokens';
+export * from './styles/base';
 
 // Утилиты
-export * from './utils/formatters.js';
-export * from './utils/validators.js';
+export * from './utils/formatters';
+export * from './utils/validators';
 
 // Компоненты
-export * from './components/svg-icons.js';
+export * from './components/svg-icons';
 
 // Шаблоны
-export * from './templates/thickness-template.js';
-export * from './templates/diagnostics-template.js';
+export * from './templates/thickness-template';
+export * from './templates/diagnostics-template';
 
 // Рендереры
-export * from './renderers/pdf-renderer.js';
+export * from './renderers/pdf-renderer';
 
 // Главный генератор
-export { ReportGenerator } from './report-generator.js';
+export { ReportGenerator } from './report-generator';

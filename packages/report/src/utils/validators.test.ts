@@ -6,7 +6,7 @@ import {
   validateThicknessReport,
   validateDiagnosticsReport,
   validateReport,
-} from '../utils/validators';
+} from './validators';
 import { ThicknessReport, DiagnosticsReport } from '../types/index';
 
 describe('Validators', () => {
@@ -233,7 +233,7 @@ describe('Validators', () => {
     });
 
     it('выявляет некорректный milStatus', () => {
-      const report = {
+      const report: DiagnosticsReport = {
         type: 'diagnostics',
         sessionId: 'test_1',
         timestamp: new Date(),

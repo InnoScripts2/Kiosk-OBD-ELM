@@ -3,7 +3,7 @@
  * Векторные иконки и визуальные элементы
  */
 
-import { colors } from '../styles/design-tokens.js';
+import { colors } from '../styles/design-tokens';
 
 /**
  * Логотип (placeholder - должен быть заменён реальным)

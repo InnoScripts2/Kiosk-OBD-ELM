@@ -2,8 +2,8 @@
  * Тесты для генератора отчётов
  */
 
-import { ReportGenerator } from '../report-generator';
-import { ThicknessReport, DiagnosticsReport } from '../types/index';
+import { ReportGenerator } from './report-generator';
+import { ThicknessReport, DiagnosticsReport } from './types/index';
 import { promises as fs } from 'fs';
 import path from 'path';
 
@@ -141,17 +141,20 @@ describe('ReportGenerator', () => {
 
       const result = await generator.generate(report, { format: 'html' });
 
+      // Проверяем что filePath установлен
+      expect(result.filePath).toBeDefined();
+      
       // Проверяем существование файла
-      const fileExists = await fs.access(result.filePath).then(() => true).catch(() => false);
+      const fileExists = await fs.access(result.filePath!).then(() => true).catch(() => false);
       expect(fileExists).toBe(true);
 
       // Проверяем существование метаданных
-      const metaPath = result.filePath.replace('.html', '.meta.json');
+      const metaPath = result.filePath!.replace('.html', '.meta.json');
       const metaExists = await fs.access(metaPath).then(() => true).catch(() => false);
       expect(metaExists).toBe(true);
 
       // Читаем и проверяем метаданные
-      const meta = await generator.getMetadata('test_thickness_3', path.basename(result.filePath));
+      const meta = await generator.getMetadata('test_thickness_3', path.basename(result.filePath!));
       expect(meta).toBeDefined();
       expect(meta?.sessionId).toBe('test_thickness_3');
       expect(meta?.type).toBe('thickness');
@@ -208,7 +211,7 @@ describe('ReportGenerator', () => {
       expect(result.content).toContain('P0420');
       expect(result.content).toContain('P0171');
       expect(result.content).toContain('Toyota');
-      expect(result.content).toContain('1HG***9186'); // Masked VIN
+      expect(result.content).toContain('1HG**********9186'); // Masked VIN
     });
 
     it('генерирует отчёт без ошибок', async () => {
@@ -308,7 +311,8 @@ describe('ReportGenerator', () => {
       };
 
       const generated = await generator.generate(report, { format: 'html' });
-      const fileName = path.basename(generated.filePath);
+      expect(generated.filePath).toBeDefined();
+      const fileName = path.basename(generated.filePath!);
       
       const readContent = await generator.getReport('test_read_1', fileName);
       expect(readContent).toBeDefined();
@@ -340,11 +344,12 @@ describe('ReportGenerator', () => {
       };
 
       const generated = await generator.generate(report, { format: 'html' });
-      const fileName = path.basename(generated.filePath);
+      expect(generated.filePath).toBeDefined();
+      const fileName = path.basename(generated.filePath!);
 
       await generator.deleteReport('test_delete_1', fileName);
 
-      const fileExists = await fs.access(generated.filePath).then(() => true).catch(() => false);
+      const fileExists = await fs.access(generated.filePath!).then(() => true).catch(() => false);
       expect(fileExists).toBe(false);
     });
 

@@ -2,16 +2,16 @@
  * Шаблон отчёта диагностики OBD-II
  */
 
-import { DiagnosticsReport } from '../types/index.js';
-import { generateBaseStyles } from '../styles/base.js';
-import { colors } from '../styles/design-tokens.js';
+import { DiagnosticsReport } from '../types/index';
+import { generateBaseStyles } from '../styles/base';
+import { colors } from '../styles/design-tokens';
 import {
   formatTimestamp,
   formatDuration,
   formatPrice,
   escapeHtml,
   maskVIN,
-} from '../utils/formatters.js';
+} from '../utils/formatters';
 import {
   logoSVG,
   obdAdapterSVG,
@@ -20,7 +20,7 @@ import {
   warningIconSVG,
   errorIconSVG,
   infoIconSVG,
-} from '../components/svg-icons.js';
+} from '../components/svg-icons';
 
 /**
  * Генерирует HTML для отчёта диагностики OBD-II

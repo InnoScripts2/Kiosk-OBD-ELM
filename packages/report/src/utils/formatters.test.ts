@@ -19,7 +19,7 @@ import {
   determineZoneStatus,
   generateRecommendation,
   generateDiagnosticsRecommendation,
-} from '../utils/formatters';
+} from './formatters';
 
 describe('Formatters', () => {
   describe('formatTimestamp', () => {
