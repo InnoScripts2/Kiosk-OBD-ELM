@@ -89,10 +89,46 @@
    - ⚠️ BLOCKER: Android build по-прежнему недоступен (AGP 8.4.1 не в зеркалах)
    - **Статус**: Завершено, Node/TS готов, Android требует Maven доступа
    - **Метрики**: 32 файла, ~20,300 строк, 17 тестов
-9. Очистить артефакты (`node_modules`, `dist`, `build`), подготовить список зависимостей к портированию.
-9. Настроить CI bootstrap: `./gradlew lint test assembleDebug` с кешированием.
-10. Перенести icon-gen, shared scripts в `android/tools/`, задокументировать использование.
-11. Ретро: формализовать риски, утвердить план роста веса APK.
+9. **[ВЫПОЛНЕНО 23.11.2025]** Сессия 09: Arduino интеграция и полевая готовность:
+   - ✅ Создан Arduino скрипт dispencer.ino (327 строк):
+     - Управление замками через Serial (9600 baud)
+     - Команды: OPEN_THICKNESS, OPEN_OBD, CLOSE_*, STATUS, PING
+     - Безопасность: watchdog (60s), auto-close (10s), таймауты (5s)
+     - Обратная связь через датчики положения
+   - ✅ Документация ARDUINO_DISPENCER_README.md (310 строк):
+     - Схема подключения пинов
+     - Протокол связи
+     - Требования к оборудованию
+     - Диагностика и тестирование
+   - ✅ ArduinoAdapter.ts (313 строк):
+     - Serial протокол через serialport
+     - Event-based архитектура
+     - Heartbeat (30s) и auto-reconnect
+     - Парсинг всех типов ответов
+   - ✅ LockController.ts обновлён (275 строк):
+     - Интеграция с ArduinoAdapter
+     - Mock mode для разработки
+     - Retry логика (3 попытки)
+     - Логирование в файлы
+   - ✅ BleThicknessDevice.kt (310 строк):
+     - Полная BLE реализация
+     - Поддержка ASCII и Binary форматов
+     - Device scanning и connection
+     - Flow API для real-time измерений
+   - ✅ ThicknessMeasurementStateMachine.kt (190 строк):
+     - 6 состояний: Idle, Connecting, Ready, Measuring, Completed, Error
+     - Event-driven transitions
+     - Progress tracking (N из 60)
+   - ✅ Тесты: ArduinoAdapter (9), LockController (9) - все зелёные ✅
+   - ✅ Зависимости: serialport@12.0.0, @serialport/parser-readline@12.0.0
+   - ⚠️ Android unit-тесты не созданы (требуется Robolectric)
+   - ⚠️ UI компоненты не начаты (time constraints)
+   - **Статус**: Завершено, Arduino интеграция готова
+   - **Метрики**: 10 файлов, ~2,455 строк, 18 тестов
+10. Очистить артефакты (`node_modules`, `dist`, `build`), подготовить список зависимостей к портированию.
+10. Настроить CI bootstrap: `./gradlew lint test assembleDebug` с кешированием.
+11. Перенести icon-gen, shared scripts в `android/tools/`, задокументировать использование.
+12. Ретро: формализовать риски, утвердить план роста веса APK.
 
 ### Фаза B — Диагностика 2.0 и нативные каналы (11–20)
 11. Спроектировать Kotlin-аналоги команд/данных из `modules/device/obd/andr` в `feature-obd-core`.
