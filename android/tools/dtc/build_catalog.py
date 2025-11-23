@@ -9,6 +9,7 @@ import re
 import sys
 from collections import defaultdict
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, List, Tuple
 
@@ -198,6 +199,18 @@ def main() -> None:
         help="Output path for manufacturer catalog",
     )
     parser.add_argument(
+        "--version-out",
+        type=Path,
+        default=android_dir / "platform" / "data" / "src" / "main" / "assets" / "catalog_version.json",
+        help="Output path for catalog version metadata",
+    )
+    parser.add_argument(
+        "--version",
+        type=str,
+        default="1.0.0",
+        help="Catalog version (default: 1.0.0)",
+    )
+    parser.add_argument(
         "--verbose",
         "-v",
         action="store_true",
@@ -257,6 +270,28 @@ def main() -> None:
 
     logger.info(f"Writing manufacturer catalog to {args.manufacturer_out}")
     write_json(args.manufacturer_out, manufacturer_catalog)
+
+    # Generate version metadata
+    logger.info(f"Generating catalog version metadata to {args.version_out}")
+    manufacturer_dirs = [
+        child.name
+        for child in args.base.iterdir()
+        if child.is_dir() and any(child.name.startswith(prefix) for prefix in SUPPORTED_MANUFACTURER_DIRS)
+    ]
+    
+    version_metadata = {
+        "version": args.version,
+        "build_timestamp": datetime.now(timezone.utc).isoformat(),
+        "generic_entries": len(generic_entries),
+        "manufacturer_entries": manufacturer_count,
+        "manufacturers": sorted(manufacturer_catalog.keys()),
+        "sources": {
+            "csharp_catalog": str(csharp_path.relative_to(android_dir)),
+            "dtc_mapping": str(dtcmapping_path.relative_to(android_dir)),
+            "manufacturer_directories": sorted(manufacturer_dirs),
+        },
+    }
+    write_json(args.version_out, version_metadata)
 
     logger.info("DTC catalog generation completed successfully")
     print(
