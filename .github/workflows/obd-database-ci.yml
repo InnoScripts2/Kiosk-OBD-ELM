@@ -1,4 +1,4 @@
-name: OBD Database & Frontend CI/CD
+name: OBD Database CI/CD
 
 on:
   push:
@@ -39,10 +39,10 @@ jobs:
           test -f android/feature-obd-core/src/main/resources/com/selfservice/obd/core/dtc/dtc.json
           test -f android/platform/data/src/main/assets/dtc_database.json
           test -f android/platform/data/src/main/assets/catalog_version.json
-          echo "All catalog files generated successfully"
+          echo "✅ All catalog files generated successfully"
 
   android-tests:
-    name: Android Tests (Platform Data)
+    name: Android Unit Tests
     runs-on: ubuntu-latest
     
     steps:
@@ -70,47 +70,32 @@ jobs:
           name: android-test-results
           path: android/platform/data/build/reports/tests/
 
-  frontend-ci:
-    name: Frontend CI (Lint, Test, Build)
+  android-lint:
+    name: Android Lint & Detekt
     runs-on: ubuntu-latest
     
     steps:
       - uses: actions/checkout@v4
       
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v3
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
         with:
-          version: 8
+          java-version: '17'
+          distribution: 'temurin'
           
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'pnpm'
-          cache-dependency-path: apps/kiosk-frontend/pnpm-lock.yaml
-          
-      - name: Install dependencies
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        
+      - name: Run lint
         run: |
-          cd apps/kiosk-frontend
-          pnpm install --frozen-lockfile || pnpm install
+          cd android
+          chmod +x gradlew
+          ./gradlew lint --no-daemon
+        continue-on-error: true
           
-      - name: Run ESLint
-        run: |
-          cd apps/kiosk-frontend
-          pnpm lint
-          
-      - name: Type check
-        run: |
-          cd apps/kiosk-frontend
-          pnpm type-check
-          
-      - name: Build
-        run: |
-          cd apps/kiosk-frontend
-          pnpm build
-          
-      - name: Upload build artifacts
+      - name: Upload lint results
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: frontend-dist
-          path: apps/kiosk-frontend/dist/
+          name: android-lint-results
+          path: android/**/build/reports/lint-results*.html

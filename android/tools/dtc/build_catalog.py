@@ -279,6 +279,17 @@ def main() -> None:
         if child.is_dir() and any(child.name.startswith(prefix) for prefix in SUPPORTED_MANUFACTURER_DIRS)
     ]
     
+    # Safely get relative paths
+    try:
+        csharp_rel = str(csharp_path.relative_to(android_dir))
+    except ValueError:
+        csharp_rel = str(csharp_path)
+    
+    try:
+        dtcmapping_rel = str(dtcmapping_path.relative_to(android_dir))
+    except ValueError:
+        dtcmapping_rel = str(dtcmapping_path)
+    
     version_metadata = {
         "version": args.version,
         "build_timestamp": datetime.now(timezone.utc).isoformat(),
@@ -286,8 +297,8 @@ def main() -> None:
         "manufacturer_entries": manufacturer_count,
         "manufacturers": sorted(manufacturer_catalog.keys()),
         "sources": {
-            "csharp_catalog": str(csharp_path.relative_to(android_dir)),
-            "dtc_mapping": str(dtcmapping_path.relative_to(android_dir)),
+            "csharp_catalog": csharp_rel,
+            "dtc_mapping": dtcmapping_rel,
             "manufacturer_directories": sorted(manufacturer_dirs),
         },
     }
