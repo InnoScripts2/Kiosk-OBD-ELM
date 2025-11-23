@@ -79,6 +79,9 @@ head -30 AndroidOBD-main/AndroidOBD-main/obd/src/main/assets/dtc-codes.json
 - `BleDeviceData` → `BleDevice`
 - `BleScannerConfigData` → `BleScannerConfig`
 
+**Исправления Session 07**:
+- rssi теперь передаётся через BleDevice (не через BleScanResult)
+
 ### 3. BleScannerIntegrationTest.kt
 **Путь**: `android/platform/bluetooth/src/test/kotlin/com/selfservice/platform/bluetooth/`  
 **Строк**: 95  
@@ -91,6 +94,19 @@ head -30 AndroidOBD-main/AndroidOBD-main/obd/src/main/assets/dtc-codes.json
 - ✅ BleDeviceData empty name handling
 - ✅ Service UUIDs preservation
 - ✅ Timestamp correctness
+
+### 4. BlessedBleScannerDataMappingTest.kt [НОВОЕ Session 07]
+**Путь**: `android/platform/bluetooth/src/test/kotlin/com/selfservice/platform/bluetooth/`  
+**Строк**: 130  
+**Тестов**: 6
+
+**Покрытие**:
+- ✅ Mapping BleDeviceData → BleDevice с сохранением address
+- ✅ Обработка null/empty device name
+- ✅ Полное сохранение полей при маппинге BleScanResult
+- ✅ Корректность конфигурации BleScannerConfig
+- ✅ Обработка пустого списка service UUIDs
+- ✅ Сохранение диапазона значений rssi (-90 до -40)
 
 ## Изменённые файлы
 
@@ -190,6 +206,15 @@ dependencies {
 | BlessedBleScanner.kt | 103 | 4 | 3 | Low |
 | BlessedBleScannerAdapter.kt | 43 | 1 | 3 | Low |
 | BleScannerIntegrationTest.kt | 95 | 1 | 6 | Low |
+| BlessedBleScannerDataMappingTest.kt | 130 | 1 | 6 | Low |
+
+### Итого Session 07
+- **Новых файлов**: 4 (3 в основной итерации + 1 доп. тест)
+- **Изменённых файлов**: 4 (2 build.gradle.kts + 2 планов)
+- **Всего затронуто**: 8 файлов
+- **Строк кода**: ~370 новых строк + ~40 исправлений
+- **Unit-тестов**: 12 (6 + 6)
+- **Квота А**: 8/100 файлов ✅, ~410/30,000 строк ✅
 
 ### Dependencies
 ```

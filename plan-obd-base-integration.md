@@ -78,9 +78,17 @@
 3. ~~Интегрировать BleConnectionManager с ObdConnectionManager в feature-obd-core~~
 4. ~~Адаптировать Kable компоненты для Android (выбрать androidMain/jvmMain)~~
 5. ~~Добавить DI (Hilt/Koin) для BLE менеджеров~~
-6. **[ЗАВЕРШЕНО Session 07]** Создан интеграционный слой:
-   - BlessedBleScanner - нативная реализация на blessed-kotlin
-   - BlessedBleScannerAdapter - мост между platform и feature-obd-core
-   - Обновлены зависимости: platform-bluetooth → feature-obd-core
-   - Добавлены unit-тесты для BleScannerIntegration
-7. Реплицировать `kiosk-frontend` в `apps/` и начать полировку UI.
+6. **[ЗАВЕРШЕНО Session 07 - 23.11.2025]** Создан интеграционный слой:
+   - ✅ BlessedBleScanner (103 строки) - нативная реализация на blessed-kotlin с Flow API
+   - ✅ BlessedBleScannerAdapter (43 строки) - мост между platform и feature-obd-core
+   - ✅ Обновлены зависимости: platform-bluetooth → feature-obd-core (api dependency)
+   - ✅ Добавлены unit-тесты для BleScannerIntegration (6 тестов, 95 строк)
+   - ✅ blessed-kotlin интегрирован через sourceSets в build.gradle.kts
+   - ✅ Исправлена передача rssi через BleDevice (rssi теперь в device, не в result)
+   - ✅ Локализация DTC/PID проверена и подтверждена (все файлы на русском)
+   - **Квота**: Вариант А (6/100 файлов, ~300/30,000 строк)
+7. **[TODO Session 08+]** DI интеграция и тестирование:
+   - Добавить Koin/Hilt модули для BlessedBleScannerAdapter
+   - Интегрировать с ObdConnectionManager
+   - E2E тесты для BLE сканирования
+8. Реплицировать `kiosk-frontend` в `apps/` и начать полировку UI.

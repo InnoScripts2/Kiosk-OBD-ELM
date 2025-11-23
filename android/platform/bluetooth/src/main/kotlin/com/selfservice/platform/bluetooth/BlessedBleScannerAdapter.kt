@@ -22,9 +22,9 @@ class BlessedBleScannerAdapter(
         BleScanResult(
             device = BleDevice(
                 address = blessedResult.device.address,
-                name = blessedResult.device.name
+                name = blessedResult.device.name,
+                rssi = blessedResult.rssi
             ),
-            rssi = blessedResult.rssi,
             serviceUuids = blessedResult.serviceUuids,
             seenAtMillis = blessedResult.seenAtMillis
         )
