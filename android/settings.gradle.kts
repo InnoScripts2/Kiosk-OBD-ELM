@@ -27,7 +27,6 @@ val modules = listOf(
     ":feature-obd-ui",
     ":feature-payments",
     ":feature-reports",
-    ":platform-background",
     ":platform-data",
     ":platform-logging",
     ":platform-bluetooth"
