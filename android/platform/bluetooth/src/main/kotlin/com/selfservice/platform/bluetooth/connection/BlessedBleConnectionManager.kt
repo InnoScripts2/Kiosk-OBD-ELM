@@ -15,6 +15,7 @@ import com.welie.blessed.ConnectionPriority
 import com.welie.blessed.GattStatus
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.*
@@ -189,7 +190,9 @@ class BlessedBleConnectionManager(
         emitEvent(ConnectionEvent.Connecting(device))
         
         try {
-            withTimeout(timeout) {
+            // Use config timeout (5s for connection)
+            val connectionTimeout = minOf(timeout, 5_000L)
+            withTimeout(connectionTimeout) {
                 suspendCancellableCoroutine<Unit> { continuation ->
                     val peripheral = centralManager?.getPeripheral(device.address)
                     if (peripheral == null) {
@@ -205,8 +208,8 @@ class BlessedBleConnectionManager(
                     // Подключение выполняется асинхронно через callback
                     centralManager?.connectPeripheral(peripheral, peripheralCallback)
                     
-                    // Ждем изменения состояния
-                    val job = kotlinx.coroutines.GlobalScope.launch {
+                    // Ждем изменения состояния в scope
+                    val job = scope.launch {
                         connectionState.first { it == BleConnectionState.CONNECTED }
                         continuation.resume(Unit)
                     }
@@ -341,18 +344,51 @@ class BlessedBleConnectionManager(
     }
     
     override fun release() {
+        // Cancel reconnect job to prevent deadlock
+        reconnectJob?.cancel()
+        reconnectJob = null
+        
         currentPeripheral = null
         centralManager?.close()
         centralManager = null
         stateMachine.reset()
+        
+        // Cancel scope last to allow cleanup
         scope.cancel()
     }
     
+    private var reconnectJob: Job? = null
+    
     private fun scheduleReconnect(device: BleDevice) {
+        // Guard: cancel previous reconnect attempt
+        reconnectJob?.cancel()
+        reconnectJob = null
+        
         reconnectAttempts++
         logVerbose("Планирование переподключения (попытка $reconnectAttempts/${config.maxReconnectAttempts})")
         
-        // TODO: implement reconnect scheduling with delay
+        // Guard: check if already cancelled or max attempts reached
+        if (reconnectAttempts > config.maxReconnectAttempts) {
+            logError("Превышено максимальное число попыток переподключения")
+            return
+        }
+        
+        // Exponential backoff: 1s, 2s, 4s, 8s, 16s
+        val delayMs = minOf(1000L * (1 shl (reconnectAttempts - 1)), 16_000L)
+        
+        reconnectJob = scope.launch {
+            try {
+                kotlinx.coroutines.delay(delayMs)
+                // Guard: check state before reconnecting
+                if (_connectionState.value == BleConnectionState.DISCONNECTED) {
+                    connect(device, autoReconnect = true, timeout = 5_000L)
+                }
+            } catch (e: Exception) {
+                logError("Ошибка при переподключении: ${e.message}")
+            } finally {
+                reconnectJob = null
+            }
+        }
     }
     
     private fun emitEvent(event: ConnectionEvent) {
