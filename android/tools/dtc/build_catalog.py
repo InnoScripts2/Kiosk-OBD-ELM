@@ -4,11 +4,21 @@ from __future__ import annotations
 
 import argparse
 import json
+import logging
 import re
+import sys
 from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Tuple
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
+logger = logging.getLogger(__name__)
 
 CODE_RE = re.compile(r"\b([PCBUpcbu][0-9A-Fa-f]{4})\b")
 CATEGORY_RE = re.compile(r"\[Category\(Categories\.(?P<category>\w+)\),\s*Description\(\"(?P<description>[^\"]+)\"\)\]")
@@ -187,22 +197,51 @@ def main() -> None:
         default=android_dir / "platform" / "data" / "src" / "main" / "assets" / "dtc_database.json",
         help="Output path for manufacturer catalog",
     )
+    parser.add_argument(
+        "--verbose",
+        "-v",
+        action="store_true",
+        help="Enable verbose logging",
+    )
     args = parser.parse_args()
+
+    if args.verbose:
+        logger.setLevel(logging.DEBUG)
+
+    logger.info("Starting DTC catalog generation")
+    logger.info(f"Base directory: {args.base}")
 
     csharp_path = args.base / "OBDII.DTC-main" / "DTC.cs"
     dtcmapping_path = args.base / "dtcmapping.json"
 
     if not csharp_path.exists():
+        logger.error(f"Missing C# catalog at {csharp_path}")
         raise FileNotFoundError(f"Missing C# catalog at {csharp_path}")
     if not dtcmapping_path.exists():
+        logger.error(f"Missing dtcmapping at {dtcmapping_path}")
         raise FileNotFoundError(f"Missing dtcmapping at {dtcmapping_path}")
 
+    logger.info(f"Parsing C# catalog from {csharp_path}")
     generic_primary = parse_csharp_catalog(csharp_path)
+    logger.info(f"Parsed {len(generic_primary)} entries from C# catalog")
+
+    logger.info(f"Loading dtcmapping from {dtcmapping_path}")
     dtcmapping = load_dtcmapping(dtcmapping_path)
+    logger.info(f"Loaded {len(dtcmapping)} entries from dtcmapping.json")
+
+    logger.info("Merging generic entries")
     generic_entries = merge_generic_entries(generic_primary, dtcmapping)
+    logger.info(f"Total generic entries after merge: {len(generic_entries)}")
 
+    logger.info(f"Building manufacturer catalog from {args.base}")
     manufacturer_catalog = build_manufacturer_catalog(args.base)
+    manufacturer_count = sum(len(v) for v in manufacturer_catalog.values())
+    logger.info(
+        f"Built manufacturer catalog with {len(manufacturer_catalog)} manufacturers "
+        f"and {manufacturer_count} total entries"
+    )
 
+    logger.info(f"Writing generic catalog to {args.generic_out}")
     write_json(
         args.generic_out,
         [
@@ -215,8 +254,11 @@ def main() -> None:
             for entry in generic_entries
         ],
     )
+
+    logger.info(f"Writing manufacturer catalog to {args.manufacturer_out}")
     write_json(args.manufacturer_out, manufacturer_catalog)
 
+    logger.info("DTC catalog generation completed successfully")
     print(
         f"Generated {len(generic_entries)} generic entries and "
         f"{sum(len(v) for v in manufacturer_catalog.values())} manufacturer entries",
@@ -224,4 +266,8 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        logger.error(f"Failed to generate DTC catalogs: {e}", exc_info=True)
+        sys.exit(1)
