@@ -299,3 +299,16 @@
 
 ### Статус фаз
 - Фаза A (1–10) — в работе, сессии 1–9 завершены, сессии 10–14 в активном исполнении
+
+## Обновления Session 11 (23.11.2025)
+
+**Сессия 11**: Миграция вспомогательных сервисов (Node.js → Kotlin)
+- ✅ Инвентаризация Node.js агента (4 сервиса: ArduinoAdapter, LockController, PaymentService, ReportService)
+- ✅ Документация `docs/migration/agent-to-kotlin.md` (650+ строк)
+- ✅ Создан модуль `feature-lock-control` (11 файлов, ~1450 строк, 32 теста)
+- ✅ Обнаружен существующий `feature-payments` (Session 06-07, полная реализация)
+- ✅ Создан интерфейс `ReportService` (sealed class Report, interface methods)
+- ⚠️ Не выполнено: ReportService реализация, device bridges, UI integration
+- ⚠️ AGP 8.4.1 блокер: Google Maven недоступен
+- **Готовность**: 60% (Session 10: 55% → Session 11: 60%)
+
