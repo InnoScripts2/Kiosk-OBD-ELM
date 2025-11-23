@@ -3,11 +3,10 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
-    namespace = "com.selfservice.obd.core"
+    namespace = "com.selfservice.platform.bluetooth"
     compileSdk = 34
 
     defaultConfig {
@@ -28,13 +27,9 @@ android {
 }
 
 dependencies {
-    api(project(":core"))
-    implementation(project(":platform-data"))
+    implementation(libs.androidx.core.ktx)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
-    implementation(libs.kotlinxSerializationJson)
-    implementation(libs.org.json)
     testImplementation(libs.kotlin.test)
     testImplementation(libs.kotlinx.coroutines.test)
-    testImplementation(libs.mockito.core)
 }
