@@ -61,6 +61,14 @@
    - Созданы интеграционные обёртки: BleConnectionManager, ObdBleAdapter
    - Добавлены unit-тесты для моделей данных
    - **Статус**: В процессе (требуется DI-интеграция с feature-obd-core)
+7. **[ВЫПОЛНЕНО 23.11.2025]** Сессия 07: BLE/OBD интеграция и локализация:
+   - ✅ Интегрирован blessed-kotlin в platform-bluetooth через sourceSets
+   - ✅ Создан BlessedBleScanner с поддержкой Flow API
+   - ✅ Создан BlessedBleScannerAdapter для интеграции с feature-obd-core
+   - ✅ Добавлена зависимость platform-bluetooth в feature-obd-core
+   - ✅ Проверена локализация DTC/PID (уже переведены на русский)
+   - ✅ Добавлены unit-тесты для интеграционного слоя
+   - **Статус**: Завершено основное, требуется тестирование сборки
 7. Очистить артефакты (`node_modules`, `dist`, `build`), подготовить список зависимостей к портированию.
 8. Настроить CI bootstrap: `./gradlew lint test assembleDebug` с кешированием.
 9. Перенести icon-gen, shared scripts в `android/tools/`, задокументировать использование.

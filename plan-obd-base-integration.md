@@ -75,7 +75,12 @@
 ### Следующие шаги
 1. ~~Реализовать утилиту `build_catalog.py` + минимальные тесты.~~
 2. ~~Настроить Gradle-таску генерации данных и обновить assets.~~
-3. Интегрировать BleConnectionManager с ObdConnectionManager в feature-obd-core
-4. Адаптировать Kable компоненты для Android (выбрать androidMain/jvmMain)
-5. Добавить DI (Hilt/Koin) для BLE менеджеров
-6. Реплицировать `kiosk-frontend` в `apps/` и начать полировку UI.
+3. ~~Интегрировать BleConnectionManager с ObdConnectionManager в feature-obd-core~~
+4. ~~Адаптировать Kable компоненты для Android (выбрать androidMain/jvmMain)~~
+5. ~~Добавить DI (Hilt/Koin) для BLE менеджеров~~
+6. **[ЗАВЕРШЕНО Session 07]** Создан интеграционный слой:
+   - BlessedBleScanner - нативная реализация на blessed-kotlin
+   - BlessedBleScannerAdapter - мост между platform и feature-obd-core
+   - Обновлены зависимости: platform-bluetooth → feature-obd-core
+   - Добавлены unit-тесты для BleScannerIntegration
+7. Реплицировать `kiosk-frontend` в `apps/` и начать полировку UI.
