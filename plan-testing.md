@@ -1,5 +1,158 @@
 # План тестирования — контрольные листы
 
+**Дата**: Обновлено 23.11.2025 (Session 1G)  
+**Версия**: 1.1
+
+## Оглавление
+1. [Smoke-тесты DEV-окружения](#smoke-тесты-dev-окружения)
+2. [Сессия 19 — генерация отчётов диагностики](#сессия-19--генерация-отчётов-диагностики)
+3. [Сессия 21 — Edge cache и оффлайн синхронизация](#сессия-21--edge-cache-и-оффлайн-синхронизация)
+4. [Сессия 22 — платёжный шлюз и аудит](#сессия-22--платёжный-шлюз-и-аудит)
+5. [Сессии 31–33 — подготовка к полевым тестам](#сессии-3133--подготовка-к-полевым-тестам-uiobdelm)
+
+---
+
+## Smoke-тесты DEV-окружения
+
+**Обновлено**: 23.11.2025 (Session 1G)
+
+### Цель
+Быстрая валидация основной функциональности без реальных устройств и платежей. Подходит для CI и локальной разработки.
+
+### Предварительные условия
+1. Создать файл `.env` на базе `.env.example`
+2. Установить флаги DEV-режима:
+   ```bash
+   APP_MODE=DEV
+   PAYMENT_MOCK=true
+   DEVICE_MOCK_OBD=true
+   DEVICE_MOCK_THICKNESS=true
+   EMAIL_PROVIDER=MOCK
+   SMS_PROVIDER=MOCK
+   ```
+3. Убедиться, что зависимости установлены:
+   ```bash
+   # Node.js компоненты
+   npm --prefix 03-apps/02-application/kiosk-shell/agent install
+   npm --prefix packages/report install
+   npm --prefix packages/device-obd install
+   npm --prefix packages/device-thickness install
+   
+   # Android (когда AGP 8.4.1 станет доступен)
+   cd android && ./gradlew clean build
+   ```
+
+### Node.js Agent Smoke
+
+**Команды**:
+```bash
+# Линтинг
+npm --prefix 03-apps/02-application/kiosk-shell/agent run lint
+
+# Все тесты
+npm --prefix 03-apps/02-application/kiosk-shell/agent test
+
+# Быстрый smoke (основные сервисы)
+npm --prefix 03-apps/02-application/kiosk-shell/agent test -- --test-name-pattern "ArduinoAdapter|LockController|PaymentService|ReportService"
+```
+
+**Ожидаемый результат**:
+- Линтинг: 0 ошибок, 0 warnings
+- Тесты: все зелёные (46/46 для Session 21+)
+- Время выполнения: < 60 сек
+
+**Что проверяется**:
+- ✅ Arduino Serial протокол (OPEN_*/CLOSE_*/STATUS/PING)
+- ✅ Lock контроллер (выдача устройств, моки)
+- ✅ Payment service (dev симуляция QR, confirmPayment)
+- ✅ Report service (HTML/PDF генерация, delivery моки)
+
+### Android Unit Tests Smoke
+
+**Команды** (когда AGP 8.4.1 доступен):
+```bash
+cd android
+
+# Быстрый smoke основных модулей
+./gradlew :core:testDebugUnitTest \
+          :feature-obd-core:testDebugUnitTest \
+          :feature-obd-elm-port:testDebugUnitTest \
+          :feature-lock-control:testDebugUnitTest \
+          :feature-payments:testDebugUnitTest \
+          :feature-reports:testDebugUnitTest \
+          --parallel
+
+# Полный прогон (без instrumented)
+./gradlew test --parallel
+```
+
+**Ожидаемый результат**:
+- Все unit-тесты зелёные (300+ тестов для Session 12+)
+- Время выполнения: < 5 минут
+- APK size check: ≥ 5.63 MB (Session 12 baseline)
+
+**Что проверяется**:
+- ✅ BLE сканер и connection manager
+- ✅ OBD протокол (ELM327, ISO-TP, DTC parsing)
+- ✅ Lock control через USB Serial
+- ✅ Payment intents (AES-256 шифрование, dev/prod разделение)
+- ✅ Report генераторы (HTML, PDF, checksums)
+
+### Packages Smoke
+
+**Команды**:
+```bash
+# device-obd
+npm --prefix packages/device-obd test
+
+# device-thickness
+npm --prefix packages/device-thickness test
+
+# report
+npm --prefix packages/report test
+```
+
+**Ожидаемый результат**:
+- Все тесты зелёные
+- Время выполнения: < 30 сек
+- Coverage: ≥ 70% (unit-tests)
+
+### UI Navigation Smoke (Manual)
+
+**Процедура**:
+1. Запустить Android приложение в эмуляторе (когда доступно):
+   ```bash
+   cd android
+   ./gradlew :app:installDebug
+   adb shell am start -n com.selfservice.kiosk/.MainActivity
+   ```
+2. Пройти по экранам с кнопкой "Пропустить" (DEV-only):
+   - Attract Screen → Welcome Screen → Service Selection
+   - Толщиномер: Input → QR Payment (имитация) → Device Prep → Instructions → Measurements (mock) → Results → Report Sent
+   - Диагностика: Input → QR Payment (имитация) → Adapter Prep → Scanning (mock) → Results → Paywall → Details → Report → Report Sent
+3. Проверить автосброс (5 минут бездействия → Attract Screen)
+
+**Ожидаемый результат**:
+- Все экраны доступны без краша
+- Кнопка "Пропустить" видна в правом верхнем углу
+- Mock данные генерируются корректно (60 замеров толщиномера, 2-3 DTC коды)
+- Таймауты работают (переход на Attract после 5 мин)
+
+### Checklist DEV Smoke
+
+- [ ] Node.js agent lint clean (0 errors)
+- [ ] Node.js agent tests green (46/46)
+- [ ] Android unit tests green (300+) *(когда AGP 8.4.1)*
+- [ ] Packages tests green (device-obd, device-thickness, report)
+- [ ] UI navigation complete (все экраны проходимы)
+- [ ] Mock устройства работают (толщиномер, OBD)
+- [ ] Mock платежи работают (имитация QR)
+- [ ] Mock отчёты генерируются (HTML/PDF)
+- [ ] Авто-сброс работает (5 мин → Attract)
+- [ ] Логи пишутся в `logs/sessions/`, `logs/issues/`
+
+---
+
 ## Сессия 19 — генерация отчётов диагностики
 
 - [x] Обновить контроль очереди Supabase для отчётов диагностики (см. `05-integrations/02-application/supabase/control-reports/supabase-diagnostics-report-deliveries-control.session19.md`).
@@ -39,7 +192,7 @@
 
 **Цель цикла:** получить полевой билд, в котором UI диагностических экранов, стек OBD-II и ELM327-транспорт проходят smoke без ADB/IDE и имеют понятные инструкции для инженеров.
 
-### Сессия 31 *(текущая — планирование и гейты)*
+## Сессия 31 *(текущая — планирование и гейты)*
 - Зафиксировать чек-лист готовности UI/OBD/ELM (гейты: diag overlay, PID каталоги, ELM snapshot tooling).
 - Обновить `plan-testing.md` и `session-logs/session-30.md` ссылками на новые инструменты (`ElmPidSnapshotGenerator`, Mode 09 payload parity, DTC проверки).
 - Подтвердить, что unit-тесты `:feature-obd-core:testDebugUnitTest` и `:feature-obd-elm-port:testDebugUnitTest` служат минимальным быстрым smoke перед любыми полевыми выездами.
