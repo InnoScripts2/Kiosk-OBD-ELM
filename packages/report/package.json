@@ -1,0 +1,22 @@
+{
+  "name": "@kiosk/report",
+  "version": "1.0.0",
+  "description": "Report generation and delivery (HTML/PDF, Email/SMS)",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest"
+  },
+  "keywords": ["report", "pdf", "html", "email", "sms"],
+  "author": "InnoScripts2",
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0",
+    "jest": "^29.0.0",
+    "@types/jest": "^29.0.0",
+    "ts-jest": "^29.0.0"
+  }
+}

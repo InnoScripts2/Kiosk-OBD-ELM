@@ -10,3 +10,19 @@ archives/android-kiosk-legacy/kiosk-release.keystore
 __pycache__/
 **/__pycache__/
 .pytest_cache/
+
+# Logs (keep structure, ignore content)
+logs/sessions/*.log
+logs/sessions/*.json
+logs/issues/*.json
+!logs/sessions/README.md
+!logs/issues/README.md
+
+# Build artifacts
+dist/
+*.log
+npm-debug.log*
+coverage/
+
+# Environment
+.env.local
