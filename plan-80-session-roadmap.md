@@ -55,7 +55,12 @@
 3. Перенести `app` модуль в `android/app`, настроить namespace, базовый UI и build-types.
 4. Сформировать `android/core` с общими util, конфигурациями Kotlin, менеджером окружений.
 5. Вынести BLE-логику (`BleReconnectCoordinator`, `BleSessionStateMachine`) в `feature-obd-core` и провести unit-тесты.
-6. Архивировать/переместить не-Android каталоги через `session-05-archive-plan.ps1`, зафиксировать dry-run и итоговую матрицу.
+6. **[ВЫПОЛНЕНО 23.11.2025]** Перенос BLE доноров (рес 4, рес 6) в platform/bluetooth:
+   - Скопировано blessed-kotlin (25 файлов, ~5,800 строк)
+   - Скопировано Kable multiplatform BLE stack (207 файлов, ~18,000 строк)
+   - Созданы интеграционные обёртки: BleConnectionManager, ObdBleAdapter
+   - Добавлены unit-тесты для моделей данных
+   - **Статус**: В процессе (требуется DI-интеграция с feature-obd-core)
 7. Очистить артефакты (`node_modules`, `dist`, `build`), подготовить список зависимостей к портированию.
 8. Настроить CI bootstrap: `./gradlew lint test assembleDebug` с кешированием.
 9. Перенести icon-gen, shared scripts в `android/tools/`, задокументировать использование.

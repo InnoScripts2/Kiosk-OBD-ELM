@@ -39,7 +39,43 @@
 - **Размер артефактов**: включить дедупликацию, gzip на Gradle таске, lazy-индексацию.
 - **Фронтенд зависимостей**: фиксировать версии в `package-lock.json`, добавить renovate job.
 
-## Следующие шаги
-1. Реализовать утилиту `build_catalog.py` + минимальные тесты.
-2. Настроить Gradle-таску генерации данных и обновить assets.
-3. Реплицировать `kiosk-frontend` в `apps/` и начать полировку UI.
+## Статус интеграции BLE/OBD компонентов (Session 6)
+
+### Перенесённые компоненты
+1. **blessed-kotlin** (рес 6) → `android/platform/bluetooth/blessed/`
+   - BluetoothCentralManager (1,266 строк) - менеджер BLE-соединений
+   - BluetoothPeripheral (2,084 строк) - представление устройства
+   - BluetoothBytesParser (118 строк) - парсинг байтовых данных
+   - BluetoothBytesBuilder (192 строк) - построение байтовых пакетов
+   - Вспомогательные классы: GattStatus, ConnectionState, ScanMode и др.
+   - **Всего**: 25 основных файлов, ~5,800 строк кода
+
+2. **Kable** (рес 4) → `android/platform/bluetooth/kable-core/`
+   - Multiplatform BLE stack (jvmMain, androidMain, commonMain)
+   - BtleplugPeripheral, BtleplugScanner - JVM-специфичная реализация
+   - Flow-based API для корутин
+   - **Всего**: 207 файлов, ~18,000 строк кода (скопированы, ожидают адаптации)
+
+### Созданные интеграционные слои
+1. **BleConnectionManager** - обёртка над blessed с Flow API
+   - Управление сканированием и подключением
+   - StateFlow для реактивного UI
+   - Список обнаруженных устройств
+
+2. **ObdBleAdapter** - специализированный адаптер для OBD-II
+   - Отправка команд через BLE характеристики
+   - Парсинг OBD ответов
+   - Интеграция с feature-obd-core (планируется)
+
+3. **Unit-тесты** - базовое покрытие моделей данных
+   - BleConnectionStateTest
+   - BleDeviceTest
+   - ObdDataTest
+
+### Следующие шаги
+1. ~~Реализовать утилиту `build_catalog.py` + минимальные тесты.~~
+2. ~~Настроить Gradle-таску генерации данных и обновить assets.~~
+3. Интегрировать BleConnectionManager с ObdConnectionManager в feature-obd-core
+4. Адаптировать Kable компоненты для Android (выбрать androidMain/jvmMain)
+5. Добавить DI (Hilt/Koin) для BLE менеджеров
+6. Реплицировать `kiosk-frontend` в `apps/` и начать полировку UI.
