@@ -29,9 +29,11 @@ val modules = listOf(
     ":feature-reports",
     ":platform-background",
     ":platform-data",
-    ":platform-logging"
+    ":platform-logging",
+    ":platform-bluetooth"
 )
 modules.forEach { include(it) }
 
 project(":platform-data").projectDir = file("platform/data")
 project(":platform-logging").projectDir = file("platform/logging")
+project(":platform-bluetooth").projectDir = file("platform/bluetooth")
