@@ -2,7 +2,7 @@
   {
     "mode": "0x01",
     "pid": "0x01",
-    "label": "Monitor status since DTCs cleared",
+    "label": "Статус монитора после сброса кодов DTC",
     "pollIntervalMs": 15000,
     "notes": "SAE J1979-DA Table A-2; Dataset: AndroidOBD",
     "min": 0,
@@ -12,7 +12,7 @@
   {
     "mode": "0x01",
     "pid": "0x04",
-    "label": "Calculated engine load",
+    "label": "Расчётная нагрузка двигателя",
     "unit": "percent",
     "conversion": "PERCENT_FROM_A",
     "min": 0,
@@ -24,7 +24,7 @@
   {
     "mode": "0x01",
     "pid": "0x05",
-    "label": "Engine coolant temperature",
+    "label": "Температура охлаждающей жидкости двигателя",
     "unit": "degC",
     "conversion": "TEMP_FROM_A",
     "min": -40,
@@ -36,7 +36,7 @@
   {
     "mode": "0x01",
     "pid": "0x06",
-    "label": "Short term fuel trim - Bank 1",
+    "label": "Кратковременная fuel trim - Ряд 1",
     "unit": "percent",
     "conversion": "FUEL_TRIM_PERCENT",
     "min": -100,
@@ -48,7 +48,7 @@
   {
     "mode": "0x01",
     "pid": "0x07",
-    "label": "Long term fuel trim - Bank 1",
+    "label": "Долговременная fuel trim - Ряд 1",
     "unit": "percent",
     "conversion": "FUEL_TRIM_PERCENT",
     "min": -100,
@@ -60,7 +60,7 @@
   {
     "mode": "0x01",
     "pid": "0x0A",
-    "label": "Fuel pressure",
+    "label": "Давление топлива",
     "unit": "kPa_gauge",
     "min": 0,
     "max": 765,
@@ -71,7 +71,7 @@
   {
     "mode": "0x01",
     "pid": "0x0B",
-    "label": "Intake manifold absolute pressure",
+    "label": "Абсолютное давление во впускном коллекторе",
     "unit": "kPa",
     "conversion": "INTAKE_PRESSURE_KPA",
     "min": 0,
@@ -83,7 +83,7 @@
   {
     "mode": "0x01",
     "pid": "0x0C",
-    "label": "Engine RPM",
+    "label": "Двигатель RPM",
     "unit": "rpm",
     "conversion": "RPM_FROM_AB",
     "min": 0,
@@ -95,7 +95,7 @@
   {
     "mode": "0x01",
     "pid": "0x0D",
-    "label": "Vehicle speed",
+    "label": "Скорость автомобиля",
     "unit": "km_per_h",
     "conversion": "SPEED_FROM_A",
     "min": 0,
@@ -107,7 +107,7 @@
   {
     "mode": "0x01",
     "pid": "0x0E",
-    "label": "Timing advance",
+    "label": "Опережение зажигания",
     "unit": "deg",
     "conversion": "TIMING_ADVANCE_DEG",
     "min": -64,
@@ -119,7 +119,7 @@
   {
     "mode": "0x01",
     "pid": "0x0F",
-    "label": "Intake air temperature",
+    "label": "Температура впускного воздуха",
     "unit": "degC",
     "conversion": "TEMP_FROM_A",
     "min": -40,
@@ -143,7 +143,7 @@
   {
     "mode": "0x01",
     "pid": "0x11",
-    "label": "Throttle position",
+    "label": "Положение дроссельной заслонки",
     "unit": "percent",
     "conversion": "THROTTLE_PERCENT",
     "min": 0,
@@ -167,7 +167,7 @@
   {
     "mode": "0x01",
     "pid": "0x1F",
-    "label": "Run time since engine start",
+    "label": "Время работы после запуска двигателя",
     "unit": "seconds",
     "conversion": "RUN_TIME_SECONDS",
     "min": 0,
@@ -179,7 +179,7 @@
   {
     "mode": "0x01",
     "pid": "0x21",
-    "label": "Distance traveled with MIL on",
+    "label": "Расстояние traveled with Индикатор MIL on",
     "unit": "km",
     "conversion": "DISTANCE_TRAVELED_KM",
     "min": 0,
@@ -191,7 +191,7 @@
   {
     "mode": "0x01",
     "pid": "0x22",
-    "label": "Fuel Rail Pressure (relative to manifold vacuum)",
+    "label": "Топливо Рампа Давление (relative to manifold vacuum)",
     "unit": "kPa",
     "min": 0,
     "max": 5177.265,
@@ -202,7 +202,7 @@
   {
     "mode": "0x01",
     "pid": "0x23",
-    "label": "Fuel Rail Pressure (diesel. or gasoline direct inject)",
+    "label": "Топливо Рампа Давление (diesel. or gasoline direct inject)",
     "unit": "kPa_gauge",
     "min": 0,
     "max": 655.35,
@@ -213,7 +213,7 @@
   {
     "mode": "0x01",
     "pid": "0x2C",
-    "label": "Commanded evaporative purge",
+    "label": "Заданная продувка испарительной системы",
     "unit": "percent",
     "conversion": "EVAP_PURGE_PERCENT",
     "min": 0,
@@ -225,7 +225,7 @@
   {
     "mode": "0x01",
     "pid": "0x2D",
-    "label": "EGR Error",
+    "label": "Ошибка EGR",
     "unit": "percent",
     "min": -100,
     "max": 99.22,
@@ -236,7 +236,7 @@
   {
     "mode": "0x01",
     "pid": "0x2E",
-    "label": "Commanded evaporative purge",
+    "label": "Заданная продувка испарительной системы",
     "unit": "percent",
     "min": 0,
     "max": 100,
@@ -247,7 +247,7 @@
   {
     "mode": "0x01",
     "pid": "0x2F",
-    "label": "Fuel level input",
+    "label": "Топливо level input",
     "unit": "percent",
     "conversion": "FUEL_LEVEL_PERCENT",
     "min": 0,
@@ -269,7 +269,7 @@
   {
     "mode": "0x01",
     "pid": "0x31",
-    "label": "Distance traveled since codes cleared",
+    "label": "Расстояние, пройденное после сброса кодов",
     "unit": "km",
     "min": 0,
     "max": 65.535,
@@ -280,7 +280,7 @@
   {
     "mode": "0x01",
     "pid": "0x32",
-    "label": "Evap. System Vapor Pressure",
+    "label": "Evap. Система Vapor Давление",
     "unit": "pa",
     "min": -8.192,
     "max": 8.192,
@@ -291,7 +291,7 @@
   {
     "mode": "0x01",
     "pid": "0x33",
-    "label": "Barometric pressure",
+    "label": "Барометрическое pressure",
     "unit": "kPa",
     "conversion": "BAROMETRIC_PRESSURE_KPA",
     "min": 0,
@@ -383,7 +383,7 @@
   {
     "mode": "0x01",
     "pid": "0x3C",
-    "label": "Catalyst temperature (bank 1 sensor 1)",
+    "label": "Катализатор temperature (bank 1 sensor 1)",
     "unit": "degC",
     "conversion": "CATALYST_TEMP_DEGC",
     "min": -40,
@@ -395,7 +395,7 @@
   {
     "mode": "0x01",
     "pid": "0x3D",
-    "label": "Catalyst Temperature Bank 2 Sensor 1",
+    "label": "Катализатор Температура Ряд 2 Датчик 1",
     "unit": "degC",
     "min": -40,
     "formula": "((A*256)+B)/10 - 40",
@@ -405,7 +405,7 @@
   {
     "mode": "0x01",
     "pid": "0x3E",
-    "label": "Catalyst Temperature Bank 1 Sensor 2",
+    "label": "Катализатор Температура Ряд 1 Датчик 2",
     "unit": "degC",
     "min": -40,
     "formula": "((A*256)+B)/10 - 40",
@@ -415,7 +415,7 @@
   {
     "mode": "0x01",
     "pid": "0x3F",
-    "label": "Catalyst Temperature Bank 2 Sensor 2",
+    "label": "Катализатор Температура Ряд 2 Датчик 2",
     "unit": "degC",
     "min": -40,
     "formula": "((A*256)+B)/10 - 40",
@@ -425,7 +425,7 @@
   {
     "mode": "0x01",
     "pid": "0x42",
-    "label": "Control module voltage",
+    "label": "Напряжение модуля управления",
     "unit": "volt",
     "conversion": "CONTROL_MODULE_VOLTAGE",
     "min": 0,
@@ -437,7 +437,7 @@
   {
     "mode": "0x01",
     "pid": "0x43",
-    "label": "Absolute load value",
+    "label": "Абсолютное значение нагрузки",
     "unit": "percent",
     "conversion": "ABSOLUTE_LOAD_PERCENT",
     "min": 0,
@@ -459,7 +459,7 @@
   {
     "mode": "0x01",
     "pid": "0x45",
-    "label": "Relative throttle position",
+    "label": "Относительное положение дроссельной заслонки",
     "unit": "percent",
     "min": 0,
     "max": 100,
@@ -470,7 +470,7 @@
   {
     "mode": "0x01",
     "pid": "0x46",
-    "label": "Ambient air temperature",
+    "label": "Температура окружающего воздуха",
     "unit": "degC",
     "conversion": "TEMP_FROM_A",
     "min": -40,
@@ -482,7 +482,7 @@
   {
     "mode": "0x01",
     "pid": "0x47",
-    "label": "Absolute throttle position B",
+    "label": "Абсолютное throttle position B",
     "unit": "percent",
     "min": 0,
     "max": 100,
@@ -493,7 +493,7 @@
   {
     "mode": "0x01",
     "pid": "0x48",
-    "label": "Absolute throttle position C",
+    "label": "Абсолютное throttle position C",
     "unit": "percent",
     "min": 0,
     "max": 100,
@@ -504,7 +504,7 @@
   {
     "mode": "0x01",
     "pid": "0x49",
-    "label": "Accelerator pedal position D",
+    "label": "Акселератор pedal position D",
     "unit": "percent",
     "min": 0,
     "max": 100,
@@ -515,7 +515,7 @@
   {
     "mode": "0x01",
     "pid": "0x4A",
-    "label": "Accelerator pedal position E",
+    "label": "Акселератор pedal position E",
     "unit": "percent",
     "min": 0,
     "max": 100,
@@ -526,7 +526,7 @@
   {
     "mode": "0x01",
     "pid": "0x4B",
-    "label": "Accelerator pedal position F",
+    "label": "Акселератор pedal position F",
     "unit": "percent",
     "min": 0,
     "max": 100,
@@ -537,7 +537,7 @@
   {
     "mode": "0x01",
     "pid": "0x4C",
-    "label": "Commanded throttle actuator",
+    "label": "Заданное throttle actuator",
     "unit": "percent",
     "conversion": "THROTTLE_PERCENT",
     "min": 0,
@@ -549,7 +549,7 @@
   {
     "mode": "0x01",
     "pid": "0x4D",
-    "label": "Time run with MIL on",
+    "label": "Время работы с включенным MIL",
     "unit": "minutes",
     "min": 0,
     "max": 65.535,
@@ -560,7 +560,7 @@
   {
     "mode": "0x01",
     "pid": "0x4E",
-    "label": "Time since trouble codes cleared",
+    "label": "Время после сброса кодов неисправности",
     "unit": "minutes",
     "min": 0,
     "max": 65.535,
@@ -571,14 +571,14 @@
   {
     "mode": "0x01",
     "pid": "0x51",
-    "label": "Fuel type",
+    "label": "Топливо type",
     "pollIntervalMs": 1000,
     "notes": "Dataset: AndroidOBD"
   },
   {
     "mode": "0x01",
     "pid": "0x52",
-    "label": "Ethanol fuel %",
+    "label": "% этанола в топливе",
     "unit": "percent",
     "min": 0,
     "max": 100,
@@ -589,7 +589,7 @@
   {
     "mode": "0x01",
     "pid": "0x53",
-    "label": "Absolute Evap system Vapour Pressure",
+    "label": "Абсолютное Evap system Vapour Давление",
     "unit": "kPa",
     "min": 0,
     "max": 327.675,
@@ -611,7 +611,7 @@
   {
     "mode": "0x01",
     "pid": "0x59",
-    "label": "Fuel rail pressure (absolute)",
+    "label": "Топливо rail pressure (absolute)",
     "unit": "kPa",
     "min": 0,
     "max": 655.35,
@@ -622,7 +622,7 @@
   {
     "mode": "0x01",
     "pid": "0x5A",
-    "label": "Relative accelerator pedal position",
+    "label": "Относительное accelerator pedal position",
     "unit": "percent",
     "min": 0,
     "max": 100,
@@ -644,7 +644,7 @@
   {
     "mode": "0x01",
     "pid": "0x5C",
-    "label": "Engine oil temperature",
+    "label": "Двигатель oil temperature",
     "unit": "degC",
     "conversion": "TEMP_FROM_A",
     "min": -40,
@@ -656,7 +656,7 @@
   {
     "mode": "0x01",
     "pid": "0x5D",
-    "label": "Fuel injection timing",
+    "label": "Топливо injection timing",
     "min": -210,
     "max": 301.992,
     "formula": "(((A*256)+B)-26.880)/128",
@@ -666,7 +666,7 @@
   {
     "mode": "0x01",
     "pid": "0x5E",
-    "label": "Engine fuel rate",
+    "label": "Двигатель fuel rate",
     "unit": "l_per_h",
     "min": 0,
     "max": 3212.75,
@@ -677,7 +677,7 @@
   {
     "mode": "0x01",
     "pid": "0x61",
-    "label": "Driver's demand engine - percent torque",
+    "label": "Водителя's demand engine - percent torque",
     "unit": "percent",
     "min": -125,
     "max": 125,
@@ -688,7 +688,7 @@
   {
     "mode": "0x01",
     "pid": "0x62",
-    "label": "Actual engine - percent torque",
+    "label": "Фактический engine - percent torque",
     "unit": "percent",
     "min": -125,
     "max": 125,
@@ -699,7 +699,7 @@
   {
     "mode": "0x01",
     "pid": "0x63",
-    "label": "Engine reference torque",
+    "label": "Двигатель reference torque",
     "unit": "nm",
     "min": 0,
     "max": 65.535,
@@ -725,35 +725,35 @@
   {
     "mode": "0x01",
     "pid": "0x67",
-    "label": "Engine coolant temperature",
+    "label": "Температура охлаждающей жидкости двигателя",
     "pollIntervalMs": 1000,
     "notes": "Dataset: AndroidOBD"
   },
   {
     "mode": "0x01",
     "pid": "0x68",
-    "label": "Intake air temperature sensor",
+    "label": "Впуск air temperature sensor",
     "pollIntervalMs": 1000,
     "notes": "Dataset: AndroidOBD"
   },
   {
     "mode": "0x01",
     "pid": "0x69",
-    "label": "Commanded EGR and EGR Error",
+    "label": "Заданное EGR and EGR Ошибка",
     "pollIntervalMs": 1000,
     "notes": "Dataset: AndroidOBD"
   },
   {
     "mode": "0x01",
     "pid": "0x6B",
-    "label": "Exhaust gas recirculation temperature",
+    "label": "Выпуск gas recirculation temperature",
     "pollIntervalMs": 1000,
     "notes": "Dataset: AndroidOBD"
   },
   {
     "mode": "0x01",
     "pid": "0x6D",
-    "label": "Fuel pressure control system",
+    "label": "Топливо pressure control system",
     "pollIntervalMs": 1000,
     "notes": "Dataset: AndroidOBD"
   },
@@ -767,14 +767,14 @@
   {
     "mode": "0x01",
     "pid": "0x6F",
-    "label": "Turbocharger compressor inlet pressure",
+    "label": "Турбонагнетатель compressor inlet pressure",
     "pollIntervalMs": 1000,
     "notes": "Dataset: AndroidOBD"
   },
   {
     "mode": "0x01",
     "pid": "0x70",
-    "label": "Boost pressure control",
+    "label": "Наддув pressure control",
     "pollIntervalMs": 1000,
     "notes": "Dataset: AndroidOBD"
   },
@@ -795,28 +795,28 @@
   {
     "mode": "0x01",
     "pid": "0x73",
-    "label": "Exhaust pressure",
+    "label": "Выпуск pressure",
     "pollIntervalMs": 1000,
     "notes": "Dataset: AndroidOBD"
   },
   {
     "mode": "0x01",
     "pid": "0x74",
-    "label": "Turbocharger RPM",
+    "label": "Турбонагнетатель RPM",
     "pollIntervalMs": 1000,
     "notes": "Dataset: AndroidOBD"
   },
   {
     "mode": "0x01",
     "pid": "0x75",
-    "label": "Turbocharger temperature",
+    "label": "Турбонагнетатель temperature",
     "pollIntervalMs": 1000,
     "notes": "Dataset: AndroidOBD"
   },
   {
     "mode": "0x01",
     "pid": "0x76",
-    "label": "Turbocharger temperature",
+    "label": "Турбонагнетатель temperature",
     "pollIntervalMs": 1000,
     "notes": "Dataset: AndroidOBD"
   },
@@ -865,21 +865,21 @@
   {
     "mode": "0x01",
     "pid": "0x7F",
-    "label": "Engine run time",
+    "label": "Двигатель run time",
     "pollIntervalMs": 1000,
     "notes": "Dataset: AndroidOBD"
   },
   {
     "mode": "0x01",
     "pid": "0x81",
-    "label": "Engine run time for AECD",
+    "label": "Двигатель run time for AECD",
     "pollIntervalMs": 1000,
     "notes": "Dataset: AndroidOBD"
   },
   {
     "mode": "0x01",
     "pid": "0x82",
-    "label": "Engine run time for AECD",
+    "label": "Двигатель run time for AECD",
     "pollIntervalMs": 1000,
     "notes": "Dataset: AndroidOBD"
   },
@@ -893,7 +893,7 @@
   {
     "mode": "0x01",
     "pid": "0x84",
-    "label": "Manifold surface temperature",
+    "label": "Коллектор surface temperature",
     "pollIntervalMs": 1000,
     "notes": "Dataset: AndroidOBD"
   },
@@ -914,7 +914,7 @@
   {
     "mode": "0x01",
     "pid": "0x87",
-    "label": "Intake manifold absolute pressure",
+    "label": "Абсолютное давление во впускном коллекторе",
     "pollIntervalMs": 1000,
     "notes": "Dataset: AndroidOBD"
   },
@@ -932,14 +932,14 @@
   {
     "mode": "0x04",
     "pid": "0x00",
-    "label": "Clear DTCs",
+    "label": "Clear Коды DTC",
     "pollIntervalMs": 2000,
     "notes": "Dataset: AndroidOBD"
   },
   {
     "mode": "0x09",
     "pid": "0x00",
-    "label": "Mode 9 supported PIDs",
+    "label": "Поддерживаемые PID режима 9",
     "pollIntervalMs": 10000,
     "notes": "Dataset: AndroidOBD",
     "payloadLengthBytes": 4
@@ -947,7 +947,7 @@
   {
     "mode": "0x09",
     "pid": "0x02",
-    "label": "Vehicle Identification Number",
+    "label": "Автомобиль Идентификационный номер",
     "unit": "string",
     "notes": "SAE J1979-DA Section 5; Dataset: AndroidOBD",
     "pollIntervalMs": 10000,
@@ -956,7 +956,7 @@
   {
     "mode": "0x09",
     "pid": "0x04",
-    "label": "Calibration ID",
+    "label": "Идентификатор калибровки",
     "unit": "string",
     "notes": "SAE J1979-DA Section 5; Dataset: AndroidOBD",
     "pollIntervalMs": 10000,
@@ -965,7 +965,7 @@
   {
     "mode": "0x09",
     "pid": "0x0A",
-    "label": "ECU Name",
+    "label": "Название ЭБУ",
     "unit": "string",
     "pollIntervalMs": 10000,
     "notes": "Dataset: AndroidOBD",
