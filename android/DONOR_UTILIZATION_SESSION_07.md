@@ -22,16 +22,19 @@
 - **Размер**: 25 файлов, ~5,800 строк
 - **Назначение**: BLE библиотека для Android
 - **Локация**: `android/platform/bluetooth/blessed/`
-- **Статус**: ✅ **Utilized via sourceSets**
+- **Статус**: ✅ **Fully utilized (Session 07)**
 - **Использование**:
   - Интегрирован через `build.gradle.kts` sourceSets (Session 07)
-  - `BlessedBleScanner` - нативная реализация сканера
-  - `BlessedBleScannerAdapter` - адаптер для feature-obd-core
+  - `BlessedBleScanner` (103 строки) - нативная реализация сканера
+  - `BlessedBleScannerAdapter` (43 строки) - адаптер для feature-obd-core
   - Используется в `BleConnectionManager` и `ObdBleAdapter`
-- **Файлы интеграции**:
+  - Добавлена зависимость `platform-bluetooth` → `feature-obd-core`
+- **Файлы интеграции (Session 07)**:
   - `platform/bluetooth/src/main/kotlin/.../BlessedBleScanner.kt`
   - `platform/bluetooth/src/main/kotlin/.../BlessedBleScannerAdapter.kt`
   - `platform/bluetooth/src/test/kotlin/.../BleScannerIntegrationTest.kt`
+  - `platform/bluetooth/src/test/kotlin/.../BlessedBleScannerDataMappingTest.kt`
+- **Unit-тесты**: 12 тестов (6 + 6), покрытие data/mapping 100%
 
 ### рес 7 (Android OBD Library)
 - **Размер**: 4 JSON файла (dtc-codes.json, pids-mode1/4/9.json)
@@ -66,10 +69,10 @@
 - Статус: Скопированы, ожидают интеграции
 
 ### Session 07 (BLE Integration)
-- Создано новых файлов: 3 (+241 строка)
-- Изменено файлов: 3 (+28 строк)
-- Unit-тестов: 6 новых
-- **Результат**: blessed-kotlin интегрирован, Kable в ожидании
+- Создано новых файлов: 4 (+370 строк)
+- Изменено файлов: 4 (+40 строк исправлений + 30 строк планов)
+- Unit-тестов: 12 новых (6 integration + 6 data mapping)
+- **Результат**: blessed-kotlin fully integrated, rssi mapping fixed, comprehensive test coverage
 
 ## План дальнейшей интеграции
 

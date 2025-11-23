@@ -62,17 +62,21 @@
    - Добавлены unit-тесты для моделей данных
    - **Статус**: В процессе (требуется DI-интеграция с feature-obd-core)
 7. **[ВЫПОЛНЕНО 23.11.2025]** Сессия 07: BLE/OBD интеграция и локализация:
+   - ✅ **Вариант А выбран**: ≤100 файлов, ≤30,000 строк (итого: 6 файлов, ~300 строк)
    - ✅ Интегрирован blessed-kotlin в platform-bluetooth через sourceSets
-   - ✅ Создан BlessedBleScanner с поддержкой Flow API
-   - ✅ Создан BlessedBleScannerAdapter для интеграции с feature-obd-core
+   - ✅ Создан BlessedBleScanner (103 строки) с поддержкой Flow API
+   - ✅ Создан BlessedBleScannerAdapter (43 строки) для связи с feature-obd-core
    - ✅ Добавлена зависимость platform-bluetooth в feature-obd-core
-   - ✅ Проверена локализация DTC/PID (уже переведены на русский)
-   - ✅ Добавлены unit-тесты для интеграционного слоя
-   - **Статус**: Завершено основное, требуется тестирование сборки
-7. Очистить артефакты (`node_modules`, `dist`, `build`), подготовить список зависимостей к портированию.
-8. Настроить CI bootstrap: `./gradlew lint test assembleDebug` с кешированием.
-9. Перенести icon-gen, shared scripts в `android/tools/`, задокументировать использование.
-10. Ретро: формализовать риски, утвердить план роста веса APK.
+   - ✅ Проверена локализация DTC/PID (уже переведены на русский в Session 06)
+   - ✅ Добавлены unit-тесты для интеграционного слоя (6 тестов, 95 строк)
+   - ✅ Исправлена передача rssi через BleDevice
+   - ✅ Обновлены планы: plan-obd-base-integration.md, plan-80-session-roadmap.md
+   - ⚠️ BLOCKER: Google Maven недоступен (требуется whitelist или mirror)
+   - **Статус**: Завершено основное, требуется восстановление build для тестирования
+8. Очистить артефакты (`node_modules`, `dist`, `build`), подготовить список зависимостей к портированию.
+9. Настроить CI bootstrap: `./gradlew lint test assembleDebug` с кешированием.
+10. Перенести icon-gen, shared scripts в `android/tools/`, задокументировать использование.
+11. Ретро: формализовать риски, утвердить план роста веса APK.
 
 ### Фаза B — Диагностика 2.0 и нативные каналы (11–20)
 11. Спроектировать Kotlin-аналоги команд/данных из `modules/device/obd/andr` в `feature-obd-core`.
