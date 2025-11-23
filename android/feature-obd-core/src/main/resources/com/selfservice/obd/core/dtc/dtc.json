@@ -171,11 +171,6 @@
     "label": "Auxiliary Discriminating Sensor Open, Missing, Or Shorted To Battery"
   },
   {
-    "code": "B0037",
-    "system": "body",
-    "label": "Auxiliary Discriminating Sensor Switch Closed Or Shorted To Ground"
-  },
-  {
     "code": "B0038",
     "system": "body",
     "label": "Second Row Right Side Airbag Deployment Control"
@@ -1126,11 +1121,6 @@
     "label": "Passenger Compartment Temperature Sensor 2 Circuit"
   },
   {
-    "code": "B0169",
-    "system": "body",
-    "label": "Passenger In-Car Temperature Sensor Failure"
-  },
-  {
     "code": "B0173",
     "system": "body",
     "label": "Output Air Temperature Sensor 1 Circuit"
@@ -1646,11 +1636,6 @@
     "label": "Assist Step Disable Switch Circuit"
   },
   {
-    "code": "B0520",
-    "system": "body",
-    "label": "Rear Discharge Temperature Sensor Failure"
-  },
-  {
     "code": "B0521",
     "system": "body",
     "label": "Tachometer Signal Circuit Malfunction"
@@ -1764,11 +1749,6 @@
     "code": "B0689",
     "system": "body",
     "label": "Security System Indicator Circuit Open"
-  },
-  {
-    "code": "B0768",
-    "system": "body",
-    "label": "Service Indicator Circuit High"
   },
   {
     "code": "B0770",
@@ -20255,11 +20235,6 @@
     "label": "Rear Outlet Valve Right"
   },
   {
-    "code": "C0128",
-    "system": "chassis",
-    "label": "Low Brake Fluid Sensor Circuit Low"
-  },
-  {
     "code": "C012A",
     "system": "chassis",
     "label": "Brake Master Cylinder Pressure Sensor"
@@ -20930,29 +20905,14 @@
     "label": "Transfer Case Encoder Signal Circuit Low"
   },
   {
-    "code": "C0357",
-    "system": "chassis",
-    "label": "Park Switch Circuit High"
-  },
-  {
     "code": "C0359",
     "system": "chassis",
     "label": "Four Wheel Drive Low Range"
   },
   {
-    "code": "C0362",
-    "system": "chassis",
-    "label": "4LO Discrete Output Circuit High"
-  },
-  {
     "code": "C0365",
     "system": "chassis",
     "label": "Malfunction In Deceleration Sensor"
-  },
-  {
-    "code": "C0367",
-    "system": "chassis",
-    "label": "Front Axle Control Circuit High"
   },
   {
     "code": "C0371",
@@ -20963,11 +20923,6 @@
     "code": "C0374",
     "system": "chassis",
     "label": "Transfer Case System Malfunction"
-  },
-  {
-    "code": "C0376",
-    "system": "chassis",
-    "label": "Front/Rear Shaft Speed Mismatch"
   },
   {
     "code": "C0378",
@@ -21085,16 +21040,6 @@
     "label": "Steering Position Sensor Circuit"
   },
   {
-    "code": "C0472",
-    "system": "chassis",
-    "label": "Steering Handwheel Speed Sensor Signal Voltage Low"
-  },
-  {
-    "code": "C0473",
-    "system": "chassis",
-    "label": "Steering Handwheel Speed Sensor Signal Voltage High"
-  },
-  {
     "code": "C0475",
     "system": "chassis",
     "label": "Electric Steering Motor Circuit"
@@ -21103,21 +21048,6 @@
     "code": "C047A",
     "system": "chassis",
     "label": "Electric Steering Motor Position Sensor Circuit Malfunction"
-  },
-  {
-    "code": "C0495",
-    "system": "chassis",
-    "label": "EVO Tracking Error"
-  },
-  {
-    "code": "C0498",
-    "system": "chassis",
-    "label": "Steering Assist Control Actuator Feed Circuit Low"
-  },
-  {
-    "code": "C0499",
-    "system": "chassis",
-    "label": "Steering Assist Control Solenoid Feed Circuit High"
   },
   {
     "code": "C0500",
@@ -22973,11 +22903,6 @@
     "code": "C0693",
     "system": "chassis",
     "label": "Damper Control Relay Circuit High"
-  },
-  {
-    "code": "C0695",
-    "system": "chassis",
-    "label": "Position Sensor Overcurrent (8 Volt Supply)"
   },
   {
     "code": "C0696",
