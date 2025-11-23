@@ -19,13 +19,18 @@ import kotlinx.serialization.Serializable
 
 /**
  * Контейнер для данных одного DTC.
- * Адаптировано из донорского проекта рес 7 (obd).
+ * Поддерживает два формата:
+ * 1. Оригинальный формат: code, system, label, notes
+ * 2. Донорский формат (рес 7): mode, code, description
  */
 @Serializable
 data class DTC (
     var mode: String = "01",
     var code: String? = null,
-    var description: String? = null
+    var description: String? = null,
+    var system: String? = null,
+    var label: String? = null,
+    var notes: String? = null
 ) : java.io.Serializable {
     /**
      * Устанавливает режим.
@@ -39,4 +44,10 @@ data class DTC (
     }
 
     val modeString get() = mode.trimStart('0')
+    
+    /**
+     * Возвращает описание DTC, используя доступное поле (label или description).
+     */
+    val displayDescription: String?
+        get() = label ?: description
 }
