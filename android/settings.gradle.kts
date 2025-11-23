@@ -17,6 +17,7 @@ dependencyResolutionManagement {
         maven { url = uri("https://maven.aliyun.com/repository/public") }
         google()
         mavenCentral()
+        maven { url = uri("https://jitpack.io") }
     }
 }
 
@@ -36,6 +37,7 @@ val modules = listOf(
     ":feature-payment",
     ":feature-reports",
     ":feature-kiosk-mode",
+    ":feature-lock-control",
     ":platform-background",
     ":platform-data",
     ":platform-logging",
