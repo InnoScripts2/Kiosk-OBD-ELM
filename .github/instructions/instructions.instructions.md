@@ -58,6 +58,27 @@ applyTo: "**"
 
 Монорепо структура. Android-монореп в папке android/ (Gradle, Kotlin DSL): содержит app (основное приложение), core (общие утилиты), feature-obd-* (модули диагностики OBD-II), feature-thickness (модули толщиномера), platform (платформенные сервисы — логирование, background tasks, storage). Папка 03-apps/02-application/kiosk-shell/agent/: основной локальный TypeScript сервис (Electron, Node.js). Папка 03-apps/02-application/kiosk-agent/: кироск-агент (наследуемая, используется отдельными задачами, редактируется по требованию). Папка packages/: общие пакеты (device-obd, device-thickness, report, payments). Папка docs/ и docs-unified/: документация, обязательна к поддержанию. Папка infra/scripts/: DevOps-скрипты, жёстко привязаны к путям.
 
+4.1 Обязательная интеграция доноров `рес 1`–`рес 7`
+Каталоги `рес 1` … `рес 7` (каждый содержит одноимённую вложенную папку с исходниками) — отдельная волна доноров. Они находятся в корне репозитория, не редактируются напрямую и служат только источником кода для переноса в модули `android/`. До завершения миграции поддерживаем их в виде read-only слепков и фиксируем прогресс в `android/scripts/session-05-archive-plan.ps1`.
+
+| Каталог | Оригинальный проект | Назначение | Обязательный перенос |
+| --- | --- | --- | --- |
+| `рес 1/рес 1` | QRCode-Kotlin | Генератор QR-кодов (KMP, бэкенд/Android) | `src/commonMain`, `src/jvmMain` и `examples/backend` переносим в `android/platform/camera` (подмодуль генерации QR); подключаем обёртку в `android/feature-payments` для оплаты по QR и генерируем unit-тесты на формат шаблонов. |
+| `рес 2/рес 2` | Kiosk-Launcher | Android-лаунчер с Device Owner/Device Admin, расписанием рестартов | `app/src/main/java` (DeviceAdminReceiver, BootReceiver, KioskAccessibilityService, RestartScheduler) и `app/src/main/res` переносим в `android/feature-kiosk-mode` и `android/app`; политики whitelists/intent-фильтры описываем в `android/platform/ui`. |
+| `рес 3/рес 3` | KasirPraktis | Jetpack Compose POS (оплата, товары, QR) | Все экраны `app/src/main/java` (Home, Master Data, Transactions, QR) и связанные `app/src/main/res` структуры переносим в `android/feature-payments` (витрина услуги, кассовые сценарии) и `android/app`; модели/DAO адаптируем под Room `platform/data`. |
+| `рес 4/рес 4` | Kable | Kotlin Multiplatform BLE-стек | Модули `kable-core`, `kable-default-permissions`, `kable-btleplug-ffi`, `kable-log-engine-khronicle` переносим в `android/feature-obd-core` и `android/platform/bluetooth`; интерфейсы BLE и Flow-обёртки подключаем к `ObdConnectionManager`. |
+| `рес 5/рес 5` | Compose Multiplatform | Компоненты и best practices JetBrains Compose | Папки `components/`, `compose/` (особенно material3 adaptive), `tutorials/`, `html/` переносим в `android/app` и `android/platform/ui`; на их базе формируем UI-кит киоска и покрываем snapshot-тестами. |
+| `рес 6/рес 6` | blessed-kotlin | Компактная BLE-библиотека (сканер, централь, периферия) | Каталоги `blessed/` и `peripheral/` (включая `BluetoothBytesParser`, `BluetoothCentralManager`, `BluetoothPeripheralManager`) переносим в `android/feature-obd-core` и `android/platform/bluetooth`; тесты и утилиты логирования включаем в `feature-obd-core:test`. |
+| `рес 7/рес 7` | Android OBD Library | Полный стек ELM327 (OBDCommand, PIDUtils, ObdInitSequence) | `obd/src/main/java`, `obd/src/main/res` и `obd/src/test` переносим в `android/feature-obd-core` и `android/feature-obd-diagnostics`; классы `ObdModes`, `PidCatalog`, `ElmPidSnapshotGenerator` становятся основой тестов `ElmPidCatalogParityTest`. |
+
+Команда переноса. Каждое копирование выполняем из корня репозитория и только для нужных подсекций:
+
+```
+robocopy "<repo_root>\рес N\рес N\<source>" "<repo_root>\android\<target>" /E /XD .git .github .gradle build gradle .idea .run .vscode node_modules release /XF *.iml *.bat *.sh *.cmd
+```
+
+После каждого запуска команды переносим также тестовые данные, README/лицензионные примечания и сразу адаптируем код под архитектуру `android/`. В отчёте сессии фиксируем: что именно скопировано, в какой модуль встроено, какие тесты добавлены и как изменился вес APK. Нельзя править файлы непосредственно внутри `рес N` — все изменения делаем только после копирования в `android/`.
+
 5 Интеграция с устройствами (без нарушений)
 OBD-II адаптер. Поддержка ELM327-совместимых адаптеров (Bluetooth Classic, Serial COM, USB). Для Windows-киоска нужен доступ к COM-портам или USB-интерфейсам. Реализуются команды: инициализация (AT Z, AT E0), выбор протокола (AT SP 6 для ISO 15765-2), чтение DTC (22 F1 87), статусы MIL, чтение PID для ключевых параметров, сброс ошибок (14 FF FF FF). Таблица расшифровки DTC: используются только открытые источники (SAE, OEM публикации); собственная база DTC хранится в packages/device-obd/data/dtc-reference.json с атрибуцией. Операция Clear DTC выполняется только с явным подтверждением клиента, логируется, отражается в отчёте с timestamp и сокращением DTC. Таймаут соединения: 5 сек (если адаптер не отвечает за 5 сек, выводим ошибку). Максимальное время сканирования: 90 сек (если за 90 сек сканирование не завершилось, показываем прогресс и даём возможность отменить или повторить).
 

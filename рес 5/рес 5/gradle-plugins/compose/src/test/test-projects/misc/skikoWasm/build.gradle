@@ -1,0 +1,33 @@
+plugins {
+    id "org.jetbrains.kotlin.multiplatform"
+    id "org.jetbrains.kotlin.plugin.compose"
+    id "org.jetbrains.compose"
+}
+
+kotlin {
+    js(IR) {
+        browser()
+        binaries.executable()
+    }
+    wasm {
+        browser()
+        binaries.executable()
+    }
+    sourceSets {
+        commonMain {
+            dependencies {
+                implementation("org.jetbrains.compose.ui:ui:COMPOSE_VERSION_PLACEHOLDER")
+                implementation("org.jetbrains.compose.foundation:foundation:COMPOSE_VERSION_PLACEHOLDER")
+                implementation("org.jetbrains.compose.material:material:COMPOSE_VERSION_PLACEHOLDER")
+                implementation("org.jetbrains.compose.runtime:runtime:COMPOSE_VERSION_PLACEHOLDER")
+            }
+        }
+    }
+}
+
+// test for https://github.com/JetBrains/compose-multiplatform/issues/3169
+afterEvaluate {
+    afterEvaluate {
+        dependencies.add(kotlin.targets.js.compilations.main.compileDependencyConfigurationName, "org.jetbrains.kotlin:kotlin-stdlib")
+    }
+}

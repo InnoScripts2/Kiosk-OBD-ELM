@@ -1,0 +1,1 @@
+### Moved to [multiplatform](https://github.com/JetBrains/compose-multiplatform/tree/master/benchmarks/multiplatform)

@@ -1,0 +1,28 @@
+plugins {
+    id "org.jetbrains.kotlin.multiplatform"
+    id "org.jetbrains.compose"
+    id "org.jetbrains.kotlin.plugin.compose"
+}
+
+kotlin {
+    js(IR) {
+        browser()
+    }
+    jvm {}
+
+    sourceSets {
+        named("commonMain") {
+        }
+        named("jsMain") { 
+            dependencies {
+                implementation("org.jetbrains.compose.html:html-core:COMPOSE_VERSION_PLACEHOLDER")
+                implementation("org.jetbrains.compose.runtime:runtime:COMPOSE_VERSION_PLACEHOLDER")
+            }
+        }
+        named("jvmMain") {
+            dependencies {
+                implementation(compose.desktop.currentOs)
+            }
+        }
+    }
+}

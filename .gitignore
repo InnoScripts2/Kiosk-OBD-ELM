@@ -1,4 +1,5 @@
 node_modules
+# Donor archives stay untracked
 archives/
 archives/android-kiosk-legacy/kiosk-release.keystore
 .gradle/
@@ -8,5 +9,4 @@ archives/android-kiosk-legacy/kiosk-release.keystore
 **/.idea/
 __pycache__/
 **/__pycache__/
-*.pyc
 .pytest_cache/
