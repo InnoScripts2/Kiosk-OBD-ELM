@@ -1,7 +1,7 @@
 package com.selfservice.feature.reports
 
 /**
- * Генератор отчётов диагностики OBD-II.
+ * Генератор отчётов толщиномера.
  * 
  * Оркестрирует процесс генерации:
  * 1. Валидация входных данных
@@ -12,8 +12,8 @@ package com.selfservice.feature.reports
  * 
  * Поддерживает DEV/QA/PROD режимы.
  */
-class DiagnosticsReportGenerator(
-    private val htmlFormatter: DiagnosticsReportHtmlFormatter,
+class ThicknessReportGenerator(
+    private val htmlFormatter: ThicknessReportHtmlFormatter,
     private val pdfGenerator: PdfGenerator,
     private val storageManager: ReportStorageManager,
     private val devMode: Boolean = false
@@ -27,7 +27,7 @@ class DiagnosticsReportGenerator(
      * @return результат генерации
      */
     suspend fun generate(
-        input: DiagnosticsReportInput,
+        input: ThicknessReportInput,
         formats: List<ReportFormat> = listOf(ReportFormat.HTML, ReportFormat.PDF)
     ): GenerationResult {
         val startTime = System.currentTimeMillis()
@@ -38,13 +38,13 @@ class DiagnosticsReportGenerator(
             
             // Генерация HTML
             val html = if (ReportFormat.HTML in formats) {
-                htmlFormatter.format(input)
+                htmlFormatter.format(input, devMode)
             } else null
             
             // Генерация PDF
             val pdfBytes = if (ReportFormat.PDF in formats) {
-                val htmlForPdf = html ?: htmlFormatter.format(input)
-                pdfGenerator.generateFromHtml(htmlForPdf, ReportType.DIAGNOSTICS)
+                val htmlForPdf = html ?: htmlFormatter.format(input, devMode)
+                pdfGenerator.generateFromHtml(htmlForPdf, ReportType.THICKNESS)
             } else null
             
             // Сохранение файлов
@@ -73,7 +73,7 @@ class DiagnosticsReportGenerator(
             // Создание метаданных
             val metadata = ReportMetadata(
                 sessionId = input.sessionId,
-                reportType = ReportType.DIAGNOSTICS,
+                reportType = ReportType.THICKNESS,
                 generatedAtMillis = input.generatedAtMillis,
                 formats = formats,
                 htmlHash = htmlHash,
@@ -105,14 +105,14 @@ class DiagnosticsReportGenerator(
             // Логирование ошибки
             val issue = ReportIssue(
                 sessionId = input.sessionId,
-                reportType = ReportType.DIAGNOSTICS,
+                reportType = ReportType.THICKNESS,
                 timestampMillis = System.currentTimeMillis(),
                 issueType = determineIssueType(e),
                 description = e.message ?: "Unknown error during report generation",
                 stackTrace = e.stackTraceToString(),
                 context = mapOf(
-                    "vehicleBrand" to (input.vehicle?.make ?: "unknown"),
-                    "dtcCodeCount" to input.snapshot.let { "0" }, // Placeholder
+                    "vehicleType" to input.vehicleType,
+                    "measurementCount" to input.measurements.size.toString(),
                     "devMode" to devMode.toString()
                 )
             )
@@ -135,9 +135,12 @@ class DiagnosticsReportGenerator(
     /**
      * Валидация входных данных.
      */
-    private fun validateInput(input: DiagnosticsReportInput) {
+    private fun validateInput(input: ThicknessReportInput) {
         require(input.sessionId.isNotBlank()) { "Session ID cannot be blank" }
-        // Дополнительная валидация может быть добавлена здесь
+        require(input.vehicleType.isNotBlank()) { "Vehicle type cannot be blank" }
+        require(input.measurements.isNotEmpty()) { "Measurements cannot be empty" }
+        require(input.stats.total > 0) { "Total measurements must be positive" }
+        require(input.stats.average >= 0) { "Average value cannot be negative" }
     }
     
     /**
@@ -151,26 +154,6 @@ class DiagnosticsReportGenerator(
             exception.message?.contains("PDF", ignoreCase = true) == true -> IssueType.PDF_GENERATION_ERROR
             exception.message?.contains("HTML", ignoreCase = true) == true -> IssueType.HTML_GENERATION_ERROR
             else -> IssueType.OTHER
-        }
-    }
-
-    companion object {
-        /**
-         * Создаёт экземпляр генератора с дефолтными настройками.
-         */
-        fun create(
-            locale: java.util.Locale = java.util.Locale("ru", "RU"),
-            zoneId: java.time.ZoneId = java.time.ZoneId.systemDefault(),
-            storageManager: ReportStorageManager,
-            devMode: Boolean = false
-        ): DiagnosticsReportGenerator {
-            val mapper = DiagnosticsReportViewModelMapper(locale = locale, zoneId = zoneId)
-            return DiagnosticsReportGenerator(
-                htmlFormatter = DiagnosticsReportHtmlFormatter(mapper),
-                pdfGenerator = PdfGenerator(),
-                storageManager = storageManager,
-                devMode = devMode
-            )
         }
     }
 }

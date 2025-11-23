@@ -11,14 +11,30 @@ android {
 
     defaultConfig {
         minSdk = 26
+        
+        // BuildConfig для режимов DEV/QA/PROD
+        buildConfigField("String", "APP_MODE", "\"DEV\"")
+        buildConfigField("boolean", "ENABLE_DEV_BADGE", "true")
+    }
+
+    buildTypes {
+        debug {
+            buildConfigField("String", "APP_MODE", "\"DEV\"")
+            buildConfigField("boolean", "ENABLE_DEV_BADGE", "true")
+        }
+        release {
+            buildConfigField("String", "APP_MODE", "\"PROD\"")
+            buildConfigField("boolean", "ENABLE_DEV_BADGE", "false")
+        }
     }
 
     buildFeatures {
-        buildConfig = false
+        buildConfig = true
     }
 
     testOptions {
         unitTests.isIncludeAndroidResources = true
+        unitTests.isReturnDefaultValues = true
     }
 
     compileOptions {
@@ -31,8 +47,22 @@ android {
 }
 
 dependencies {
+    // Project modules
     implementation(project(":core"))
     implementation(project(":platform-data"))
-
+    
+    // Kotlin
+    implementation(libs.kotlin.stdlib)
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.coroutines.android)
+    
+    // Testing
     testImplementation(libs.kotlin.test)
+    testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.mockito.core)
+    testImplementation(libs.mockito.kotlin)
+    
+    // Robolectric для Android тестов
+    testImplementation(libs.robolectric)
 }
