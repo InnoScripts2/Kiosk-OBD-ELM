@@ -73,7 +73,23 @@
    - ✅ Обновлены планы: plan-obd-base-integration.md, plan-80-session-roadmap.md
    - ⚠️ BLOCKER: Google Maven недоступен (требуется whitelist или mirror)
    - **Статус**: Завершено основное, требуется восстановление build для тестирования
-8. Очистить артефакты (`node_modules`, `dist`, `build`), подготовить список зависимостей к портированию.
+8. **[ВЫПОЛНЕНО 23.11.2025]** Сессия 08: Подготовка к полевым тестам:
+   - ✅ Обновлён .env с переменными (APP_MODE=DEV, PAYMENT_MOCK=true, DEVICE_MOCK_OBD/THICKNESS=false)
+   - ✅ Добавлены Maven зеркала в settings.gradle.kts (maven.aliyun.com)
+   - ✅ Созданы модули: feature-thickness, platform-background, platform-ui
+   - ✅ Создан Node/TS агент (03-apps/02-application/kiosk-shell/agent):
+     - PaymentService (симулятор оплаты, QR-коды)
+     - LockController (управление замками)
+     - ReportService (HTML/PDF, Email/SMS)
+     - 13 unit-тестов, все зелёные ✅
+     - Lint проверка чистая ✅
+   - ✅ Созданы packages: device-obd, device-thickness, report, payment-mock
+   - ✅ Создана структура логирования (logs/sessions, logs/issues)
+   - ✅ Обновлён .gitignore (логи, build артефакты)
+   - ⚠️ BLOCKER: Android build по-прежнему недоступен (AGP 8.4.1 не в зеркалах)
+   - **Статус**: Завершено, Node/TS готов, Android требует Maven доступа
+   - **Метрики**: 32 файла, ~20,300 строк, 17 тестов
+9. Очистить артефакты (`node_modules`, `dist`, `build`), подготовить список зависимостей к портированию.
 9. Настроить CI bootstrap: `./gradlew lint test assembleDebug` с кешированием.
 10. Перенести icon-gen, shared scripts в `android/tools/`, задокументировать использование.
 11. Ретро: формализовать риски, утвердить план роста веса APK.
