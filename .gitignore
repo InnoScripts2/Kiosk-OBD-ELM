@@ -6,3 +6,7 @@ archives/android-kiosk-legacy/kiosk-release.keystore
 **/build/
 **/kiosk-release.keystore
 **/.idea/
+__pycache__/
+**/__pycache__/
+*.pyc
+.pytest_cache/
