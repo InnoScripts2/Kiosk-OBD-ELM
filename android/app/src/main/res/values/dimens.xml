@@ -1,0 +1,3 @@
+<resources>
+    <dimen name="diagnostics_metric_sparkline_stroke">2dp</dimen>
+</resources>

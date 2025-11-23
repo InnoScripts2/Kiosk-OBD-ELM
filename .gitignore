@@ -1,0 +1,8 @@
+node_modules
+archives/
+archives/android-kiosk-legacy/kiosk-release.keystore
+.gradle/
+**/.gradle/
+**/build/
+**/kiosk-release.keystore
+**/.idea/

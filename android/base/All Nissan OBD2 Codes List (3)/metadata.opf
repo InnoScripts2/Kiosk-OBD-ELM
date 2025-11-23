@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='utf-8'?>
+<package xmlns="http://www.idpf.org/2007/opf" unique-identifier="uuid_id" version="2.0">
+    <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">
+        <dc:identifier opf:scheme="calibre" id="calibre_id">3</dc:identifier>
+        <dc:identifier opf:scheme="uuid" id="uuid_id">ecfc1ed0-85c0-45bd-b534-40c63b51779b</dc:identifier>
+        <dc:title>All Nissan OBD2 Codes List</dc:title>
+        <dc:creator opf:file-as="Неизвестный" opf:role="aut">Неизвестный</dc:creator>
+        <dc:contributor opf:file-as="calibre" opf:role="bkp">calibre (8.14.0) [https://calibre-ebook.com]</dc:contributor>
+        <dc:date>0101-01-01T00:00:00+00:00</dc:date>
+        <dc:language>ru</dc:language>
+        <meta name="calibre:timestamp" content="2025-11-15T12:36:09.926757+00:00"/>
+        <meta name="calibre:title_sort" content="All Nissan OBD2 Codes List"/>
+    </metadata>
+    <guide>
+        <reference type="cover" title="Обложка" href="cover.jpg"/>
+    </guide>
+</package>

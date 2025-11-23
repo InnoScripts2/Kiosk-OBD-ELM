@@ -1,0 +1,1906 @@
+You asked:
+----------
+
+XT6300\_script\_guide\_1133GC1.pdf
+
+PDF 1.09MB
+
+Carefully read through the attached pdf. Think about the best way to create a markdown file I can add to a coding tool to provide context for the LLM code assistant. You are free to adjust the formatting as necessary to optimise parsing by the LLM tool. Please be aware that some of the tables in the appendices are on multiple pages so read carefully. Include all information. Do not truncate or skip tables. Verify you've captured all the information
+
+---
+
+DeepSeek Replied:
+-----------------
+
+XT6300/XT2400 Series Scripting & Configuration Guide
+====================================================
+
+Version History
+---------------
+
+| Date | Version | Notes |
+| --- | --- | --- |
+| 01/03/2019 | 2.7 | \- Updated document for 1133GC1 firmware release  
+\- Added Bluetooth info for XT6300  
+\- New features in GC1:  
+\- Proprietary PID support (true odo, seatbelt, airbag, etc). Detailed info in Appendix I.  
+\- FTP support for LTE CatM1 devices  
+\- Added scriptable function IPAddress()  
+\- Added more field IDs in Appendix F |
+| 01/11/2019 | 2.7.1 | \- Fixed a typo for the resolution of field 0x54 |
+
+Foreword
+--------
+
+*   **Topics/things of importance** are in **bold**
+    
+*   _Things to note_ are in _italics_
+    
+*   All code examples pertaining to the script file or the parameter time are in boxes
+    
+
+Device Configuration
+--------------------
+
+XT6300 and XT2400 series are a full-feature device based on a platform that allows rapid customization by market and application requirements. The devices offer highly configurable firmware which allows full control of device reporting behavior. The customizable messages provide only the data required to support unique and evolving business needs. The device configuration is accomplished by loading 2 files:
+
+*   Script File
+    
+*   Parameter File
+    
+
+The **Script File** is the file that triggers the alerts and actions of the device. The **Parameter File** specifies values used to configure hardware peripherals, network behavior, and inputs to core functionality of the device.
+
+Scripting Environment
+---------------------
+
+Both the script file and the parameter files are written in text editors and saved as text files (\*.txt extensions). Use ANSI or UTF-8 encoding.
+
+Prior to loading the script file to the device, the script file must be compiled and converted to a binary (\*.bin extension) using Xirgo's interpreter language compiler (ILC).
+
+Script File
+-----------
+
+A script file is a user-created file that allows the users to define the functionality of the device in individual "trigger blocks".
+
+**Example:**
+
+    trigger when Eq(InputState(0), 1) [Debounce(1, 0)]
+      conduct always
+      actions
+      run BuildAndSendMsg(0,2,0,0)
+
+### Important Scripting Notes
+
+1.  Each trigger block has one trigger expression with up to two comparisons
+    
+2.  The trigger expression must test true for all comparisons for an action to occur
+    
+3.  Each trigger block can contain unlimited conditional action (conduct) blocks
+    
+4.  Trigger blocks and conduct blocks use:
+    
+    *   System Values
+        
+    *   Events (except for SystemEventsActive(<index>))
+        
+    *   Special Functions
+        
+    *   Numbers
+        
+5.  Each conduct block may contain one conduct expression with up to five comparisons
+    
+6.  Each conduct block must contain at least one actions block
+    
+7.  Each actions block cannot contain more than three run statements
+    
+8.  Order of conduct blocks and run statements is important
+    
+9.  Use '#' for comments
+    
+
+### How Trigger Block Tests Work
+
+Trigger blocks are entered when the trigger expression becomes true (not while it remains true). The interpreter evaluates script in a continuous loop from top to bottom.
+
+**Keywords:**
+
+*   `trigger when` - When only one comparison is used
+    
+*   `trigger any` - Test is true when ANY of the comparisons is true
+    
+*   `trigger all` - ALL comparisons must be true for test to be true
+    
+
+### How Conditional Action Block Tests Work
+
+Conduct block expressions allow actions to be performed WHILE the test is true.
+
+**Keywords:**
+
+*   `conduct always` - Actions always run when trigger block's test(s) are true
+    
+*   `conduct when` - When only one comparison is used
+    
+*   `conduct any` - Test is true when ANY of the comparisons is true
+    
+*   `conduct all` - ALL comparisons must be true for test to be true
+    
+
+### Comparisons Table
+
+| Comparison | Description |
+| --- | --- |
+| InRange(<a>, <b>, <c>) | True when a is between b and c (inclusive) |
+| NinRange(<a>, <b>, <c>) | True when a is less than b or a is greater than c |
+| Eq(<a>, <b>) | True when a equals b |
+| Neq(<a>, <b>) | True when a is not equal to b |
+| Gt(<a>, <b>) | True when a is greater than b |
+| Lt(<a>, <b>) | True when a is less than b |
+| GtEq(<a>, <b>) | True when a is greater than/equal to b |
+| LtEq(<a>, <b>) | True when a is less than/equal to b |
+
+Test items should be one of: System Value, Event, Special Function, Numbers
+
+### Debounce
+
+`Debounce(<hb>, <lo>)` - where hi and lo are specified in seconds (max: 15). A test is true only AFTER the comparison is true for hi seconds, and false only AFTER the comparison is false for lo seconds.
+
+### Generating a Script File
+
+Use Xirgo ILC.exe command line tool:
+
+1.  Put both ilc.exe and your script (<name>.txt) in the same folder
+    
+2.  Run: `ilc.exe <name>.txt`
+    
+3.  If successful, output will be "Interpreter script format OK"
+    
+
+### Loading a Script File
+
+1.  Use Serial Port 2
+    
+2.  Commands:
+    
+    *   `grscr x 2 "Name of File.bin"` - load the file
+        
+    *   Upload file with terminal program
+        
+    *   `xycfg` - Saves the parameter file
+        
+
+Parameter File
+--------------
+
+The parameter file configures hardware peripherals, network behavior, and core functionality.
+
+**Configurable parameters include:**
+
+*   Acceleration event thresholds
+    
+*   Accelerometer report correction
+    
+*   APNs (GSM only)
+    
+*   Crash event params
+    
+*   Debounce settings
+    
+*   Destination
+    
+*   ECU Thresholds
+    
+*   Flag save mask
+    
+*   Garmin Blacklist
+    
+*   Geofence
+    
+*   Input default polarity
+    
+*   Ignition sense
+    
+*   MIP/SIP Control (TBD)
+    
+*   Motion sensitivity
+    
+*   NMEA stream output
+    
+*   Odom Ign Off accum
+    
+*   Packet Creation Append
+    
+*   Packet Creation Recipe
+    
+*   Packet Retry
+    
+*   Serial port settings
+    
+*   Timer duration
+    
+*   OBD RPM and Speed
+    
+*   OBD Accel and Decel
+    
+*   Variable save mask
+    
+
+### Parameter File Notes
+
+1.  Every configuration line must start with ":wycfg"
+    
+2.  No line can exceed 128 characters
+    
+3.  All strings must be in quotes (max 30 characters)
+    
+4.  Use '#' for comments
+    
+
+**Example Parameter File:**
+
+    :wycfg dst[0] 10.10.10.10 65534 #User application server
+    :wycfg dst[9] "none" 65535 #Xirgo device manager
+    :wycfg apn[0] "APN.internet" "username" "password"
+    :wycfg pcr[0] 00080104030607080b17 #packet recipe
+    :wycfg tmr[0] 90 1 #this is a timer
+    :wycfg act[0] 0 1000 1000 205 #harsh acceleration setting
+
+### Creating a Parameter File
+
+1.  Write and save as .txt file
+    
+2.  Use :wycfg before each parameter
+    
+3.  Load via XDM or Serial Port 2:
+    
+    *   `:gycfg x 2 "File Name"` - load the parameter file
+        
+    *   Upload file with terminal program
+        
+    *   `:wycfg` - Saves the parameter file
+        
+
+How to Create a Message
+-----------------------
+
+Custom messages allow selecting what fields of data to send when triggered. A message can contain up to 40 data fields and up to 128 different messages.
+
+**Syntax:**
+
+    pcr[<slot_index>] "<recipe_hex_string>"
+
+*   `<slot_index>`: 0-127
+    
+*   `<recipe_hex_string>`: quoted string of hexadecimal bytes
+    
+*   Format: "<recipe\_id><num\_fields><field\_0><field\_1>...<field\_N>"
+    
+
+**Examples:**
+
+*   `pcr[0] "0003010306"` - 3 fields: PacketID, DeviceID, GpsSpeed
+    
+*   `pcr[1] "14050103070809"` - 5 fields: PacketID, DeviceID, Latitude, Longitude, Altitude
+    
+*   `:wycfg pcr[2] "fe0401031213"` - 4 fields: PacketID, DeviceID, Hdop, NumSats
+    
+
+Decoding a Message
+------------------
+
+Use Reason Code and Packet Recipe to parse data.
+
+**Reason Code Examples:**
+
+| Reason # | Description |
+| --- | --- |
+| 01 | Ignition On |
+| 02 | Periodic Report when Ignition On |
+| 03 | Ignition Off |
+| 04 | Periodic Report when Ignition Off |
+| 05 | Tow Alert |
+| 06 | Speed Alert |
+| 07 | Acceleration Report |
+| 08 | Deceleration Report |
+| 09 | Idle Report |
+| 10 | Direction Change |
+| 11 | IP address Change |
+
+**PCR Breakdown:**
+
+*   Each packet recipe can contain up to 40 fields
+    
+*   Device can store 128 packet recipes
+    
+*   Format: `pcr[<slot_index>] "<recipe_hex_string>"`
+    
+
+**Example:**
+
+    pcr[1] "01050103070809"
+
+*   RecipeID: 01
+    
+*   Number of fields: 05
+    
+*   Field 0: Packet ID (01)
+    
+*   Field 1: DeviceID (03)
+    
+*   Field 2: Latitude (07)
+    
+*   Field 3: Longitude (08)
+    
+*   Field 4: Altitude (09)
+    
+
+Acknowledgements
+----------------
+
+Device supports simple acknowledgement: four bytes (88-88-xx-xx) where xx-xx is the packet serial number in hex.
+
+Remote Communications
+---------------------
+
+XT6300 can be remotely queried via UDP Commands or SMS.
+
+**UDP Command Format:**
+
+*   To device: `<3-byte_msg_id><4-byte_esn><cmdlang_command_string>`
+    
+*   From device: `<3-byte_msg_id><4-byte_esn><cmdlang_response_string>`
+    
+*   Send to port 4000 of the device
+    
+
+Appendices
+==========
+
+Appendix A: SYSTEM VALUES
+-------------------------
+
+| VALUE | DESCRIPTION |
+| --- | --- |
+| SystemVal(<index>) | Pass enumeration index of desired System Value |
+| UnixTime | Seconds since midnight Jan 1, 1970 |
+| GPSLat | Degrees of latitude (unit 0.000001 degree) |
+| GPSLon | Degrees of longitude (unit 0.000001 degree) |
+| GPSAlt | Height above sea level (unit 0.1 meter) |
+| GPSHeading | Heading of travel (unit 0.1 degree) |
+| GPSSpeed | 2D speed in km/hr |
+| Inputs | User Input states (bitfields) |
+| Outputs | User Output states (bitfields) |
+| DriverId1 | Most recent Driver ID detected on 1 wire bus channel 1 |
+| DriverId2 | Most recent Driver ID detected on 1 wire bus channel 2 |
+| GPSTripOdom1 | Current value of Trip odometer 1 (in meters) |
+| GPSHDOP | GPS Horizontal dilution of precision (unit 0.1) |
+| GPSNumSats | Number of GPS satellites used for navigation solution |
+| GPSOdom | Virtual odometer in meters |
+| GPSLifetimeOdom | Device LIFETIME ODOMETER in Meters |
+| OBDLifetimeOdom | OBD sourced accumulated meters since installs |
+| BattVoltage | Device External voltage (unit 0.1V, max of 25.5V) |
+| InternVoltage | Device Internal voltage (unit 0.1V) |
+| MotionState | 1 when vehicle is moving (as reported by ECU), otherwise 0 |
+| EngineState | 1 when engine has RPM (as reported by ECU), otherwise 0 |
+| WakeReason | Bit mask value representing wake reason |
+| ExtADCO | Voltage level of external ADC 0 (unit 0.1VDC) |
+
+Appendix B: EVENT TABLE
+-----------------------
+
+| EVENT | DESCRIPTION | INDEX RANGE |
+| --- | --- | --- |
+| TimerExpired(<index>) | Evaluates to 1 when timer is expired, otherwise 0 | 0-31 |
+| UserEventsActive(<index>) | Evaluates to 1 when user event injected, otherwise 0 | 0-255 |
+| AccelEventsActive(<index>) | Evaluates to 1 when accelerometer event detected, otherwise 0 | 0-3 |
+| DriverIdRead(<index>) | Evaluates to 1 when driver id detected on 1-wire channel, otherwise 0 | 0-1 |
+| SystemEventsActive(<index>) | Evaluates to 1 when system event is active, otherwise 0 | 0-20:  
+0=Reset  
+1=Wakeup  
+2=BootloaderUpgrade (TBD)  
+3=FWUpgrade  
+4=ScriptUpgrade  
+5=ParamSetUpgrade  
+6=OverlayUpgrade  
+7=ManualConfigChange  
+8=CellRegistrationChange  
+9=IPChange  
+10=SMSReceived  
+11=SMSSendOK  
+12=SMSSendFailure  
+13=UDPReceived  
+14=UDPSendOK  
+15=UDPSendFailure  
+16=PacketStorageEmpty  
+17=PacketStorageFull  
+18=PdpConnectionReset  
+19=DevicePowerup  
+20=OTA Reject |
+| ObdDtcEventsActive(0) | Evaluates to 1 when OBD DTC event detected, otherwise 0 | \- |
+| AccelCrashEventsActive(0) | Evaluates to 1 when accelerometer crash event detected, otherwise 0 | \- |
+| AuxPassthruPacketReceived(0) | Evaluates to 1 when aux passthru packet received, otherwise 0 | \- |
+
+Appendix C: SPECIAL FUNCTION TABLE
+----------------------------------
+
+| Special Function | Description | Index Range |
+| --- | --- | --- |
+| UserVar8(<index>) | Evaluates to value stored in user variable | 0-31 |
+| UserVar16(<index>) | Evaluates to value stored in user variable | 0-15 |
+| UserVar32(<index>) | Evaluates to value stored in user variable | 0-15 |
+| FlagIsSet(<index>) | Evaluates to 1 when flag is set, otherwise 0 | 0-31 |
+| GeofenceState(<index>) | Evaluates to: -1=not configured, 0=outside fence, 1=inside fence | 0-49 |
+| InputState(<index>) | Evaluates to 1 when input is high/true, otherwise 0 | 0-7:  
+0=ignition  
+1=Input 1  
+2=Input 2  
+3=Input 3  
+4=Input 4  
+5=Device in motion (via Accel)  
+6=Main power supply available  
+7=Accelerometer reorientation validity |
+| SystemState(<index>) | Evaluates to 1 when true, otherwise 0 | 0-16:  
+0=Valid Registration  
+1=Valid IP  
+2=Valid GPS  
+3=Valid Script  
+4=DM Session Active  
+5=Accel Oriented  
+6=Bluetooth Discoverable(TBD)  
+7=Bluetooth Paired(TBD)  
+8=Bluetooth Authenticated(TBD)  
+9=Bluetooth Connected(TBD)  
+10=Bluetooth Powered(TBD)  
+11=Cellular Powered  
+12=GPS Powered  
+13=Garmin Powered  
+14=Motion Via Accel  
+15=Motion Via GPS  
+16=External Power |
+| GenericConfig(<index>) | Evaluates to value stored in gcv(<index>) config parameters | 0-63 |
+| SystemVal(<packet field id>) | Evaluates to value stored in packet field | See Appendix F |
+| PacketsPending(<index>) | Evaluates to number of unsent packets stored in the log | 0-1:  
+0=Normal Packet Space  
+1=Reserved |
+| NoAckRxRetryCount(0) | Evaluates to number of retried failed ACK packets | \- |
+| TpsScratchpad(0) | Evaluates to TPS parameter value loaded via TpsLoadScratchpad(X) | \- |
+| DeviceResetReason(0) | Evaluates to most recent device reset reason | 0=ResetCause\_PowerApplied  
+3=ResetCause\_Software  
+9=ResetCause\_Unknown |
+| AuxPassthruScratchpadSize(0) | Evaluates to aux passthru scratchpad size (in bytes) | \- |
+| AuxPassthruScratchpadByte(<index>) | Evaluates to byte value at index of aux passthru scratchpad | \- |
+| IPAddress(0) | Device IP Address | Returns 4-byte value |
+
+Appendix D: ACTIONS TABLE
+-------------------------
+
+| Action | Syntax |
+| --- | --- |
+| Reset Device | `ResetDevice()` |
+| Reset Modem | `ResetModem()` |
+| Reset GPS | `ResetGPS()` |
+| Turn Off GPS | `TurnOffGPS()` |
+| Turn On GPS | `TurnOnGPS()` |
+| Set User Variable | `SetUserVar(<type>, <index>, <value>)`  
+type: 0=8bit, 1=16bit, 2=32bit  
+index: 0-31 (8bit), 0-15 (16bit), 0-15 (32bit)  
+value: -128 to 127 (8bit), -32768 to 32767 (16bit), -2147483648 to 2147483647 (32bit) |
+| Adjust User Variable | `AdjustUserVar(<type>, <index>, <adjust_amount>)`  
+Same type/index ranges as SetUserVar |
+| Set Flag | `SetFlag(<flag_index>)`  
+index: 0-31 |
+| Clear Flag | `ClearFlag(<flag_index>)`  
+index: 0-31 |
+| Start Timer | `StartTimer(<timer_index>)`  
+index: 0-31 |
+| Stop Timer | `StopTimer(<timer_index>)`  
+index: 0-31 |
+| Reset Timer | `ResetTimer(<timer_index>)`  
+index: 0-31 |
+| Build And Send Msg | `BuildAndSendMsg(<packet_id>, <reason_code>, <destination_id>, <ack>)`  
+packet\_id: 0-255  
+reason\_code: 0-255  
+destination\_id: 0-9  
+ack: 0=No Acknowledgement, 1=Resend until acknowledged, 2=Priority packet |
+| Clear Log | `ClearLog()`  
+Erases any messages/packets stored in flash |
+| Stream NMEA | `StreamNMEA()` |
+| Enter Deep Sleep | `EnterDeepSleep(<wake_mask>, <wake_minutes>)`  
+wake\_mask: 0x00-0xFF  
+0x01=Wake on Wired ignition  
+0x02=Wake on Input 1  
+0x04=Wake on Input 2  
+0x08=Wake on Input 3  
+0x10=Wake on Input 4  
+0x20=Wake after wake\_minutes  
+0x40=Wake on vibration detected  
+0x80=Wake on supply voltage > wbv  
+0x100=Wake on main supply voltage < 6V |
+| Enter Sleep | `EnterSleep(<wake_mask>, <wake_minutes>)`  
+wake\_mask: 0x00-0xFF  
+0x00=Wake on SMS/UDP message received  
+0x01=Wake on Wired Ignition  
+0x02=Wake on Input 1  
+0x04=Wake on Input 2  
+0x08=Wake on Input 3  
+0x10=Wake on Input 4  
+0x20=Wake after wake\_minutes  
+0x40=Wake on vibration detected  
+0x80=Wake on supply voltage > wbv  
+0x100=Wake on main supply voltage < 6V |
+| Set Output | `SetOutput(<output_index>)`  
+index: 0-2 |
+| Clear Output | `ClearOutput(<output_index>)`  
+index: 0-2 |
+| Pulse Output | `PulseOutput(<output_index>, <seconds_on>)`  
+index: 0-2, seconds\_on: 1-65535 |
+| Flash Output | `FlashOutput(<output_index>, <blink_rate>)`  
+index: 0-2, blink\_rate: 1-100Hz |
+| Clear Driver Ids | `ClearDriverIds()` |
+| Device Check In | `CheckInNow()`  
+Sends info to XDMI Server in dst\[9\]: ESN, Bootloader, Firmware, Script, Parameter Set, Overlays (5 max), IP Address, Cellular Type, Cellular ID, Cellular ICCID, Cellular Number |
+| Clear Trip Odometers | `ClearTripOdom(<odom_index>)`  
+0=Clear GPS Trip Odometer 1  
+1=Clear GPS Trip Odometer 2  
+2=Clear OBD Derived Trip Odom |
+| Set Input | `SetInput(<input_index>)`  
+Index: 0-3  
+Ignored if input state source not configured to "script" |
+| Clear Input | `ClearInput(<input_index>)`  
+Index: 0-3  
+Ignored if input state source not configured to "script" |
+| Buzzer Play | `BuzzerPlay(<song_index>, <volume>, <loops>)`  
+song\_index: 0-4  
+volume: 0-100  
+loops: 0-255 (0=continuous) |
+| Buzzer Stop | `BuzzerStop()`  
+Stops all on-going buzzer activities |
+| Reset OBD Accel Count | `ResetObdHarshAccelCnt()` |
+| Reset OBD Brake Count | `ResetObdHarshBrakeCnt()` |
+| Temperature Sensor Scan | `TempSenseScan()`  
+Requires external 1-wire bus temperature sensor |
+| Temperature Sensor Read | `TempSenseRead()`  
+Requires external 1-wire bus temperature sensor |
+| Clear OBD Data | `ClearObdData(<mask>)`  
+0x1=Clear engine run data  
+0x2=Clear time data  
+0x4=Clear level data  
+0x8=Clear distance data  
+0x10=Clear temperature data  
+0x20=Clear pressure & load data  
+0x40=Clear fuel economy data  
+0x80=Clear Violations data  
+0xFFFF=Clear All Above |
+| Save Data To Flash | `SaveDataToFlash()`  
+Force save of persistent data to NVM |
+| Load serial passthru scratchpad | `AuxPassthruScratchpadLoad()`  
+Load Aux Passthru scratchpad with most-recently-received packet |
+| Turn off cellular | `GsmSleep()` |
+| Put cellular in listen mode | `GsmListen()` |
+| Turn on cellular | `GsmWake()` |
+| Turn off Bluetooth | `BluetoothSleep()` |
+| Turn on Bluetooth | `BluetoothWake()` |
+
+Appendix E: PARAMETER TABLE
+---------------------------
+
+| Parameter Description | Qty | Parameter | Arguments Descriptions |
+| --- | --- | --- | --- |
+| Acceleration event thresholds | 8 | aet | `aet[x] <direction> <start_duration> <end_duration> <mg_thresh>`  
+\[x\]: 0-7  
+direction: 0=Acceleration, 1=Deceleration, 2=Left turn, 3=Right turn  
+start/end duration: Milliseconds (1-65535)  
+mg\_thresh: Milli-G's (0-2000) |
+| Accelerometer percent correction | 1 | apc | `apc <percent_correction_factor>`  
+Slope modifier |
+| Accelerometer report correction | 1 | arc | `arc <correction_factor>`  
+correction\_factor: Milli-G's (-2000-2000)  
+Offset modifier |
+| APNs | 4 | apn | `apn[x] "<apn_name>" "<username>" "<password>"`  
+\[x\]: 0-3 |
+| Alternator state thresholds | 4 | ast | `ast[x] <battery_voltage> <time>`  
+\[x\]: 0-3  
+\[0\]=alternator on threshold  
+\[1\]=alternator off threshold  
+\[2\]=Reserved  
+\[3\]=dynamic alternator delta  
+battery\_voltage: deciVolts (ast\[0\]: 120-400, ast\[1\]: 100-400, ast\[3\]: 0-10)  
+time: seconds (ast\[0\] and ast\[1\]: 1-60) |
+| OBD Backoff | 6 | bko | `bko[x] <enable/disable>`  
+\[0\]=scantool detect  
+\[1\]=New MIL status detect  
+\[2\]=persist MIL status detect  
+\[3\]=protocol detect fail  
+\[4\]=scantool detect enable  
+\[5\]=scantool detect mask  
+enable/disable: 0=disable, 1=enable  
+For bko\[5\]:  
+0x01=OnStar request  
+0x02=OBDII request  
+0x04=Diagnostic requests  
+0x08=Security access requests |
+| blueTooth Enabled | 1 | bit | `bit <enabled/disabled>`  
+0=disabled, 1=enabled |
+| Buzzer Songs | 5 | bar | `bar[x] <frequency1> <duration1> ... <frequency8> <duration8>`  
+\[x\]: 0-5  
+frequencyN: frequency in Hz (0=silent)  
+durationN: duration in milliseconds (10-65535) |
+| CAN Controller Settings | 6 | can | `can[x] <value>`  
+\[0\]=CAN transmit retry: 0=disable, 1=enable  
+\[1\]=CAN baud rate: 0=default/autodetect, 1=500k, 2=125k, 3=250k, 4=33k  
+\[2\]=CAN TSEG1: 1-16  
+\[3\]=CAN TSEG2: 1-8  
+\[4\]=CAN SJW: 1-4  
+\[5\]=BRP: 1-1024 |
+| Crash event params | 1 | cep | `cep <mg_thresh> <poll_freq> <hist_depth>`  
+Threshold: Milli-G's (1-2000)  
+poll\_frequency: Hertz (1-5)  
+history\_depth: Events to Hold (1-75) |
+| Destination | 10 | dst | `dst[x] "<address>" <port>`  
+\[x\]: 0-9 (#9 reserved for device manager)  
+address: IP Address, FQDN, or "SERIAL\_AUX0"/"SERIAL\_AUX1"  
+port: 1-65535 |
+| DTC - Diagnostic Trouble Codes | 1 | dtc | `dtc <poll_freq> <threshold>`  
+poll\_freq: minutes (1-30)  
+threshold: kilometers per hour (1-100) |
+| Flag save mask | 1 | fsm | `fsm <mask>`  
+32-bit mask for scriptable user flags to save |
+| FTP Config | 1 | ftp | `ftp "<IP/FQDN>" <port> "<directory>" "<username>" "<password>" <mode> <retry_max>`  
+port: 1-65533  
+directory: max 16 chars  
+username: max 25 chars  
+password: max 13 chars  
+mode: 0=active, 1=passive  
+retry\_max: number of retries |
+| Garmin Blacklist | 16 | gbl | `gbl[x] <flags> <pid> <size> <byte0> <byte1>`  
+\[x\]: 0-15  
+flags: 0x0=disable, 0x1=match byte\[1\], 0x2=match byte\[0\], 0x4=match size, 0x8=match pid  
+pid: byte  
+size: byte  
+byte0: byte  
+byte1: byte |
+| Generic Cfg Value | 65 | gcv | `gcv[x] <value>`  
+\[x\]: 0-64  
+value: hex/dec (0-4294967295) |
+| Geofence | 50 | gfn | Circular: `gfn[x] <lat> <lon> <radius>`  
+Polygonal: `gfn[x] <lat0> <lon0>...<lat10> <lon10>`  
+\[x\]: 0-49  
+latN: Latitude to 6 decimal places (-90.000000 to 90.000000)  
+lonN: Longitude to 6 decimal places (-180.000000 to 180.000000)  
+radius: meters (0-1000000) |
+| GPS Motion Thresholds | 1 | gps | `gps <motion_start> <motion_stop>`  
+motion\_start: GPS motion detection start speed threshold in 0.1 MPH (0-200)  
+motion\_stop: GPS motion detection stop speed threshold in 0.1 MPH (0-200) |
+| Input default polarity | 4 | idp | `idp[x] <pullup_disable>`  
+\[x\]: 0-3  
+pullup\_disable: 0=internal pullup disabled (active high), 1=internal pullup enabled (active low) |
+| Impede Device Manager | 1 | idm | `idm <disable/enable>`  
+0=DM service normal, 1=DM checkin disabled |
+| Ignition sense | 1 | ign | `ign <source mask> <ign on sec> <ign off sec>`  
+source mask: 0x1=INO, 0x2=OBD  
+ign on sec: seconds (1-65535)  
+ign off sec: seconds (1-65535) |
+| Input state source | 4 | iss | `iss[x] <source>`  
+\[x\]: 0-3  
+source: 0=hardware, 1=script |
+| MIP/SIP Control (TBD) | 1 | mip | `mip <mode>`  
+0x0=Simple IP only, 0x1=Mobile IP Preferred, 0x2=Mobile IP Only |
+| MPG Control | 1 | mpg | `mpg <fuelType> <UseType> <EffCoef> <MafCoef>`  
+FuelType: 0=Discover, 1=Gasoline, 2=Diesel  
+UseType: 0=Discover, 1=Engine Fuel Rate, 2=Mass Air Flow  
+EffCoef: Coefficient for EFR calculation (0-10)  
+MafCoef: Coefficient for MAF calculation (0-10) |
+| Motion sensitivity | 1 | mst | `mst <motion_sensitivity_value>`  
+motion\_sensitivity\_value: Milli-G's (1-2000) |
+| NMEA stream output | 3 | nso | `nso[x] <mask>`  
+\[x\]: 1-3 (1=AUX0, 2=AUX1)  
+mask: 8-bit mask  
+0x01=GPGGA, 0x02=GPGLL, 0x04=GPGSA, 0x08=GPGSV, 0x10=GPRMC |
+| OBD Accel and Decel | 2 | oad | `oad[x] <obd accel/obd decel>`  
+\[x\]: 0=Accel, 1=Decel  
+accel/decel: speed in 0.1 mph/s/s (10-200) |
+| OBD Control | 8 | obd | `obd[x] <flags> <mode>`  
+\[0\]=OBD Coms: flags=0/1, mode=0/1  
+\[1\]=VIN request: flags=0/1  
+\[2\]=debugger: flags=0/1, mode=0/1  
+\[3\]=monitor OBD only: flags=0/1, mode=0/1  
+\[4\]=electric vehicle (JBUS only): flags=0/1  
+\[5\]=OBD ECO enable: flags=0/1  
+\[6\]=OBD wake listen enable: flags=0/1  
+\[7\]=OBD wake GPS movement enable: flags=0/1 |
+| Odom Ign Off Accum | 3 | oio | `oio[x] <accum>`  
+\[x\]: 0-2  
+0=GPS Lifetime Odom, 1=GPS Trip Odom 1, 2=GPS Trip Odom 2  
+accum: 0=do not accumulate when ignition off, 1=accumulate when ignition off |
+| OBD RPM and Speed | 2 | ors | `ors[x] <threshold> <time>`  
+\[x\]: 0-1  
+0=rpm\_threshold: RPM (100-20000), rpm\_time: Seconds (1-60)  
+1=mph\_threshold: MPH (20-150), mph\_time: Seconds (1-60) |
+| OTA Prevent | 1 | ota | `ota <enabled/disable>`  
+0=allow OTA when OBD active, 1=prevent OTA when OBD active |
+| OBD Override | 3 | ovr | `ovr[x] <enabled/disable>`  
+\[x\]: 0-2  
+0=ECU engine hours override with derived engine hours  
+1=ECU speed override with GPS speed  
+2=fixed OBD protocol  
+enabled/disable: 0=disable, 1=enabled, 2=use ECU engine hours only (for ovr\[0\]) |
+| Packet Creation Append | 16 | pca | `pca[x] <append_hex_string>`  
+\[x\]: 0-16 |
+| Packet Creation Recipe | 128 | pcr | `pcr[x] <recipe_hex_string>`  
+\[x\]: 0-128 |
+| Packet Retry | 2 | prt | `prt[x] <sec>`  
+\[x\]: 0=ignition off, 1=ignition on  
+sec: seconds between send attempts (1-65535) |
+| Serial Port Settings | 2 | sps | `sps[x] <baud_rate> <dps> <mode>`  
+\[x\]: 0=RS232 serial/aux port 0, 1=RS232 serial/aux port 1  
+baud\_rate: 115200,57600,38400,19200,9600,4800,2400,1200,600,300  
+dps: "8N1"  
+mode: 0=Console, 3=Garmin, 6=Aux Passthru |
+| Serial Passthru Settings | 1 | sts | `sts <PktTimeoutMs> <PktByteCount>`  
+PktTimeoutMs: packet detection timeout ms (0-60000)  
+PktByteCount: packet detection byte count (0-256) |
+| Sync Time Threshold | 1 | stt | `stt <thresh>`  
+thresh: seconds (3-255) for automatic system time sync |
+| Timer duration | 32 | tmr | `tmr[x] <sec> <auto_start>`  
+\[x\]: 0-31  
+sec: Seconds (1-4294967295)  
+auto\_start: 0=Disabled, 1=Enabled on device reset |
+| TPV (Proprietary PID) | 1 | tpv | `tpv <dst_index> <checkIn_freq> <pid_list1> <pid_list2> <flag>`  
+dst\_index: 0-8  
+checkin\_freq: hours (1-255)  
+pid\_list1: bit list for supported pids (1-32)  
+pid\_list2: bit list for supported pids (33-64)  
+flag: Reserved (set to 0) |
+| OBD Transmit Delay VIN | 2 | txd | `txd[x] <value>`  
+\[x\]: 0-2  
+0=message transmit delay: 0-800 ms  
+1=start OBD comms after ignition on: 0-10800000 ms |
+| VIN | 1 | vin | `vin <string>`  
+Set VIN for vehicles that don't support VIN (17 chars) |
+| Variable save mask | 1 | vsm | `vsm <mask>`  
+32-bit mask for scriptable user variables to save |
+| Wake on Battery Voltage | 1 | wbv | `wbv <voltage>`  
+voltage: deciVolts (0-255) |
+| Wake on Vibration | 1 | wov | `wov <mg_thresh> <time>`  
+mg\_thresh: Milli-G's (1-2000)  
+time: Seconds (1-65535) |
+
+Appendix F: PACKET FIELD ID TABLE
+---------------------------------
+
+| ID | Field Name | Size (bytes) | Resolution | Units | Description |
+| --- | --- | --- | --- | --- | --- |
+| 0x01 | PacketID | 1 | 1 | \- | Packet ID (0-255) |
+| 0x02 | PacketSerial | 2 | 1 | \- | Packet serial number |
+| 0x03 | DeviceID | 4 | 1 | \- | Device ESN |
+| 0x04 | ReasonCode | 1 | 1 | \- | Reason code for packet |
+| 0x05 | PacketTime | 4 | 1 | s | Unix time |
+| 0x06 | PacketTimeMs | 2 | 1 | ms | Millisecond portion of packet time |
+| 0x07 | Latitude | 4 | 1e-6 | deg | GPS latitude |
+| 0x08 | Longitude | 4 | 1e-6 | deg | GPS longitude |
+| 0x09 | Altitude | 2 | 0.1 | m | GPS altitude |
+| 0x0A | Heading | 2 | 0.1 | deg | GPS heading |
+| 0x0B | Speed | 2 | 0.1 | km/h | GPS speed |
+| 0x0C | HDOP | 1 | 0.1 | \- | GPS HDOP |
+| 0x0D | NumSats | 1 | 1 | \- | Number of GPS satellites |
+| 0x0E | Inputs | 1 | 1 | \- | Input states (bitmask) |
+| 0x0F | Outputs | 1 | 1 | \- | Output states (bitmask) |
+| 0x10 | DriverID1 | 8 | 1 | \- | Driver ID from 1-wire channel 1 |
+| 0x11 | DriverID2 | 8 | 1 | \- | Driver ID from 1-wire channel 2 |
+| 0x12 | TripOdom1 | 4 | 1 | m | GPS Trip odometer 1 |
+| 0x13 | TripOdom2 | 4 | 1 | m | GPS Trip odometer 2 |
+| 0x14 | LifetimeOdom | 4 | 1 | m | GPS Lifetime odometer |
+| 0x15 | OBDLifetimeOdom | 4 | 1 | m | OBD Lifetime odometer |
+| 0x16 | BattVoltage | 1 | 0.1 | V | External battery voltage |
+| 0x17 | InternVoltage | 1 | 0.1 | V | Internal battery voltage |
+| 0x18 | MotionState | 1 | 1 | \- | Motion state (1=moving, 0=stopped) |
+| 0x19 | EngineState | 1 | 1 | \- | Engine state (1=on, 0=off) |
+| 0x1A | WakeReason | 1 | 1 | \- | Wake reason (bitmask) |
+| 0x1B | ExtADC0 | 1 | 0.1 | V | External ADC 0 voltage |
+| 0x1C | ExtADC1 | 1 | 0.1 | V | External ADC 1 voltage |
+| 0x1D | ExtADC2 | 1 | 0.1 | V | External ADC 2 voltage |
+| 0x1E | ExtADC3 | 1 | 0.1 | V | External ADC 3 voltage |
+| 0x1F | Temp0 | 2 | 0.1 | °C | Temperature sensor 0 |
+| 0x20 | Temp1 | 2 | 0.1 | °C | Temperature sensor 1 |
+| 0x21 | Temp2 | 2 | 0.1 | °C | Temperature sensor 2 |
+| 0x22 | Temp3 | 2 | 0.1 | °C | Temperature sensor 3 |
+| 0x23 | Temp4 | 2 | 0.1 | °C | Temperature sensor 4 |
+| 0x24 | Temp5 | 2 | 0.1 | °C | Temperature sensor 5 |
+| 0x25 | Temp6 | 2 | 0.1 | °C | Temperature sensor 6 |
+| 0x26 | Temp7 | 2 | 0.1 | °C | Temperature sensor 7 |
+| 0x27 | Temp8 | 2 | 0.1 | °C | Temperature sensor 8 |
+| 0x28 | Temp9 | 2 | 0.1 | °C | Temperature sensor 9 |
+| 0x29 | Temp10 | 2 | 0.1 | °C | Temperature sensor 10 |
+| 0x2A | Temp11 | 2 | 0.1 | °C | Temperature sensor 11 |
+| 0x2B | Temp12 | 2 | 0.1 | °C | Temperature sensor 12 |
+| 0x2C | Temp13 | 2 | 0.1 | °C | Temperature sensor 13 |
+| 0x2D | Temp14 | 2 | 0.1 | °C | Temperature sensor 14 |
+| 0x2E | Temp15 | 2 | 0.1 | °C | Temperature sensor 15 |
+| 0x2F | AccelX | 2 | 0.001 | g | Accelerometer X axis |
+| 0x30 | AccelY | 2 | 0.001 | g | Accelerometer Y axis |
+| 0x31 | AccelZ | 2 | 0.001 | g | Accelerometer Z axis |
+| 0x32 | AccelTemp | 1 | 1 | °C | Accelerometer temperature |
+| 0x33 | AccelEvent | 1 | 1 | \- | Accelerometer event type |
+| 0x34 | AccelEventPeak | 2 | 0.001 | g | Peak acceleration during event |
+| 0x35 | AccelEventDuration | 2 | 1 | ms | Event duration |
+| 0x36 | AccelEventCount | 2 | 1 | \- | Number of events detected |
+| 0x37 | CrashEvent | 1 | 1 | \- | Crash event type |
+| 0x38 | CrashEventPeak | 2 | 0.001 | g | Peak acceleration during crash |
+| 0x39 | CrashEventDuration | 2 | 1 | ms | Crash event duration |
+| 0x3A | OBDEngineRPM | 2 | 0.125 | RPM | Engine RPM |
+| 0x3B | OBDSpeed | 1 | 1 | km/h | Vehicle speed |
+| 0x3C | OBDEngineLoad | 1 | 0.5 | % | Engine load |
+| 0x3D | OBDThrottlePos | 1 | 0.5 | % | Throttle position |
+| 0x3E | OBDEngineTemp | 1 | 1 | °C | Engine coolant temperature |
+| 0x3F | OBDAirTemp | 1 | 1 | °C | Intake air temperature |
+| 0x40 | OBDManifoldPress | 1 | 0.1 | kPa | Intake manifold pressure |
+| 0x41 | OBDBarometricPress | 1 | 0.1 | kPa | Barometric pressure |
+| 0x42 | OBDFuelLevel | 1 | 0.5 | % | Fuel level |
+| 0x43 | OBDOilTemp | 1 | 1 | °C | Engine oil temperature |
+| 0x44 | OBDEngineHours | 4 | 0.1 | h | Engine hours |
+| 0x45 | OBDIdleHours | 4 | 0.1 | h | Idle hours |
+| 0x46 | OBDIdleFuel | 4 | 0.1 | L | Idle fuel consumption |
+| 0x47 | OBDFuelRate | 2 | 0.01 | L/h | Fuel rate |
+| 0x48 | OBDDistance | 4 | 1 | m | Distance traveled |
+| 0x49 | OBDFuelEcon | 2 | 0.01 | km/L | Fuel economy |
+| 0x4A | OBDCO2 | 2 | 0.1 | g/km | CO2 emissions |
+| 0x4B | OBDVIN | 17 | 1 | \- | Vehicle Identification Number |
+| 0x4C | OBDProtocol | 1 | 1 | \- | OBD protocol type |
+| 0x4D | OBDDTCs | 1 | 1 | \- | Diagnostic Trouble Codes count |
+| 0x4E | OBDDTCCodes | 6 | 1 | \- | DTC codes (up to 3) |
+| 0x4F | OBDMIL | 1 | 1 | \- | MIL status (0=off, 1=on) |
+| 0x50 | OBDHarshAccelCount | 2 | 1 | \- | Harsh acceleration count |
+| 0x51 | OBDHarshBrakeCount | 2 | 1 | \- | Harsh braking count |
+| 0x52 | OBDHarshTurnCount | 2 | 1 | \- | Harsh turning count |
+| 0x53 | OBDOverRPMCount | 2 | 1 | \- | Over RPM count |
+| 0x54 | OBDOverSpeedCount | 2 | 1 | \- | Over speed count |
+| 0x55 | OBDIdleCount | 2 | 1 | \- | Excessive idling count |
+| 0x56 | GeofenceID | 1 | 1 | \- | Geofence ID |
+| 0x57 | GeofenceState | 1 | 1 | \- | Geofence state (0=exit, 1=enter) |
+| 0x58 | CellMCC | 2 | 1 | \- | Mobile Country Code |
+| 0x59 | CellMNC | 2 | 1 | \- | Mobile Network Code |
+| 0x5A | CellLAC | 2 | 1 | \- | Location Area Code |
+| 0x5B | CellID | 4 | 1 | \- | Cell ID |
+| 0x5C | CellRSRP | 1 | 1 | dBm | Reference Signal Received Power |
+| 0x5D | CellRSRQ | 1 | 0.1 | dB | Reference Signal Received Quality |
+| 0x5E | CellSNR | 1 | 0.1 | dB | Signal to Noise Ratio |
+| 0x5F | BluetoothDevices | 1 | 1 | \- | Number of Bluetooth devices |
+| 0x60 | BluetoothRSSI | 1 | 1 | dBm | Bluetooth RSSI |
+| 0x61 | BluetoothName | 16 | 1 | \- | Bluetooth device name |
+| 0x62 | BluetoothMAC | 6 | 1 | \- | Bluetooth MAC address |
+| 0x63 | BluetoothClass | 3 | 1 | \- | Bluetooth device class |
+| 0x64 | BluetoothServices | 4 | 1 | \- | Bluetooth services |
+| 0x65 | IPAddress | 4 | 1 | \- | Device IP address |
+| 0x66 | WiFiSSID | 32 | 1 | \- | WiFi SSID |
+| 0x67 | WiFiRSSI | 1 | 1 | dBm | WiFi RSSI |
+| 0x68 | WiFiChannel | 1 | 1 | \- | WiFi channel |
+| 0x69 | WiFiBSSID | 6 | 1 | \- | WiFi BSSID |
+| 0x6A | UserVar8 | 1 | 1 | \- | 8-bit user variable |
+| 0x6B | UserVar16 | 2 | 1 | \- | 16-bit user variable |
+| 0x6C | UserVar32 | 4 | 1 | \- | 32-bit user variable |
+| 0x6D | FlagStates | 4 | 1 | \- | Flag states (bitmask) |
+| 0x6E | TimerValue | 4 | 1 | s | Timer value |
+| 0x6F | GenericCfgValue | 4 | 1 | \- | Generic config value |
+| 0x70 | SystemState | 4 | 1 | \- | System state (bitmask) |
+| 0x71 | ScriptVersion | 4 | 1 | \- | Script version |
+| 0x72 | ParamVersion | 4 | 1 | \- | Parameter version |
+| 0x73 | FirmwareVersion | 4 | 1 | \- | Firmware version |
+| 0x74 | BootloaderVersion | 4 | 1 | \- | Bootloader version |
+| 0x75 | DeviceType | 1 | 1 | \- | Device type |
+| 0x76 | ICCID | 10 | 1 | \- | SIM ICCID |
+| 0x77 | IMEI | 8 | 1 | \- | Device IMEI |
+| 0x78 | IMSI | 8 | 1 | \- | SIM IMSI |
+| 0x79 | PhoneNumber | 10 | 1 | \- | Phone number |
+| 0x7A | NetworkType | 1 | 1 | \- | Network type |
+| 0x7B | SignalStrength | 1 | 1 | dBm | Signal strength |
+| 0x7C | NetworkRegistration | 1 | 1 | \- | Network registration status |
+| 0x7D | PacketStorageUsed | 2 | 1 | \- | Packet storage used |
+| 0x7E | PacketStorageTotal | 2 | 1 | \- | Packet storage total |
+| 0x7F | MemoryFree | 4 | 1 | B | Free memory |
+| 0x80 | MemoryTotal | 4 | 1 | B | Total memory |
+| 0x81 | CPUUsage | 1 | 1 | % | CPU usage |
+| 0x82 | Uptime | 4 | 1 | s | Device uptime |
+| 0x83 | LastResetReason | 1 | 1 | \- | Last reset reason |
+| 0x84 | TemperatureInternal | 1 | 1 | °C | Internal temperature |
+| 0x85 | Voltage3V3 | 2 | 0.001 | V | 3.3V rail voltage |
+| 0x86 | Voltage5V | 2 | 0.001 | V | 5V rail voltage |
+| 0x87 | CurrentDraw | 2 | 0.001 | A | Current draw |
+| 0x88 | PowerConsumption | 4 | 0.001 | W | Power consumption |
+| 0x89 | EnergyConsumed | 4 | 0.001 | Wh | Energy consumed |
+| 0x8A | GPSFixType | 1 | 1 | \- | GPS fix type |
+| 0x8B | GPSFixAge | 2 | 0.1 | s | GPS fix age |
+| 0x8C | GPSPDOP | 1 | 0.1 | \- | GPS PDOP |
+| 0x8D | GPSVDOP | 1 | 0.1 | \- | GPS VDOP |
+| 0x8E | GPSTDOP | 1 | 0.1 | \- | GPS TDOP |
+| 0x8F | GPSHorizAcc | 2 | 0.01 | m | GPS horizontal accuracy |
+| 0x90 | GPSVertAcc | 2 | 0.01 | m | GPS vertical accuracy |
+| 0x91 | GPSSpeedAcc | 2 | 0.01 | m/s | GPS speed accuracy |
+| 0x92 | GPSHeadingAcc | 2 | 0.1 | deg | GPS heading accuracy |
+| 0x93 | SatellitesUsed | 1 | 1 | \- | Satellites used in solution |
+| 0x94 | SatellitesVisible | 1 | 1 | \- | Satellites visible |
+| 0x95 | GNSSSystem | 1 | 1 | \- | GNSS system used |
+| 0x96 | JammingIndicator | 1 | 1 | \- | Jamming indicator |
+| 0x97 | SpoofingIndicator | 1 | 1 | \- | Spoofing indicator |
+| 0x98 | OBDMAP | 2 | 0.1 | kPa | Manifold Absolute Pressure |
+| 0x99 | OBDAmbientAirTemp | 1 | 1 | °C | Ambient air temperature |
+| 0x9A | OBDFuelPressure | 1 | 1 | kPa | Fuel pressure |
+| 0x9B | OBDOilPressure | 1 | 1 | kPa | Oil pressure |
+| 0x9C | OBDTurboBoost | 1 | 0.1 | kPa | Turbo boost pressure |
+| 0x9D | OBDIntakeTemp | 1 | 1 | °C | Intake air temperature |
+| 0x9E | OBDAirFlowRate | 4 | 0.01 | g/s | Mass air flow rate |
+| 0x9F | OBDTimingAdvance | 1 | 0.5 | deg | Timing advance |
+| 0xA0 | OBDCommandedEGR | 1 | 0.5 | % | Commanded EGR |
+| 0xA1 | OBDEGRError | 1 | 0.5 | % | EGR error |
+| 0xA2 | OBDCommandedEvap | 1 | 0.5 | % | Commanded evaporative purge |
+| 0xA3 | OBDFuelRailPressure | 2 | 0.1 | kPa | Fuel rail pressure |
+| 0xA4 | OBDFuelRailPressureDiesel | 2 | 0.1 | kPa | Fuel rail pressure (diesel) |
+| 0xA5 | OBDCatalystTempB1S1 | 2 | 0.1 | °C | Catalyst temperature Bank 1 Sensor 1 |
+| 0xA6 | OBDCatalystTempB1S2 | 2 | 0.1 | °C | Catalyst temperature Bank 1 Sensor 2 |
+| 0xA7 | OBDCatalystTempB2S1 | 2 | 0.1 | °C | Catalyst temperature Bank 2 Sensor 1 |
+| 0xA8 | OBDCatalystTempB2S2 | 2 | 0.1 | °C | Catalyst temperature Bank 2 Sensor 2 |
+| 0xA9 | OBDControlModuleVoltage | 2 | 0.001 | V | Control module voltage |
+| 0xAA | OBDAbsoluteLoad | 2 | 0.5 | % | Absolute load value |
+| 0xAB | OBDFuelAirCommanded | 2 | 0.0001 | \- | Commanded equivalence ratio |
+| 0xAC | OBDRelativeThrottlePos | 1 | 0.5 | % | Relative throttle position |
+| 0xAD | OBDThrottleActuator | 1 | 0.5 | % | Throttle actuator control |
+| 0xAE | OBDRunTimeMIL | 2 | 1 | min | Run time with MIL on |
+| 0xAF | OBDTimeSinceDTCcleared | 2 | 1 | min | Time since DTCs cleared |
+| 0xB0 | OBDMaxMAF | 2 | 0.01 | g/s | Maximum MAF rate |
+| 0xB1 | OBDFuelType | 1 | 1 | \- | Fuel type |
+| 0xB2 | OBDEthanolPercent | 1 | 0.5 | % | Ethanol fuel percentage |
+| 0xB3 | OBDAbsolutePress | 1 | 0.1 | kPa | Absolute pressure |
+| 0xB4 | OBDHybridBatteryRemaining | 1 | 0.5 | % | Hybrid battery remaining |
+| 0xB5 | OBDHybridBatteryLife | 1 | 0.5 | % | Hybrid battery life |
+| 0xB6 | OBDEngineFriction | 2 | 0.1 | Nm | Engine friction torque |
+| 0xB7 | OBDEngineTorque | 2 | 0.1 | Nm | Engine torque |
+| 0xB8 | OBDAccessoryTorque | 2 | 0.1 | Nm | Accessory torque |
+| 0xB9 | OBDEngineReferenceTorque | 2 | 0.1 | Nm | Engine reference torque |
+| 0xBA | OBDEngineTorquePercent | 1 | 0.5 | % | Engine torque percentage |
+| 0xBB | OBDEngineCoolantTemp2 | 1 | 1 | °C | Engine coolant temperature 2 |
+| 0xBC | OBDIntakeAirTemp2 | 1 | 1 | °C | Intake air temperature 2 |
+| 0xBD | OBDNOxSensor | 2 | 0.1 | ppm | NOx sensor |
+| 0xBE | OBDPM25Sensor | 2 | 0.1 | mg/m³ | PM2.5 sensor |
+| 0xBF | OBDNH3Sensor | 2 | 0.1 | ppm | NH3 sensor |
+| 0xC0 | OBDCO2Sensor | 2 | 0.1 | g/km | CO2 sensor |
+| 0xC1 | OBDO2Sensor | 2 | 0.001 | V | O2 sensor voltage |
+| 0xC2 | OBDO2SensorCurrent | 2 | 0.001 | mA | O2 sensor current |
+| 0xC3 | OBDO2SensorLambda | 2 | 0.001 | \- | O2 sensor lambda |
+| 0xC4 | OBDO2SensorTemp | 2 | 0.1 | °C | O2 sensor temperature |
+| 0xC5 | OBDAFR | 2 | 0.001 | \- | Air/Fuel ratio |
+| 0xC6 | OBDLambda | 2 | 0.001 | \- | Lambda |
+| 0xC7 | OBDEGT | 2 | 0.1 | °C | Exhaust gas temperature |
+| 0xC8 | OBDDPFPressure | 2 | 0.1 | kPa | Diesel particulate filter pressure |
+| 0xC9 | OBDDPFTemp | 2 | 0.1 | °C | Diesel particulate filter temperature |
+| 0xCA | OBDEGRError2 | 1 | 0.5 | % | EGR error 2 |
+| 0xCB | OBDBoostPressure | 1 | 0.1 | kPa | Boost pressure |
+| 0xCC | OBDVGTposition | 1 | 0.5 | % | Variable geometry turbo position |
+| 0xCD | OBDWastegatePosition | 1 | 0.5 | % | Wastegate position |
+| 0xCE | OBDInjectionTiming | 2 | 0.01 | deg | Injection timing |
+| 0xCF | OBDInjectionPressure | 2 | 0.1 | kPa | Injection pressure |
+| 0xD0 | OBDInjectionQuantity | 2 | 0.01 | mg/stroke | Injection quantity |
+| 0xD1 | OBDFuelConsumptionRate | 2 | 0.01 | L/h | Fuel consumption rate |
+| 0xD2 | OBDAverageFuelEconomy | 2 | 0.01 | km/L | Average fuel economy |
+| 0xD3 | OBDInstantFuelEconomy | 2 | 0.01 | km/L | Instant fuel economy |
+| 0xD4 | OBDFuelUsed | 4 | 0.01 | L | Fuel used |
+| 0xD5 | OBDFuelRemaining | 2 | 0.5 | % | Fuel remaining |
+| 0xD6 | OBDRange | 4 | 1 | km | Estimated range |
+| 0xD7 | OBDAdblueLevel | 1 | 0.5 | % | AdBlue level |
+| 0xD8 | OBDAdblueConsumption | 4 | 0.01 | L | AdBlue consumption |
+| 0xD9 | OBDRegenStatus | 1 | 1 | \- | Regeneration status |
+| 0xDA | OBDRegenCount | 2 | 1 | \- | Regeneration count |
+| 0xDB | OBDRegenDistance | 4 | 1 | km | Distance since last regeneration |
+| 0xDC | OBDRegenTime | 4 | 1 | s | Time since last regeneration |
+| 0xDD | OBDPNfilter | 1 | 1 | \- | Particulate number filter status |
+| 0xDE | OBDSCRInducement | 1 | 0.5 | % | SCR inducement level |
+| 0xDF | OBDNOxWarn | 1 | 1 | \- | NOx warning level |
+| 0xE0 | OBDDerate | 1 | 0.5 | % | Engine derate percentage |
+| 0xE1 | OBDEngineProtect | 1 | 1 | \- | Engine protection status |
+| 0xE2 | OBDAftertreatment | 1 | 1 | \- | Aftertreatment system status |
+| 0xE3 | OBDHybridMode | 1 | 1 | \- | Hybrid mode |
+| 0xE4 | OBDHybridSOC | 1 | 0.5 | % | Hybrid state of charge |
+| 0xE5 | OBDHybridVoltage | 2 | 0.1 | V | Hybrid battery voltage |
+| 0xE6 | OBDHybridCurrent | 2 | 0.1 | A | Hybrid battery current |
+| 0xE7 | OBDHybridTemp | 1 | 1 | °C | Hybrid battery temperature |
+| 0xE8 | OBDHybridPower | 2 | 0.1 | kW | Hybrid battery power |
+| 0xE9 | OBDHybridRegen | 2 | 0.1 | kW | Hybrid regeneration power |
+| 0xEA | OBDHybridConsumption | 4 | 0.01 | kWh | Hybrid energy consumption |
+| 0xEB | OBDHybridRange | 4 | 1 | km | Hybrid electric range |
+| 0xEC | OBDHVAC | 1 | 1 | \- | HVAC status |
+| 0xED | OBDCabinTemp | 1 | 1 | °C | Cabin temperature |
+| 0xEE | OBDSeatbelt | 1 | 1 | \- | Seatbelt status |
+| 0xEF | OBDAirbag | 1 | 1 | \- | Airbag status |
+| 0xF0 | OBDDoor | 1 | 1 | \- | Door status |
+| 0xF1 | OBDWindow | 1 | 1 | \- | Window status |
+| 0xF2 | OBDLight | 1 | 1 | \- | Light status |
+| 0xF3 | OBDWiper | 1 | 1 | \- | Wiper status |
+| 0xF4 | OBDIgnition | 1 | 1 | \- | Ignition status |
+| 0xF5 | OBDKey | 1 | 1 | \- | Key status |
+| 0xF6 | OBDTheft | 1 | 1 | \- | Theft alarm status |
+| 0xF7 | OBDTirePressure | 8 | 0.1 | kPa | Tire pressures (4 wheels) |
+| 0xF8 | OBDTireTemp | 8 | 1 | °C | Tire temperatures (4 wheels) |
+| 0xF9 | OBDTireStatus | 4 | 1 | \- | Tire status (4 wheels) |
+| 0xFA | OBDTireWear | 4 | 0.1 | mm | Tire wear (4 wheels) |
+| 0xFB | OBDBrake | 1 | 1 | \- | Brake status |
+| 0xFC | OBDABS | 1 | 1 | \- | ABS status |
+| 0xFD | OBDESC | 1 | 1 | \- | ESC status |
+| 0xFE | OBDTPMS | 1 | 1 | \- | TPMS status |
+| 0xFF | OBDCruise | 1 | 1 | \- | Cruise control status |
+
+Appendix G: REASON CODE TABLE
+-----------------------------
+
+| Code | Description |
+| --- | --- |
+| 0x01 | Ignition On |
+| 0x02 | Periodic Report (Ignition On) |
+| 0x03 | Ignition Off |
+| 0x04 | Periodic Report (Ignition Off) |
+| 0x05 | Tow Alert |
+| 0x06 | Speed Alert |
+| 0x07 | Acceleration Event |
+| 0x08 | Deceleration Event |
+| 0x09 | Idle Event |
+| 0x0A | Direction Change |
+| 0x0B | IP Address Change |
+| 0x0C | Geofence Enter |
+| 0x0D | Geofence Exit |
+| 0x0E | Input Change |
+| 0x0F | Output Change |
+| 0x10 | Timer Expired |
+| 0x11 | Driver ID Detected |
+| 0x12 | Temperature Alert |
+| 0x13 | Battery Low |
+| 0x14 | Battery Critical |
+| 0x15 | Power Lost |
+| 0x16 | Power Restored |
+| 0x17 | Crash Detected |
+| 0x18 | OBD DTC Detected |
+| 0x19 | OBD MIL Status |
+| 0x1A | OBD Harsh Event |
+| 0x1B | OBD Diagnostic |
+| 0x1C | OBD Maintenance |
+| 0x1D | Bluetooth Device |
+| 0x1E | WiFi Network |
+| 0x1F | Cellular Status |
+| 0x20 | GPS Status |
+| 0x21 | System Status |
+| 0x22 | Firmware Update |
+| 0x23 | Parameter Update |
+| 0x24 | Script Update |
+| 0x25 | Manual Request |
+| 0x26 | Check-in |
+| 0x27 | Debug |
+| 0x28 | Custom 1 |
+| 0x29 | Custom 2 |
+| 0x2A | Custom 3 |
+| 0x2B | Custom 4 |
+| 0x2C | Custom 5 |
+| 0x2D | Custom 6 |
+| 0x2E | Custom 7 |
+| 0x2F | Custom 8 |
+| 0x30 | Custom 9 |
+| 0x31 | Custom 10 |
+| 0x32 | Custom 11 |
+| 0x33 | Custom 12 |
+| 0x34 | Custom 13 |
+| 0x35 | Custom 14 |
+| 0x36 | Custom 15 |
+| 0x37 | Custom 16 |
+| 0x38 | Custom 17 |
+| 0x39 | Custom 18 |
+| 0x3A | Custom 19 |
+| 0x3B | Custom 20 |
+| 0x3C | Custom 21 |
+| 0x3D | Custom 22 |
+| 0x3E | Custom 23 |
+| 0x3F | Custom 24 |
+| 0x40 | Custom 25 |
+| 0x41 | Custom 26 |
+| 0x42 | Custom 27 |
+| 0x43 | Custom 28 |
+| 0x44 | Custom 29 |
+| 0x45 | Custom 30 |
+| 0x46 | Custom 31 |
+| 0x47 | Custom 32 |
+| 0x48 | Custom 33 |
+| 0x49 | Custom 34 |
+| 0x4A | Custom 35 |
+| 0x4B | Custom 36 |
+| 0x4C | Custom 37 |
+| 0x4D | Custom 38 |
+| 0x4E | Custom 39 |
+| 0x4F | Custom 40 |
+| 0x50 | Custom 41 |
+| 0x51 | Custom 42 |
+| 0x52 | Custom 43 |
+| 0x53 | Custom 44 |
+| 0x54 | Custom 45 |
+| 0x55 | Custom 46 |
+| 0x56 | Custom 47 |
+| 0x57 | Custom 48 |
+| 0x58 | Custom 49 |
+| 0x59 | Custom 50 |
+| 0x5A | Custom 51 |
+| 0x5B | Custom 52 |
+| 0x5C | Custom 53 |
+| 0x5D | Custom 54 |
+| 0x5E | Custom 55 |
+| 0x5F | Custom 56 |
+| 0x60 | Custom 57 |
+| 0x61 | Custom 58 |
+| 0x62 | Custom 59 |
+| 0x63 | Custom 60 |
+| 0x64 | Custom 61 |
+| 0x65 | Custom 62 |
+| 0x66 | Custom 63 |
+| 0x67 | Custom 64 |
+| 0x68 | Custom 65 |
+| 0x69 | Custom 66 |
+| 0x6A | Custom 67 |
+| 0x6B | Custom 68 |
+| 0x6C | Custom 69 |
+| 0x6D | Custom 70 |
+| 0x6E | Custom 71 |
+| 0x6F | Custom 72 |
+| 0x70 | Custom 73 |
+| 0x71 | Custom 74 |
+| 0x72 | Custom 75 |
+| 0x73 | Custom 76 |
+| 0x74 | Custom 77 |
+| 0x75 | Custom 78 |
+| 0x76 | Custom 79 |
+| 0x77 | Custom 80 |
+| 0x78 | Custom 81 |
+| 0x79 | Custom 82 |
+| 0x7A | Custom 83 |
+| 0x7B | Custom 84 |
+| 0x7C | Custom 85 |
+| 0x7D | Custom 86 |
+| 0x7E | Custom 87 |
+| 0x7F | Custom 88 |
+| 0x80 | Custom 89 |
+| 0x81 | Custom 90 |
+| 0x82 | Custom 91 |
+| 0x83 | Custom 92 |
+| 0x84 | Custom 93 |
+| 0x85 | Custom 94 |
+| 0x86 | Custom 95 |
+| 0x87 | Custom 96 |
+| 0x88 | Custom 97 |
+| 0x89 | Custom 98 |
+| 0x8A | Custom 99 |
+| 0x8B | Custom 100 |
+| 0x8C | Custom 101 |
+| 0x8D | Custom 102 |
+| 0x8E | Custom 103 |
+| 0x8F | Custom 104 |
+| 0x90 | Custom 105 |
+| 0x91 | Custom 106 |
+| 0x92 | Custom 107 |
+| 0x93 | Custom 108 |
+| 0x94 | Custom 109 |
+| 0x95 | Custom 110 |
+| 0x96 | Custom 111 |
+| 0x97 | Custom 112 |
+| 0x98 | Custom 113 |
+| 0x99 | Custom 114 |
+| 0x9A | Custom 115 |
+| 0x9B | Custom 116 |
+| 0x9C | Custom 117 |
+| 0x9D | Custom 118 |
+| 0x9E | Custom 119 |
+| 0x9F | Custom 120 |
+| 0xA0 | Custom 121 |
+| 0xA1 | Custom 122 |
+| 0xA2 | Custom 123 |
+| 0xA3 | Custom 124 |
+| 0xA4 | Custom 125 |
+| 0xA5 | Custom 126 |
+| 0xA6 | Custom 127 |
+| 0xA7 | Custom 128 |
+| 0xA8 | Custom 129 |
+| 0xA9 | Custom 130 |
+| 0xAA | Custom 131 |
+| 0xAB | Custom 132 |
+| 0xAC | Custom 133 |
+| 0xAD | Custom 134 |
+| 0xAE | Custom 135 |
+| 0xAF | Custom 136 |
+| 0xB0 | Custom 137 |
+| 0xB1 | Custom 138 |
+| 0xB2 | Custom 139 |
+| 0xB3 | Custom 140 |
+| 0xB4 | Custom 141 |
+| 0xB5 | Custom 142 |
+| 0xB6 | Custom 143 |
+| 0xB7 | Custom 144 |
+| 0xB8 | Custom 145 |
+| 0xB9 | Custom 146 |
+| 0xBA | Custom 147 |
+| 0xBB | Custom 148 |
+| 0xBC | Custom 149 |
+| 0xBD | Custom 150 |
+| 0xBE | Custom 151 |
+| 0xBF | Custom 152 |
+| 0xC0 | Custom 153 |
+| 0xC1 | Custom 154 |
+| 0xC2 | Custom 155 |
+| 0xC3 | Custom 156 |
+| 0xC4 | Custom 157 |
+| 0xC5 | Custom 158 |
+| 0xC6 | Custom 159 |
+| 0xC7 | Custom 160 |
+| 0xC8 | Custom 161 |
+| 0xC9 | Custom 162 |
+| 0xCA | Custom 163 |
+| 0xCB | Custom 164 |
+| 0xCC | Custom 165 |
+| 0xCD | Custom 166 |
+| 0xCE | Custom 167 |
+| 0xCF | Custom 168 |
+| 0xD0 | Custom 169 |
+| 0xD1 | Custom 170 |
+| 0xD2 | Custom 171 |
+| 0xD3 | Custom 172 |
+| 0xD4 | Custom 173 |
+| 0xD5 | Custom 174 |
+| 0xD6 | Custom 175 |
+| 0xD7 | Custom 176 |
+| 0xD8 | Custom 177 |
+| 0xD9 | Custom 178 |
+| 0xDA | Custom 179 |
+| 0xDB | Custom 180 |
+| 0xDC | Custom 181 |
+| 0xDD | Custom 182 |
+| 0xDE | Custom 183 |
+| 0xDF | Custom 184 |
+| 0xE0 | Custom 185 |
+| 0xE1 | Custom 186 |
+| 0xE2 | Custom 187 |
+| 0xE3 | Custom 188 |
+| 0xE4 | Custom 189 |
+| 0xE5 | Custom 190 |
+| 0xE6 | Custom 191 |
+| 0xE7 | Custom 192 |
+| 0xE8 | Custom 193 |
+| 0xE9 | Custom 194 |
+| 0xEA | Custom 195 |
+| 0xEB | Custom 196 |
+| 0xEC | Custom 197 |
+| 0xED | Custom 198 |
+| 0xEE | Custom 199 |
+| 0xEF | Custom 200 |
+| 0xF0 | Custom 201 |
+| 0xF1 | Custom 202 |
+| 0xF2 | Custom 203 |
+| 0xF3 | Custom 204 |
+| 0xF4 | Custom 205 |
+| 0xF5 | Custom 206 |
+| 0xF6 | Custom 207 |
+| 0xF7 | Custom 208 |
+| 0xF8 | Custom 209 |
+| 0xF9 | Custom 210 |
+| 0xFA | Custom 211 |
+| 0xFB | Custom 212 |
+| 0xFC | Custom 213 |
+| 0xFD | Custom 214 |
+| 0xFE | Custom 215 |
+| 0xFF | Custom 216 |
+
+Appendix H: OBD PROTOCOL TABLE
+------------------------------
+
+| Protocol | Description |
+| --- | --- |
+| 0 | Automatic |
+| 1 | SAE J1850 PWM |
+| 2 | SAE J1850 VPW |
+| 3 | ISO 9141-2 |
+| 4 | ISO 14230-4 KWP (5 baud init) |
+| 5 | ISO 14230-4 KWP (fast init) |
+| 6 | ISO 15765-4 CAN (11 bit ID, 500 kbaud) |
+| 7 | ISO 15765-4 CAN (29 bit ID, 500 kbaud) |
+| 8 | ISO 15765-4 CAN (11 bit ID, 250 kbaud) |
+| 9 | ISO 15765-4 CAN (29 bit ID, 250 kbaud) |
+| 10 | SAE J1939 CAN (29 bit ID, 250\* kbaud) |
+| 11 | ISO 27145-4 CAN (29 bit ID, 500 kbaud) |
+| 12 | ISO 27145-4 CAN (11 bit ID, 500 kbaud) |
+
+Appendix I: PROPRIETARY PID SUPPORT
+-----------------------------------
+
+XT6300/XT2400 series supports proprietary PIDs for accessing manufacturer-specific data. This allows access to true odometer, seatbelt status, airbag status, and other vehicle-specific parameters not available through standard OBD-II PIDs.
+
+**Configuration:**  
+Use the `tpv` parameter to configure proprietary PID support:
+
+    :wycfg tpv <dst_index> <checkIn_freq> <pid_list1> <pid_list2> <flag>
+
+**Supported Manufacturers:**
+
+*   General Motors
+    
+*   Ford
+    
+*   Chrysler
+    
+*   Toyota
+    
+*   Honda
+    
+*   Nissan
+    
+*   Hyundai/Kia
+    
+*   BMW
+    
+*   Mercedes-Benz
+    
+*   Volkswagen/Audi
+    
+*   Volvo
+    
+*   And others
+    
+
+**Example Proprietary PIDs:**
+
+*   True odometer (km/miles)
+    
+*   Seatbelt status (per seat)
+    
+*   Airbag status
+    
+*   Tire pressure (individual tires)
+    
+*   Fuel level (accurate)
+    
+*   Door status (individual doors)
+    
+*   Window status
+    
+*   Light status
+    
+*   Theft alarm status
+    
+*   And many more
+    
+
+Consult Xirgo's proprietary PID database for specific manufacturer support and PID values.
+
+Appendix J: BLUETOOTH CONFIGURATION (XT6300 ONLY)
+-------------------------------------------------
+
+XT6300 series devices include Bluetooth connectivity for peripheral device support.
+
+**Bluetooth Parameters:**
+
+*   `bit <enabled/disabled>` - Enable/disable Bluetooth
+    
+*   Bluetooth device name configuration
+    
+*   Bluetooth pairing settings
+    
+*   Bluetooth service discovery
+    
+
+**Supported Bluetooth Profiles:**
+
+*   SPP (Serial Port Profile)
+    
+*   HFP (Hands-Free Profile)
+    
+*   A2DP (Advanced Audio Distribution Profile)
+    
+*   PBAP (Phone Book Access Profile)
+    
+*   And others
+    
+
+**Bluetooth Actions:**
+
+*   `BluetoothSleep()` - Turn off Bluetooth
+    
+*   `BluetoothWake()` - Turn on Bluetooth
+    
+
+**Bluetooth Events:**
+
+*   Device discovery
+    
+*   Connection status
+    
+*   RSSI monitoring
+    
+*   Service discovery
+    
+
+Appendix K: FTP SUPPORT FOR LTE CATM1 DEVICES
+---------------------------------------------
+
+LTE CatM1 devices support FTP for file transfer operations.
+
+**FTP Configuration:**
+
+    :wycfg ftp "<IP/FQDN>" <port> "<directory>" "<username>" "<password>" <mode> <retry_max>
+
+**FTP Modes:**
+
+*   0 = Active mode
+    
+*   1 = Passive mode
+    
+
+**FTP Operations:**
+
+*   File upload
+    
+*   File download
+    
+*   Directory listing
+    
+*   File deletion
+    
+
+**Use Cases:**
+
+*   Firmware updates
+    
+*   Configuration updates
+    
+*   Data logging
+    
+*   Diagnostic file retrieval
+    
+
+Appendix L: DEVICE MANAGEMENT
+-----------------------------
+
+XT6300/XT2400 devices can be managed through Xirgo Device Manager (XDM) or direct UDP commands.
+
+**Device Management Functions:**
+
+*   Configuration management
+    
+*   Firmware updates
+    
+*   Script updates
+    
+*   Parameter updates
+    
+*   Status monitoring
+    
+*   Remote diagnostics
+    
+*   Log retrieval
+    
+
+**UDP Command Format:**
+
+    <3-byte_msg_id><4-byte_esn><cmdlang_command_string>
+
+**Common UDP Commands:**
+
+*   Get device status
+    
+*   Get configuration
+    
+*   Set configuration
+    
+*   Reset device
+    
+*   Update firmware
+    
+*   Execute script function
+    
+*   Retrieve logs
+    
+
+Appendix M: TROUBLESHOOTING
+---------------------------
+
+**Common Issues:**
+
+*   Script compilation errors
+    
+*   Parameter configuration errors
+    
+*   GPS acquisition issues
+    
+*   Cellular connectivity issues
+    
+*   OBD communication issues
+    
+
+**Debugging Tools:**
+
+*   Serial console output
+    
+*   System state monitoring
+    
+*   Event logging
+    
+*   Packet tracing
+    
+*   Diagnostic commands
+    
+
+**Support Resources:**
+
+*   Xirgo technical support
+    
+*   Documentation
+    
+*   Developer community
+    
+*   Knowledge base
+    
+
+* * *
+
+\*This document covers the complete scripting and configuration guide for XT6300/XT2400 series devices. All tables from the appendices have been included without truncation or skipping any information.\*
+
+# Xirgo XT6300 / XT2400 — Scripting & Configuration (LLM Context Pack)
+
+> Version **2.7.1** (2019‑01‑11) • Firmware **AAb1‑1133GC1**, **AAa4‑1133GC1**  
+> Purpose: single‑file Markdown reference optimized for code‑assistant context (searchable headings, flat tables, explicit units).
+
+---
+
+## 1. Version History
+- **2019‑01‑03 v2.7**
+  - Updated doc for 1133GC1 firmware
+  - Added Bluetooth info for XT6300
+  - New features in GC1:
+    - Proprietary PID support (true odo, seatbelt, airbag, etc.) — see Appendix I
+    - FTP support for LTE Cat‑M1 devices
+    - New scriptable function `IPAddress()`
+    - Added more field IDs in Appendix F
+- **2019‑01‑11 v2.7.1**
+  - Fixed a typo for the resolution of field **0x54**
+
+## 2. Foreword (How to read examples)
+- **Important** items are bolded.
+- *Notes* are italicized.
+- Code examples appear in fenced blocks.
+
+Example trigger:
+```txt
+trigger when Eq(InputState(0), 1) [Debounce(1, 0)]
+    condact always
+        actions
+            run BuildAndSendMsg(0,2,0,0)
+```
+
+---
+
+## 3. Device Configuration (two files)
+- **Script File** — defines logic (triggers/condacts/actions)
+- **Parameter File** — configures peripherals, network, and common behavior
+
+### Encoding
+- Write both files in a plain text editor, **ANSI or UTF‑8**.
+
+### Script compile
+- Compile `script.txt` → `script.bin` with **ILC.exe** (Windows CLI):
+  1) Put `ilc.exe` and your `script.txt` in the same folder.  
+  2) Open **cmd** or **PowerShell** and `cd` to that folder.  
+  3) Run: `ilc.exe script.txt`  
+     - If OK, last line: *Interpreter script format OK*.
+
+### Load files over **Serial Port 2**
+- **Script**:  
+  `:grscr x 2 "NameOfFile.bin"` → upload file via terminal → `:vycfg`
+- **Parameters** (txt, no compile):  
+  `:gycfg x 2 "FileName"` → upload → `:vycfg`
+
+---
+
+## 4. Scripting Environment
+
+### Trigger block structure
+A script may contain **unlimited trigger blocks**. Each block has:
+- `trigger` expression (1–2 comparisons)
+- 0..N `condact` blocks (each optional expression with up to **5 comparisons**)
+- 1..N `actions` blocks (each ≤ **3** `run` statements; only the *last* actions block can have <3)
+
+The interpreter loops through the script from top to bottom, detecting **false→true** edges for triggers. Use **Debounce** to avoid chatter.
+
+#### Trigger keywords
+- `trigger when` — one comparison
+- `trigger any` — true if **any** comparison true
+- `trigger all` — true if **all** comparisons true
+
+#### Condact keywords
+- `condact always`
+- `condact when` — one comparison
+- `condact any`
+- `condact all`
+
+#### Comparisons
+| Comparison | Description |
+|---|---|
+| `InRange(a,b,c)` | `b ≤ a ≤ c` |
+| `NinRange(a,b,c)` | `a < b` or `a > c` (requires `b < c`) |
+| `Eq(a,b)` | a == b |
+| `Neq(a,b)` | a != b |
+| `Gt(a,b)` | a > b |
+| `Lt(a,b)` | a < b |
+| `GtEq(a,b)` | a ≥ b |
+| `LtEq(a,b)` | a ≤ b |
+
+**Test items** (`a`,`b`,`c`) may be: **System Value**, **Event**, **Special Function**, or **Number**.
+
+#### Debounce
+`Debounce(hi, lo)` in **seconds** (max 15). A test becomes **true** only after `hi` seconds continuously true; becomes **false** only after `lo` seconds continuously false.  
+**Required whenever** the first argument in the test is a **System value** or **Special function**.
+
+#### Example patterns
+```txt
+# Speed edge: enter block when speed crosses upward past 80 km/h
+trigger when Gt(GPSSpeed,80) [Debounce(0,0)]
+
+# Heading within ~North while speeding
+trigger when Gt(GPSSpeed,80) [Debounce(0,0)]
+    condact any InRange(GPSHeading,3500,3600) [Debounce(0,0)]
+                 InRange(GPSHeading,0,100)     [Debounce(0,0)]
+        actions
+            run BuildAndSendMsg(0,2,0,0)
+```
+
+### What you can reference in expressions
+- **System Values** (Appendix A)
+- **Events** (Appendix B) — note `SystemEventIsActive(i)` is **only** allowed in **trigger** expressions
+- **Special Functions** (Appendix C)
+- **Numbers**
+
+---
+
+## 5. Script File — quick notes
+- Comments begin with `#`.
+- **Order matters** inside a trigger: if a message uses a user variable, compute it **before** the `BuildAndSendMsg(...)` call that references it.
+
+### Actions (Appendix D)
+High‑level list; see full table later for ranges and meanings:
+- Device/Modem/GPS reset; GPS on/off
+- Set/Adjust user variables (8/16/32‑bit)
+- Set/Clear flags
+- Timer `Start/Stop/Reset`
+- `BuildAndSendMsg(packet_id, reason_code, destination_id, ack)`
+- ClearLog, StreamNMEA
+- EnterSleep / EnterDeepSleep *(wake mask flags)*
+- Output control (Set/Clear/Pulse/Flash) — not on XT2400
+
+---
+
+## 6. Parameter File
+
+### General rules
+1) Every line starts with `:wycfg`.  
+2) Max **128 chars** per line (comments count).  
+3) All strings **in quotes** (≤ 30 chars).  
+4) Use `#` for inline comments.
+
+### Example parameter file
+```txt
+:wycfg dst[0] 10.10.10.10 65534        # User application server
+:wycfg dst[9] "none" 65535             # Xirgo device manager
+:wycfg apn[0] "APN.internet" "user" "pass"
+:wycfg pcr[0] 00080104030607080b17     # Packet recipe
+:wycfg pcr[1] 01050103070809
+:wycfg pcr[2] 02140104535455565758595a5b5c5d5e5f6061622c2e
+:wycfg tmr[0] 90 1
+:wycfg aet[0] 0 1000 1000 205          # Harsh accel thresholds
+```
+
+> See **Appendix E** for the complete parameter index. Selected entries:
+
+#### Selected parameters (illustrative subset)
+| Name | Indexing / Form | Meaning (ranges) |
+|---|---|---|
+| `dst[x] <ip> <port>` | `x: 0–9` | Destination servers (`none` for disabled) |
+| `apn[x] "<apn>" "<user>" "<pass>"` | GSM only | APN credentials |
+| `pcr[x] <hex>` | `x: 0–127` | Packet recipe, see §7 and Appendix F |
+| `tmr[x] <secs> <auto_restart>` | `x:0–31` | SW timers for script |
+| `aet[x] <mode> <thr1> <thr2> <dur>` | accel events | Thresholds for harsh events |
+| `geofence` family (`gcn`,`gcp`,`gcr`,`gcl`) | `0–49` | Name/points/radius/logic etc. |
+| `txd[x] <value>` | `x:0–2` | OBD transmit delays |
+| `vin <string>` | — | Override VIN (≤17 chars) |
+| `vsm[x] <mask>` | `x:0–1` | Persist user var save‑mask |
+| `wbv <milliVolts>` | — | Wake battery voltage (10,000–16,000 mV) |
+
+(See the full Appendix E table for precise formats and bit layouts.)
+
+---
+
+## 7. How to create a Message (Packet Recipe)
+
+A **packet recipe** selects up to **40 fields** (from Appendix F) in a specific order; there are **128** slots.
+
+```
+:wycfg pcr[<slot_index>] "<packet_id><num_fields><field_0>...<field_N>"
+# slot_index: 0–127
+# packet_id:  0x00–0xFF
+# num_fields: 0x01–0x28 (1–40)
+# fields:     each is a 1‑byte field ID from Appendix F (hex)
+```
+
+**Example**
+```
+:wycfg pcr[1] "01050103070809"
+# packet_id=0x01, 5 fields: PacketID(0x01), DeviceID(0x03), Latitude(0x07), Longitude(0x08), Altitude(0x09)
+```
+
+---
+
+## 8. Decoding a Message
+
+- **ReasonCode** identifies *why* the message was sent (Ign ON/OFF, Periodic, Tow, Speed alert, Accel/Decel, Idle, Dir change, IP change, …).  
+- Binary UDP payload is decoded per **Appendix F** field definitions.
+
+**Acknowledgement** (UDP): send 4 bytes `88 88 <PSN_hi> <PSN_lo>` back to the device (PSN = PacketSerialNum).
+
+---
+
+## 9. Remote Communications (UDP / SMS)
+
+UDP command format (port **4000**):
+```
+To device:   <3-byte_msg_id><4-byte_esn><cmdlang_command_string>
+From device: <3-byte_msg_id><4-byte_esn><cmdlang_response_string>
+```
+See **Appendix G** for the full command list and responses.
+
+---
+
+# Appendices
+
+## Appendix A — System Values
+| Name | Description |
+|---|---|
+| `SystemVal(<index>)` | Return system value by index (see Appendix F for ranges) |
+| `UnixTime` | Seconds since Jan 1, 1970 |
+| `GPSLat` | Latitude (deg; 1e‑6) |
+| `GPSLon` | Longitude (deg; 1e‑6) |
+| `GPSAlt` | Altitude (0.1 m) |
+| `GPSHeading` | Heading (0.1°) |
+| `GPSSpeed` | 2D speed (km/h) |
+| `Inputs` / `Outputs` | Bitfields |
+| `DriverId1` / `DriverId2` | Last iButton IDs |
+| `GPSTripOdom1` | Trip odometer 1 (m) |
+| `GPSHDOP` | HDOP (0.1) |
+| `GPSNumSats` | Number of sats |
+| `GPSOdom` / `GPSLifetimeOdom` | Odometers (m) |
+| `OBDLifetimeOdom` | OBD‑sourced meters since install |
+| `BattVoltage` / `InternVoltage` | External / internal (0.1 V) |
+| `MotionState` / `EngineState` | 1 if moving / has RPM |
+| `WakeReason` | Bitmask; see Wake Reason table |
+| `ExtADC0` | External ADC 0 (0.1 V) |
+
+## Appendix B — Event Table (selected)
+| Event | Description | Index |
+|---|---|---|
+| `TimerExpired(i)` | 1 when timer i expired | `0–31` |
+| `UserEventIsActive(i)` | 1 when user event injected | `0–255` |
+| `AccelEventIsActive(i)` | 1 when accelerometer event | `0–3` |
+| `DriverIdRead(i)` | XT6300 only — 1 when Driver ID seen on 1‑Wire ch i | `0–1` |
+| `SystemEventIsActive(i)` | 1 when system event active (Reset, Wakeup, FWUpgrade, ParamSetUpgrade, CellRegistrationChange, IPChange, SMS/UDP Rx/Tx OK/Fail, PacketStorageEmpty/Full, PDP Reset, DevicePowerup, OTA Reject) | `0–20` |
+| `ObdDtcEventIsActive(0)` | 1 when DTC list changes (including to zero) | — |
+| `AccelCrashEventIsActive(0)` | 1 when accelerometer crash detected | — |
+| `AuxPassthruPacketReceived(0)` | 1 when aux passthru packet received | — |
+
+## Appendix C — Special Function Table (selected)
+- `UserVar8/16/32(i)` — return user variable value  
+- `FlagIsSet(i)` — 1 if flag set  
+- `GeofenceState(i)` — −1 not configured; 0 outside; 1 inside (0–49)  
+- `InputState(0..6)` — 0:Ign, 1–4:Inputs, 5:Accel motion, 6:Main power, 7:Accel reorientation validity  
+- `SystemState(0..16)` — Valid Registration/IP/GPS/Script, DM Session, Accel oriented, **Bluetooth** flags (TBD), Cellular/GPS/Garmin powered, Motion via Accel/GPS, External power  
+- `GenericConfig(i)` — `gcv[i]` value  
+- `SystemVal(<field_id>)` — current value of packet field ID (where applicable)  
+- `PacketsPending(0 or 1)` — counts in normal / reserved log space  
+- `NoAckRxRetryCount(0)` — retried failed ACK packets  
+- `TpsScratchpad(0)` — TPS value loaded via `TpsLoadScratchpad(X)` action  
+- `DeviceResetReason(0)` — e.g., 0 PowerApplied, 3 Software, 9 Unknown  
+- `AuxPassthruScratchpadSize(0)` / `AuxPassthruScratchpadByte(i)` — passthru buffer helpers  
+- `IPAddress(0)` — returns 4‑byte IP (e.g., `0x01010101` = 1.1.1.1)
+
+## Appendix D — Actions Table (high‑level; see full table for ranges)
+| Action | Syntax / Notes |
+|---|---|
+| Reset device/modem/GPS | `ResetDevice()`, `ResetModem()`, `ResetGPS()` |
+| GPS power | `TurnOnGPS()`, `TurnOffGPS()` |
+| Set/Adjust user var | `SetUserVar(type,index,value)`, `AdjustUserVar(type,index,delta)` |
+| Flags | `SetFlag(i)`, `ClearFlag(i)` (`0–31`) |
+| Timers | `StartTimer(i)`, `StopTimer(i)`, `ResetTimer(i)` (`0–31`) |
+| Build & send message | `BuildAndSendMsg(packet_id, reason_code, destination_id, ack)` |
+| Clear log / NMEA | `ClearLog()`, `StreamNMEA()` |
+| Sleep / Deep Sleep | `EnterSleep(wake_mask, minutes)`, `EnterDeepSleep(wake_mask, minutes)` *(wake mask bits include Ign, Inputs 1–4, timer, vibration, voltage, unplug)* |
+| Outputs (XT6300) | `SetOutput(i)`, `ClearOutput(i)`, `PulseOutput(i, seconds_on)`, `FlashOutput(i, blink_rate)` |
+
+## Appendix E — Parameter Table (selected; include geofence family & OBD delays, VIN, VSM, WBV)
+
+> **Note:** The full Parameter Table is extensive. Below are faithfully transcribed entries that are most commonly referenced in scripts; extend as needed for your deployment.
+
+### Geofence family (0–49)
+- `:wycfg gcn[i] "<name>"` — name fence `i` (≤30 chars)  
+- `:wycfg gcp[i] <lat> <lon> …` — polygon points or center (deg scaled as per doc)  
+- `:wycfg gcr[i] <radius_m>` — radius (m) for circular fences  
+- `:wycfg gcl[i] <logic>` — fence logic
+
+### OBD and identity
+- `:wycfg txd[0] <ms>` — message transmit delay (0–800 ms)  
+- `:wycfg txd[1] <ms>` — start OBD comms after ignition‑on (0–10,800,000 ms)  
+- `:wycfg vin "<17char>"` — set/override VIN (≤17)  
+- `:wycfg vsm[x] <32‑bit mask>` — persist selected user variables  
+- `:wycfg wbv <mV>` — wake battery voltage threshold (10,000–16,000 mV)
+
+*(More parameters: APNs, timers, accel thresholds, destination servers, GARMIN blacklists, NMEA output, motion sensitivity, debounce, OBD RPM/speed, odometer behavior, etc.)*
+
+## Appendix F — Message Fields Table
+
+> **Usage:** Each pcr field is a **1‑byte hex ID**. This table defines **size, units, resolution, range**, and any **notes** to parse payload fields.  
+> **Tip:** When decoding signed values, apply scaling (resolution) *after* signed interpretation.
+
+Below is a **large** subset covering the core and many OBD/proprietary fields. (If you need an ID not listed here, tell me the IDs you use in your pcr recipes and I’ll extend this table verbatim.)
+
+### Core GPS & device
+| # | Hex | Field | Size | Units | Resolution | Range | Notes |
+|---|---|---:|---:|---|---:|---|---|
+| 1 | 0x01 | PacketID | 1 | — | 1 | 0–255 | recipe label (0–255; 128 slots available) |
+| 2 | 0x02 | Reserved | — | — | — | — | — |
+| 3 | 0x03 | DeviceId | 4 | — | 1 | 100000000–999999999 | ESN (unsigned) |
+| 4 | 0x04 | ReasonCode | 1 | — | 1 | 0–255 | wraps |
+| 5 | 0x05 | PacketSerialNum | 2 | — | 1 | 0–65535 | unsigned |
+| 6 | 0x06 | UnixTime | 4 | — | 1 | 0x0–0xffffffff | seconds since epoch |
+| 7 | 0x07 | Latitude | 4 | degrees | 1e‑6 | … | signed; value/1e6 |
+| 8 | 0x08 | Longitude | 4 | degrees | 1e‑6 | … | signed; value/1e6 |
+| 9 | 0x09 | Altitude | 2 | m | 0.1 | −3276.8..3276.7 | signed |
+| 10 | 0x0a | Heading | 2 | ° | 0.1 | −3276.8..3276.7 | signed (useful 0..360) |
+| 11 | 0x0b | GpsSpeed | 1 | km/h | 1 | 0–255 | — |
+| 12 | 0x0c | InputStates | 1 | — | 1 | 0x00–0xff | see Input State bits |
+| 13 | 0x0d | OutputStates | 1 | — | 1 | 0x00–0x1f | see Output State bits |
+| 14 | 0x0e | DriverIdCode1 | 4 | — | 1 | 0–4294967295 | iButton ID (unsigned) |
+| 15 | 0x0f | DriverIdCode2 | 4 | — | 1 | 0–4294967295 | iButton ID (unsigned) |
+| 16 | 0x10 | GpsTripOdom1 | 4 | m | 1 | 0–4294967295 | see Odometer details |
+| 17 | 0x11 | Flags | 4 | — | 1 | 0–4294967295 | bitfield |
+| 18 | 0x12 | Hdop | 1 | DOP | 0.1 | 0.0–25.5 | unsigned |
+| 19 | 0x13 | NumSats | 1 | — | 1 | 0–255 | — |
+| 20 | 0x14 | ReceiverSigStr | 2 | dBm | 1 | 0–255 | see Signal Quality table |
+| 21 | 0x15 | CellularCarrierId | 2 | — | 1 | 0x0000–0xffff | — |
+| 22 | 0x16 | InternalBattVolts | 1 | V | 0.1 | 0.0–25.5 | note: may be 2‑byte mV in some firmware |
+| 23 | 0x17 | VehicleBattVolts_1byte | 1 | V | 0.1 | 0.0–25.5 | capped at 25.5 V |
+| 24 | 0x18 | GpsLifetimeOdom | 4 | m | 1 | 0–4294967295 | unsigned |
+| 25 | 0x19 | AccelStartDateTime | 4 | — | 1 | 0–0xffffffff | Unix seconds |
+| 26 | 0x1a | AccelStartLat | 4 | deg | 1e‑6 | … | signed |
+| 27 | 0x1b | AccelStartLong | 4 | deg | 1e‑6 | … | signed |
+| 28 | 0x1c | AccelStartSpeed | 1 | km/h | 1 | 0–255 | — |
+| 29 | 0x1d | AccelStartHeading | 2 | ° | 0.1 | 0–3599 | — |
+| 30 | 0x1e | MaxAccel | 2 | mG | 1 | 0–32767 | — |
+| 31 | 0x1f | AccelEventDuration | 1 | s | 0.1 | 0–255 | — |
+| 32 | 0x20 | AccelEndDateTime | 4 | — | 1 | 0–0xffffffff | Unix seconds |
+
+*(Further rows, including OBD, proprietary PIDs, linkage version, odometer #2, etc., continue through IDs ≥ 0x75–0x88 and beyond; see also Appendix I. If you want **every** ID expanded here, I can generate the remainder as a follow‑up.)*
+
+## Appendix G — SMS & UDP Commands (selected)
+- Load/verify/save config: `:gycfg`, `:vycfg`, `:wycfg …`
+- Load script bin: `:grscr x 2 "file.bin"`
+- Query config/script: `:qycfg`, `:qrscr`, etc.
+
+## Appendix H — Comparison & Transform
+- See §4 table (InRange, NinRange, Eq/Neq, Gt/Lt/GtEq/LtEq); apply `Debounce` where required.
+
+## Appendix I — Proprietary PIDs for OBDII (examples)
+- True odometer (miles), oil life %, TPMS pressures per wheel incl. inner duals and spare, seatbelts, airbags, PRNDL, parking brake state/lamp, fuel level (%).
+
+## Appendix J — Bluetooth Characteristics (XT6300)
+- Characteristics and UUIDs for BLE services (pairing, auth, telemetry) — XT6300 only (TBD notes in doc).
+
+---
+
+## Parsing & Implementation Notes (for LLM tools)
+- Normalize all **units and resolution** at decode time (signed/unsigned correctly).
+- Treat unknown‑units **proprietary PIDs** as raw unless MSB unit indicator present (e.g., `'V'` → volts).
+- **Wake mask** bits and **SystemEvent** indexes are frequently used in trigger logic — keep as constants/enums in code.
+- **PCR limits**: ≤ 40 fields per packet, 128 total recipes; store recipe map `{field_id → parser}`.
+- **Ack** behavior: device expects exact 0x8888 header + **PSN** (2 bytes).
