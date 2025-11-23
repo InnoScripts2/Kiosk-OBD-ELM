@@ -29,6 +29,7 @@ android {
 
 dependencies {
     api(project(":core"))
+    api(project(":platform-bluetooth"))
     implementation(project(":platform-data"))
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
