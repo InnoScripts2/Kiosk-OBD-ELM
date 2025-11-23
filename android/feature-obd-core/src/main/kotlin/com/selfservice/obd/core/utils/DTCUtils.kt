@@ -12,41 +12,21 @@
  */
 package com.selfservice.obd.core.utils
 
-import android.content.res.AssetManager
 import com.selfservice.obd.core.models.DTC
 import com.selfservice.obd.core.models.DTCS
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import java.io.IOException
 
 /**
- * Класс, содержащий все статические методы, необходимые для библиотеки OBD,
- * относящиеся к DTC.
- * Адаптировано из донорского проекта рес 7 (obd).
+ * Class to hold all the static methods necessary for the OBD library
+ * that pertain to DTCs
+ *
+ * @author Brad Barnhill
  */
 @Suppress("unused")
 object DTCUtils {
-    private var cachedDtcList: List<DTC>? = null
-
-    /**
-     * Получает список всех DTC.
-     *
-     * @param assetManager AssetManager для доступа к assets
-     * @return список DTC
-     * @throws IOException выбрасывается, если IO не может быть выполнено
-     */
-    @Throws(IOException::class)
-    fun getDtcList(assetManager: AssetManager): List<DTC> {
-        if (cachedDtcList == null) {
-            val jsonContent = FileUtils.readFromAssets(assetManager, "dtc-codes.json")
-            cachedDtcList = Json.decodeFromString<DTCS>(jsonContent).dtcs
-        }
-        return cachedDtcList!!
-    }
-
-    /**
-     * Очищает кэш DTC. Используется для тестирования или при необходимости перезагрузить данные.
-     */
-    fun clearCache() {
-        cachedDtcList = null
-    }
+    val dtcList: List<DTC>
+        @Throws(IOException::class)
+        get() = Json.decodeFromString<DTCS>(FileUtils.readFromFile("dtc-codes.json")).dtcs
 }
