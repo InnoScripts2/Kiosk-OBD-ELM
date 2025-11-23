@@ -630,3 +630,67 @@ buildTypes {
 - Arduino README: `android/ARDUINO_DISPENCER_README.md`
 - Navigation flow: `docs/navigation-flow.md`
 - Reporting guidelines: `docs/reporting-guidelines.md`
+
+---
+
+## Статус миграции
+
+**Обновлено**: 23.11.2025 (Session 1G)
+
+### Завершено ✅
+- **Session 11 (23.11.2025)**: `feature-lock-control` (11 файлов, ~1450 строк, 32 теста)
+  - UsbSerialAdapterImpl через usb-serial-for-android:3.7.3
+  - Протокол Arduino: OPEN_*/CLOSE_*/STATUS/PING
+  - MockUsbSerialAdapter для DEV-режима
+- **Session 12 (23.11.2025)**: `feature-reports` (30 файлов, ~12,000 строк, 42 теста)
+  - HTML/PDF генераторы (симметричный дизайн)
+  - ReportStorageManager с SHA-256 checksums
+  - Mock email/SMS delivery сервисы
+  - Интеграция с Supabase (Session 19-21)
+
+### В работе 🚧
+- **PaymentService**: Обнаружен существующий модуль `feature-payments` (Session 06-07), требуется аудит и обновление
+- **Device bridges**: BLE толщиномер (Session 20), OBD адаптер (Session 10B-11B)
+- **UI integration**: экраны Session 09-10 частично готовы (58%), требуется доработка
+
+### Не начато ⏳
+- Полная интеграция DI/Hilt для всех модулей
+- Замена моков production сервисами (SendGrid, Twilio, WebView.printPdf)
+- Автоматизация деплоя и мониторинга
+
+---
+
+## Текущие блокеры
+
+**Обновлено**: 23.11.2025 (Session 1G)
+
+### AGP 8.4.1 недоступен
+- **Статус**: Критический, открыт с Session 08
+- **Воздействие**: Блокирует компиляцию всех Android модулей (`./gradlew :app:assembleDebug` fails)
+- **Обход**: Code review без сборки APK, тестирование Node.js компонентов отдельно
+- **Попытки решения**:
+  - maven.aliyun.com добавлен в settings.gradle.kts — не помогло
+  - JitPack для сторонних библиотек — не применимо для AGP
+  - Downgrade до AGP 8.3.x — конфликты с Kotlin 1.9.x и Compose
+- **Детали**: См. `logs/issues/2025-11-23-agp-blocker.json`
+- **Резолюция**: Ожидание whitelist dl.google.com или полный локальный Maven mirror
+
+### Maven зеркала неполные
+- **Статус**: Высокий, связан с AGP blocker
+- **Воздействие**: Некоторые зависимости (Compose, Hilt) недоступны
+- **Обход**: Использование JitPack, manual downloads (не рекомендуется)
+- **Резолюция**: Обновление китайских зеркал или прямой доступ к Maven Central
+
+---
+
+## История изменений
+
+| Дата       | Версия | Изменения                                               |
+|------------|--------|---------------------------------------------------------|
+| 23.11.2025 | 1.1    | Session 1G: добавлены секции "Статус миграции" и "Текущие блокеры" |
+| 23.11.2025 | 1.0    | Session 11: создание документа миграции                   |
+
+---
+
+**Актуально на**: 23.11.2025  
+**Следующее обновление**: после Session 2G (UI integration завершение)

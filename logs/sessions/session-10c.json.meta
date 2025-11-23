@@ -1,0 +1,13 @@
+{
+  "filename": "session-10c.json",
+  "checksum": {
+    "algorithm": "MD5",
+    "value": "308d6b3b70fb61331faf256813665d26"
+  },
+  "size": 1865,
+  "created": "2025-11-23T16:35:00Z",
+  "lastModified": "2025-11-23T16:35:00Z",
+  "version": 1,
+  "author": "GitHub Copilot",
+  "notes": "Session 10C: Memory leak fixes with scope.cancel()"
+}

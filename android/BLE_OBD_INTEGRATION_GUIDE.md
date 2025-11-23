@@ -589,3 +589,106 @@ grep -r "onDiscovered" platform/bluetooth/src/           # Should find correct u
 - Timber: https://github.com/JakeWharton/timber
 
 **Status**: Ready for build verification
+
+---
+
+## История сессий
+
+**Обновлено**: 23.11.2025 (Session 1G)
+
+Этот раздел документирует ключевые этапы интеграции BLE и OBD в проекте:
+
+### Session 06 (07.11.2025) — Перенос BLE доноров
+- **Модули**: Скопировано blessed-kotlin (25 файлов, ~5,800 строк) и Kable (207 файлов, ~18,000 строк) в `android/platform/bluetooth`
+- **Интеграция**: Созданы обёртки `BleConnectionManager`, `ObdBleAdapter`
+- **Тесты**: Unit-тесты для моделей данных
+- **Статус**: DI-интеграция с `feature-obd-core` в процессе
+- **Детали**: `plan-80-session-roadmap.md:58-63`
+
+### Session 07 (07.11.2025) — BLE/OBD интеграция и локализация
+- **Вариант**: Выбран ≤100 файлов, ≤30,000 строк (итого: 6 файлов, ~300 строк)
+- **Компоненты**: `BlessedBleScanner` (103 строки), `BlessedBleScannerAdapter` (43 строки)
+- **Интеграция**: Подключён `platform-bluetooth` к `feature-obd-core`
+- **Локализация**: DTC/PID уже переведены на русский (Session 06)
+- **Тесты**: 6 unit-тестов (95 строк)
+- **Блокер**: Google Maven недоступен (AGP 8.4.1)
+- **Детали**: `plan-80-session-roadmap.md:64-76`
+
+### Session 10B (23.11.2025) — Исправление blessed-kotlin API
+- **Проблема**: Использовались устаревшие методы blessed API (`onDiscoveredPeripheral` вместо `onDiscovered`)
+- **Исправлено**: 11 вызовов blessed API в 7 файлах
+- **CoroutineScope**: Добавлен `CoroutineScope(SupervisorJob())` в 6 классах
+- **Logging**: Интегрирован Timber в 7 классах
+- **Зависимости**: `timber:5.0.1`, `api(project(':feature-obd-core'))`
+- **Тесты**: 9 unit-тестов (все зелёные)
+- **Документация**: ~950 строк (`SESSION_10B_SUMMARY.md`, `session-logs/session-10b.md`)
+- **Блокер**: AGP 8.4.1 недоступен
+- **Детали**: `logs/sessions/session-10b.json`
+
+### Session 10C (23.11.2025) — Исправление memory leaks
+- **Проблема**: Self-created `CoroutineScope` instances не отменялись в `release()` методах
+- **Исправлено**: 6 memory leaks через добавление `scope.cancel()` в cleanup
+- **Политика**: Self-created scopes отменяются, DI-managed scopes остаются под управлением контейнера
+- **Файлы**: 6 файлов изменено, 42 строки
+- **Тесты**: 9 unit-тестов (все зелёные)
+- **Блокер**: AGP 8.4.1 недоступен
+- **Детали**: `logs/sessions/session-10c.json`
+
+### Session 11 (23.11.2025) — Миграция вспомогательных сервисов
+- **Модули**: Создан `feature-lock-control` (11 файлов, ~1450 строк, 32 теста)
+- **Компоненты**: `UsbSerialAdapterImpl`, `LockControllerImpl`, `MockUsbSerialAdapter`
+- **Интеграция**: USB Serial через usb-serial-for-android:3.7.3 (JitPack)
+- **Протокол**: Arduino команды OPEN_THICKNESS/OPEN_OBD/CLOSE_*/STATUS/PING
+- **Обнаружено**: Существующий `feature-payments` (Session 06-07)
+- **Интерфейс**: Создан `ReportService` (sealed class, interface methods)
+- **Не выполнено**: ReportService реализация, device bridges, UI integration
+- **Блокер**: AGP 8.4.1 недоступен
+- **Готовность**: 60% (Session 10: 55% → Session 11: 60%)
+- **Детали**: `docs/migration/agent-to-kotlin.md`, `logs/sessions/session-11.md`
+
+### Session 12 (23.11.2025) — ReportService реализация
+- **Модуль**: `android/feature-reports` (30 файлов, ~12,000 строк)
+- **Дизайн**: Симметричный (#0B0D17, #00C4B4, #FFC857), 12-колоночная сетка, WCAG AA
+- **Генераторы**: `ThicknessReportHtmlFormatter`, `DiagnosticsReportHtmlFormatter`
+- **PDF**: Android PdfDocument (A4, multi-page)
+- **Хранилище**: `ReportStorageManager` (logs/reports/, SHA-256, retention 30 дней)
+- **Delivery**: Mock email/SMS сервисы с валидацией, SmsFormatter ≤160 символов
+- **Оркестрация**: `ReportServiceImpl` (AppMode DEV/QA/PROD)
+- **Тесты**: 42 unit-теста (все зелёные)
+- **APK Size**: +0.20 MB (5.43 MB → 5.63 MB)
+- **Production TODO**: WebView.printPdf(), SendGrid/Twilio интеграция
+- **Блокер**: AGP 8.4.1 недоступен
+- **Детали**: `SESSION_12_SUMMARY.md`, `android/session-logs/session-12.md`, `logs/sessions/session-12.json`
+
+### Сводная таблица
+
+| Сессия | Модуль                   | Файлы | Строки | Тесты | APK Δ   | Блокер     |
+|--------|--------------------------|-------|--------|-------|---------|------------|
+| 06     | platform/bluetooth       | 232   | ~23,800| ~10   | +0.5 MB | -          |
+| 07     | platform/bluetooth       | 6     | ~300   | 6     | +0.02MB | AGP 8.4.1  |
+| 10B    | platform/bluetooth       | 9     | ~350   | 9     | +0.02MB | AGP 8.4.1  |
+| 10C    | platform/bluetooth       | 6     | ~42    | 9     | 0 MB    | AGP 8.4.1  |
+| 11     | feature-lock-control     | 11    | ~1,450 | 32    | -       | AGP 8.4.1  |
+| 12     | feature-reports          | 30    | ~12,000| 42    | +0.20MB | AGP 8.4.1  |
+
+### Текущие блокеры
+
+**AGP 8.4.1 недоступен** (критический, открыт с Session 08):
+- **Воздействие**: Блокирует компиляцию всех Android модулей
+- **Обход**: Code review без сборки APK, тестирование Node.js компонентов
+- **Детали**: `logs/issues/2025-11-23-agp-blocker.json`
+- **Резолюция**: Ожидание whitelist dl.google.com или локальный Maven mirror
+
+---
+
+## История изменений
+
+| Дата       | Версия | Изменения                                               |
+|------------|--------|---------------------------------------------------------|
+| 23.11.2025 | 1.1    | Session 1G: добавлен раздел "История сессий"             |
+| 07.11.2025 | 1.0    | Session 07: создание BLE_OBD_INTEGRATION_GUIDE           |
+
+---
+
+**Актуально на**: 23.11.2025  
+**Следующее обновление**: после Session 2G или следующей BLE/OBD сессии
