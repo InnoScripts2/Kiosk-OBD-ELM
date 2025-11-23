@@ -7,16 +7,27 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
-    "test": "jest"
+    "test": "jest",
+    "lint": "eslint src --ext .ts"
   },
   "keywords": ["report", "pdf", "html", "email", "sms"],
   "author": "InnoScripts2",
   "license": "UNLICENSED",
+  "dependencies": {
+    "handlebars": "^4.7.8",
+    "puppeteer": "^21.0.0",
+    "date-fns": "^3.0.0",
+    "qrcode": "^1.5.3"
+  },
   "devDependencies": {
     "@types/node": "^20.0.0",
+    "@types/qrcode": "^1.5.5",
     "typescript": "^5.0.0",
     "jest": "^29.0.0",
     "@types/jest": "^29.0.0",
-    "ts-jest": "^29.0.0"
+    "ts-jest": "^29.0.0",
+    "eslint": "^8.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0"
   }
 }
