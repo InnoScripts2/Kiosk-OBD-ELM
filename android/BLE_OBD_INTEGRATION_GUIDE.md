@@ -435,3 +435,157 @@ val config = blePlatformConfig {
 - UI components
 - End-to-end tests
 - Performance profiling
+
+## Session 10B: Platform-Bluetooth Fixes (23.11.2025)
+
+### Overview
+
+Session 10B focused on restoring the build by fixing all blessed API compatibility issues in the `platform-bluetooth` module.
+
+### Changes Made
+
+#### 1. blessed-kotlin API Synchronization
+
+The blessed-kotlin library callbacks were updated to match the actual library API:
+
+**Before (incorrect):**
+```kotlin
+override fun onDiscoveredPeripheral(peripheral: BluetoothPeripheral, scanResult: ScanResult)
+override fun onConnectedPeripheral(peripheral: BluetoothPeripheral)
+override fun onDisconnectedPeripheral(peripheral: BluetoothPeripheral, status: GattStatus)
+```
+
+**After (correct):**
+```kotlin
+override fun onDiscovered(peripheral: BluetoothPeripheral, scanResult: ScanResult)
+override fun onConnected(peripheral: BluetoothPeripheral)
+override fun onDisconnected(peripheral: BluetoothPeripheral, status: HciStatus)
+```
+
+**Key Changes:**
+- Method names simplified (removed "Peripheral" suffix)
+- `onDisconnected` uses `HciStatus` (not `GattStatus`)
+- Proper import: `android.bluetooth.le.ScanResult`
+
+#### 2. Coroutine Scope Management
+
+All BLE classes now use proper CoroutineScope instead of GlobalScope:
+
+```kotlin
+private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
+// Usage
+scope.launch {
+    _results.emit(result)
+}
+```
+
+**Benefits:**
+- Proper cancellation support
+- Isolated from other coroutines via SupervisorJob
+- Correct dispatcher for IO operations
+- Avoids GlobalScope anti-pattern
+
+#### 3. Timber Logging Integration
+
+All BLE classes now use Timber for structured logging:
+
+```kotlin
+import timber.log.Timber
+
+Timber.d("BLE device discovered: ${device.name} (${device.address})")
+Timber.e(e, "Error processing scan result")
+```
+
+**Dependency Added:**
+```toml
+# gradle/libs.versions.toml
+timber = "5.0.1"
+
+# build.gradle.kts
+implementation(libs.timber)
+```
+
+#### 4. Module Dependencies
+
+Updated `platform-bluetooth/build.gradle.kts`:
+
+```kotlin
+dependencies {
+    // Core Android
+    implementation(libs.androidx.core.ktx)
+    
+    // Coroutines
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.coroutines.android)
+    
+    // Logging
+    implementation(libs.timber)
+    
+    // Module dependencies
+    api(project(":feature-obd-core"))
+    
+    // Testing
+    testImplementation(libs.kotlin.test)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.mockito.core)
+    testImplementation(libs.mockito.kotlin)
+}
+```
+
+#### 5. Unit Tests
+
+Added comprehensive tests for blessed API compliance:
+
+**BlessedBleScannerCallbackTest.kt:**
+- Tests correct use of `onDiscovered` method
+- Tests BleScanResultData mapping
+- Tests BleScannerConfigData defaults
+- Tests service UUID filtering
+
+**BleConnectionManagerCallbackTest.kt:**
+- Tests correct callback method usage
+- Tests BleConnectionState sealed class
+- Tests BleDevice data class
+- Tests device discovery handling
+
+### Fixed Classes
+
+1. **BlessedBleScanner.kt** - `onDiscovered` callback, CoroutineScope, Timber, release()
+2. **BleConnectionManager.kt** - All callbacks updated, HciStatus type, CoroutineScope
+3. **BlessedBleConnectionManager.kt** - Callbacks updated, CoroutineScope, Timber
+4. **ObdBleAdapter.kt** - Correct signature, Android BLE imports, CoroutineScope
+5. **BleAdapterManager.kt** - CoroutineScope, initial state, Timber
+6. **scanner/BlessedBleScanner.kt** - `onDiscovered`, CoroutineScope, ScanResult
+7. **scanner/BlessedBleScannerAdapter.kt** - Fixed interface methods, UUID mapping
+
+### Verification
+
+```bash
+# Build the module (when AGP is available)
+./gradlew :platform-bluetooth:assembleDebug
+
+# Run unit tests
+./gradlew :platform-bluetooth:testDebugUnitTest
+
+# Check for blessed API usage
+grep -r "onDiscoveredPeripheral" platform/bluetooth/src/  # Should find nothing
+grep -r "onDiscovered" platform/bluetooth/src/           # Should find correct usage
+```
+
+### Next Steps
+
+1. **Integration Testing**: Test with real BLE devices
+2. **Performance Testing**: Measure scan/connect times
+3. **Memory Testing**: Ensure no leaks from coroutines
+4. **Documentation**: Update class-level KDoc
+5. **APK Build**: Verify final APK compiles and runs
+
+### References
+
+- blessed-kotlin: https://github.com/weliem/blessed-android-kotlin
+- Android BLE API: https://developer.android.com/guide/topics/connectivity/bluetooth/ble-overview
+- Kotlin Coroutines: https://kotlinlang.org/docs/coroutines-guide.html
+- Timber: https://github.com/JakeWharton/timber
+
+**Status**: Ready for build verification

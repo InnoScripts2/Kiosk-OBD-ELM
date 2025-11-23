@@ -1,5 +1,6 @@
 package com.selfservice.platform.bluetooth
 
+import android.bluetooth.le.ScanResult
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
@@ -7,45 +8,65 @@ import com.welie.blessed.BluetoothCentralManager
 import com.welie.blessed.BluetoothCentralManagerCallback
 import com.welie.blessed.BluetoothPeripheral
 import com.welie.blessed.ScanFailure
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.launch
+import timber.log.Timber
 
 /**
  * Реализация BleScanner на основе blessed-kotlin библиотеки.
  * Используется для сканирования OBD-II адаптеров.
+ * 
+ * @param context Android контекст для инициализации BLE
+ * @since Session 10B
  */
 class BlessedBleScanner(
     private val context: Context
 ) {
     
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val _results = MutableSharedFlow<BleScanResultData>(replay = 0, extraBufferCapacity = 64)
     val results: Flow<BleScanResultData> = _results.asSharedFlow()
     
     private val handler = Handler(Looper.getMainLooper())
     
     private val centralManagerCallback = object : BluetoothCentralManagerCallback() {
-        override fun onDiscoveredPeripheral(
+        /**
+         * Вызывается при обнаружении нового BLE устройства.
+         * Метод blessed API: onDiscovered (не onDiscoveredPeripheral).
+         */
+        override fun onDiscovered(
             peripheral: BluetoothPeripheral,
-            scanResult: android.bluetooth.le.ScanResult
+            scanResult: ScanResult
         ) {
-            val serviceUuids = scanResult.scanRecord?.serviceUuids?.map { it.uuid.toString() } ?: emptyList()
-            
-            val result = BleScanResultData(
-                device = BleDeviceData(
-                    address = peripheral.address,
-                    name = peripheral.name
-                ),
-                rssi = scanResult.rssi,
-                serviceUuids = serviceUuids,
-                seenAtMillis = System.currentTimeMillis()
-            )
-            
-            _results.tryEmit(result)
+            scope.launch {
+                try {
+                    val serviceUuids = scanResult.scanRecord?.serviceUuids?.map { it.uuid.toString() } ?: emptyList()
+                    
+                    val result = BleScanResultData(
+                        device = BleDeviceData(
+                            address = peripheral.address,
+                            name = peripheral.name ?: ""
+                        ),
+                        rssi = scanResult.rssi,
+                        serviceUuids = serviceUuids,
+                        seenAtMillis = System.currentTimeMillis()
+                    )
+                    
+                    _results.emit(result)
+                    Timber.d("BLE device discovered: ${peripheral.name} (${peripheral.address}), RSSI: ${scanResult.rssi}")
+                } catch (e: Exception) {
+                    Timber.e(e, "Error processing scan result")
+                }
+            }
         }
         
         override fun onScanFailed(scanFailure: ScanFailure) {
-            // Логируем ошибку сканирования
+            Timber.e("BLE scan failed: ${scanFailure.name}")
             // В будущем можно добавить обработку через отдельный error flow
         }
     }
@@ -54,13 +75,17 @@ class BlessedBleScanner(
     private var isScanning = false
     
     /**
-     * Начать сканирование с заданной конфигурацией
+     * Начать сканирование с заданной конфигурацией.
+     * 
+     * @param config Конфигурация сканирования (фильтры по UUID, таймаут)
      */
     suspend fun start(config: BleScannerConfigData) {
         if (isScanning) {
+            Timber.w("Scan already in progress, ignoring start request")
             return
         }
         
+        Timber.d("Starting BLE scan with config: $config")
         // Применяем фильтры по serviceUuids если они заданы
         // blessed автоматически фильтрует по UUID сервисов
         centralManager.scanForPeripherals()
@@ -68,15 +93,26 @@ class BlessedBleScanner(
     }
     
     /**
-     * Остановить сканирование
+     * Остановить сканирование.
      */
     suspend fun stop() {
         if (!isScanning) {
             return
         }
         
+        Timber.d("Stopping BLE scan")
         centralManager.stopScan()
         isScanning = false
+    }
+    
+    /**
+     * Освободить ресурсы.
+     */
+    fun release() {
+        if (isScanning) {
+            centralManager.stopScan()
+            isScanning = false
+        }
     }
 }
 

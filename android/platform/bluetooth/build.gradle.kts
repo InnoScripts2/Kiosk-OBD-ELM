@@ -42,9 +42,22 @@ android {
 }
 
 dependencies {
+    // Core Android dependencies
     implementation(libs.androidx.core.ktx)
+    
+    // Coroutines
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
+    
+    // Logging
+    implementation(libs.timber)
+    
+    // Module dependencies
+    api(project(":feature-obd-core"))
+    
+    // Testing
     testImplementation(libs.kotlin.test)
     testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.mockito.core)
+    testImplementation(libs.mockito.kotlin)
 }

@@ -13,9 +13,14 @@ import com.welie.blessed.BluetoothPeripheral
 import com.welie.blessed.BluetoothPeripheralCallback
 import com.welie.blessed.ConnectionPriority
 import com.welie.blessed.GattStatus
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withTimeout
+import timber.log.Timber
 import java.util.UUID
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -53,13 +58,14 @@ class BlessedBleConnectionManager(
     override val connectionEvents: Flow<ConnectionEvent> = _connectionEvents.asSharedFlow()
     
     private var reconnectAttempts = 0
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     
     init {
         centralManager = BluetoothCentralManager(context, bluetoothCallback, android.os.Handler(context.mainLooper))
     }
     
     private val bluetoothCallback = object : com.welie.blessed.BluetoothCentralManagerCallback() {
-        override fun onConnectedPeripheral(peripheral: BluetoothPeripheral) {
+        override fun onConnected(peripheral: BluetoothPeripheral) {
             logVerbose("Подключено к ${peripheral.name}")
             stateMachine.onConnected()
             _connectionState.value = BleConnectionState.DISCOVERING_SERVICES
@@ -72,7 +78,7 @@ class BlessedBleConnectionManager(
             logError("Ошибка подключения: ${status.name}")
             val device = _connectedDevice.value
             val error = BleConnectionException.GattError(
-                device = device ?: BleDevice(peripheral.address, peripheral.name, -100),
+                device = device ?: BleDevice(peripheral.address, peripheral.name ?: "", -100),
                 gattStatus = status.value,
                 operation = "подключение"
             )
@@ -80,12 +86,12 @@ class BlessedBleConnectionManager(
             stateMachine.onError(error)
             _connectionState.value = BleConnectionState.DISCONNECTED
             emitEvent(ConnectionEvent.ConnectionFailed(
-                device = device ?: BleDevice(peripheral.address, peripheral.name, -100),
+                device = device ?: BleDevice(peripheral.address, peripheral.name ?: "", -100),
                 error = error
             ))
         }
         
-        override fun onDisconnectedPeripheral(peripheral: BluetoothPeripheral, status: com.welie.blessed.HciStatus) {
+        override fun onDisconnected(peripheral: BluetoothPeripheral, status: com.welie.blessed.HciStatus) {
             logVerbose("Отключено от ${peripheral.name}, статус: ${status.name}")
             
             val device = _connectedDevice.value
@@ -348,18 +354,18 @@ class BlessedBleConnectionManager(
     }
     
     private fun emitEvent(event: ConnectionEvent) {
-        kotlinx.coroutines.GlobalScope.launch {
+        scope.launch {
             _connectionEvents.emit(event)
         }
     }
     
     private fun logVerbose(message: String) {
         if (config.verboseLogging) {
-            println("[BlessedBleConnectionManager] $message")
+            Timber.d(message)
         }
     }
     
     private fun logError(message: String) {
-        println("[BlessedBleConnectionManager] ERROR: $message")
+        Timber.e(message)
     }
 }
