@@ -12,7 +12,6 @@
  */
 package com.selfservice.obd.core.utils
 
-import android.content.res.AssetManager
 import android.util.Log
 import android.util.SparseArray
 import com.selfservice.obd.core.enums.ObdModes
@@ -23,9 +22,10 @@ import java.io.IOException
 import java.util.*
 
 /**
- * Класс, содержащий все статические методы, необходимые для библиотеки OBD,
- * относящиеся к PID.
- * Адаптировано из донорского проекта рес 7 (obd).
+ * Class to hold all the static methods necessary for the OBD library.
+ * that pertain to DTCs
+ *
+ * @author Brad Barnhill
  */
 @Suppress("unused")
 object PIDUtils {
@@ -33,66 +33,55 @@ object PIDUtils {
     private val pidsSparseArray = SparseArray<SortedMap<Int, PID>>()
 
     /**
-     * Получает список PID для указанного режима.
+     * Gets list of pids for the mode specified
      *
-     * @param assetManager AssetManager для доступа к assets
-     * @param mode режим для поиска списка PID
-     * @return Список PID, содержащихся в указанном режиме
-     * @throws IOException выбрасывается, если IO не может быть выполнено
+     * @param mode mode to look up the list of pids
+     * @return List of [PIDS] contained in the specified mode
+     * @throws IOException thrown if IO can not be performed
      */
     @Throws(IOException::class)
-    fun getPidList(assetManager: AssetManager, mode: ObdModes): List<PID> = 
-        ArrayList(getPidMap(assetManager, mode)!!.values)
+    fun getPidList(mode: ObdModes): List<PID> = ArrayList(getPidMap(mode)!!.values)
 
     /**
-     * Получает объект PID по режиму и PID.
+     * Gets PID object by mode and pid.
      *
-     * @param assetManager AssetManager для доступа к assets
-     * @param mode режим для поиска PID
-     * @param pid номер PID для получения
-     * @return объект PID
-     * @throws IOException выбрасывается, если IO не может быть выполнено
+     * @param mode mode to look the pid up in
+     * @param pid Pid number to retrieve
+     * @return [PID] object
+     * @throws IOException thrown if IO can not be performed
      */
-    @Throws(IOException::class, IllegalArgumentException::class)
-    fun getPid(assetManager: AssetManager, mode: ObdModes, pid: String): PID? {
-        getPidMap(assetManager, mode)?.let { pids ->
+    @Throws(IOException::class,java.lang.IllegalArgumentException::class)
+    fun getPid(mode: ObdModes, pid: String): PID? {
+        getPidMap(mode)?.let { pids ->
             return pids[Integer.parseInt(pid, 16)]
         } ?: run {
-            Log.d(TAG, "PID для этого режима не существует.")
+            Log.d(TAG, "Pids for this mode do not exist.")
             return null
         }
     }
 
-    @Throws(IOException::class, IllegalArgumentException::class)
-    private fun getPidMap(assetManager: AssetManager, mode: ObdModes): SortedMap<Int, PID>? {
+    @Throws(IOException::class,java.lang.IllegalArgumentException::class)
+    private fun getPidMap(mode: ObdModes): SortedMap<Int, PID>? {
         if (pidsSparseArray.size() > 0 && pidsSparseArray.indexOfKey(mode.intValue) >= 0) {
-            // получаем значение из кэша PID
+            //get value from pid cache
             return pidsSparseArray.get(mode.intValue)
         } else {
-            // не найдено в кэше, читаем из json файлов и сохраняем в кэш
-            val jsonContent = FileUtils.readFromAssets(assetManager, "pids-mode${mode.intValue}.json")
-            val pidList = Json.decodeFromString<PIDS>(jsonContent).pids
+            //not found in cache so read it from json files and store it in cache
+            val pidList = Json.decodeFromString<PIDS>(FileUtils.readFromFile("pids-mode" + mode.intValue + ".json")).pids
             val pidMap = TreeMap<Int, PID>()
 
             pidList.forEach { pid ->
                 try {
                     pidMap[Integer.parseInt(pid.PID, 16)] = pid
                 } catch (nfex: NumberFormatException) {
-                    Log.d(TAG, "Не удалось преобразовать номер PID в целое число: ${nfex.message}")
+                    Log.d(TAG, "Parsing PID number to integer failed: " + nfex.message)
                 }
             }
 
-            require(pidMap.isNotEmpty()) { "Запрошен неподдерживаемый режим: $mode" }
+            require(!pidMap.isEmpty()) { "Unsupported mode requested: $mode" }
 
             pidsSparseArray.put(mode.intValue, pidMap)
             return pidsSparseArray.get(mode.intValue)
         }
-    }
-
-    /**
-     * Очищает кэш PID. Используется для тестирования или при необходимости перезагрузить данные.
-     */
-    fun clearCache() {
-        pidsSparseArray.clear()
     }
 }
