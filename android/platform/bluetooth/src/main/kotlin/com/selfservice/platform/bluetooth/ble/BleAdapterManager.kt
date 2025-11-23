@@ -3,6 +3,7 @@ package com.selfservice.platform.bluetooth.ble
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -131,5 +132,6 @@ class AndroidBleAdapterManager(
     fun release() {
         Timber.d("Releasing BLE adapter manager")
         context.unregisterReceiver(stateReceiver)
+        scope.cancel()
     }
 }

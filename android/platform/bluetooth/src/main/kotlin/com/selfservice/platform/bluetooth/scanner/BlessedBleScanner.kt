@@ -14,6 +14,7 @@ import com.welie.blessed.ScanFailure
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -156,6 +157,7 @@ class BlessedBleScanner(
         centralManager = null
         _isScanning.value = false
         currentConfig = null
+        scope.cancel()
     }
 }
 

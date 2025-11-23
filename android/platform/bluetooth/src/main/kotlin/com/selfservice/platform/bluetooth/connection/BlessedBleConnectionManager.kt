@@ -16,6 +16,7 @@ import com.welie.blessed.GattStatus
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -344,6 +345,7 @@ class BlessedBleConnectionManager(
         centralManager?.close()
         centralManager = null
         stateMachine.reset()
+        scope.cancel()
     }
     
     private fun scheduleReconnect(device: BleDevice) {
