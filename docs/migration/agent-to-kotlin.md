@@ -635,7 +635,7 @@ buildTypes {
 
 ## Статус миграции
 
-**Обновлено**: 23.11.2025 (Session 1G)
+**Обновлено**: 24.11.2025 (Session 13B)
 
 ### Завершено ✅
 - **Session 11 (23.11.2025)**: `feature-lock-control` (11 файлов, ~1450 строк, 32 теста)
@@ -647,10 +647,24 @@ buildTypes {
   - ReportStorageManager с SHA-256 checksums
   - Mock email/SMS delivery сервисы
   - Интеграция с Supabase (Session 19-21)
+- **Session 12B (24.11.2025)**: `feature-thickness` базовая миграция (22 файла, ~4800 строк, 123 теста)
+  - Модели данных (60 зон измерений)
+  - BLE адаптер с platform/bluetooth интеграцией
+  - Protocol parser (ASCII/Binary)
+  - Mock устройство [MOCK MODE]
+  - State machine с 60 точками
+  - Workflow оркестрация
+- **Session 13B (24.11.2025)**: `feature-thickness` completion (5 файлов, ~1530 строк, 47 тестов)
+  - 6 специализированных exception классов
+  - Comprehensive BLE adapter tests (Mock через Mockito)
+  - UI API интерфейсы (7 interfaces)
+  - API implementations (Controller, Observer, Validator)
+  - Exponential backoff reconnect strategy
+  - Полное тестовое покрытие (~75%)
 
 ### В работе 🚧
 - **PaymentService**: Обнаружен существующий модуль `feature-payments` (Session 06-07), требуется аудит и обновление
-- **Device bridges**: BLE толщиномер (Session 20), OBD адаптер (Session 10B-11B)
+- **OBD адаптер**: Session 10B-11B завершён, требуется UI интеграция
 - **UI integration**: экраны Session 09-10 частично готовы (58%), требуется доработка
 
 ### Не начато ⏳
@@ -687,10 +701,11 @@ buildTypes {
 
 | Дата       | Версия | Изменения                                               |
 |------------|--------|---------------------------------------------------------|
+| 24.11.2025 | 1.2    | Session 13B: обновлён статус миграции feature-thickness (12B + 13B) |
 | 23.11.2025 | 1.1    | Session 1G: добавлены секции "Статус миграции" и "Текущие блокеры" |
 | 23.11.2025 | 1.0    | Session 11: создание документа миграции                   |
 
 ---
 
-**Актуально на**: 23.11.2025  
-**Следующее обновление**: после Session 2G (UI integration завершение)
+**Актуально на**: 24.11.2025  
+**Следующее обновление**: после Session 14 (UI ViewModels интеграция)

@@ -92,3 +92,95 @@
    - Интегрировать с ObdConnectionManager
    - E2E тесты для BLE сканирования
 8. Реплицировать `kiosk-frontend` в `apps/` и начать полировку UI.
+
+## Статус интеграции Thickness компонентов (Session 12B + 13B)
+
+### Миграция толщиномера Node → Kotlin
+
+**Session 12B (24.11.2025)**: Базовая миграция (22 файла, ~4800 строк, 123 теста)
+- ✅ **models/** - Модели данных
+  - ThicknessZoneModels.kt - 60 зон измерений (hood, roof, trunk, doors, fenders, bumpers)
+  - ThicknessDeviceConfig.kt - таймауты (connect=5s, measure=30s, scan=10s)
+  - ThicknessMeasurementModels.kt - CSV/JSON export, statistics, heatmap
+  
+- ✅ **ble/** - BLE интеграция с platform/bluetooth
+  - ThicknessBleAdapter.kt - интеграция через BlessedBleScanner + BleConnectionManager
+  - Таймауты: connection=5s, measurement=30s per point, scan=10s
+  - Reconnect с exponential backoff (2s → 4s → 8s → 16s max)
+  
+- ✅ **protocol/** - Протокол обмена данными
+  - ThicknessProtocolParser.kt - ASCII/Binary парсинг, auto-detection
+  - Валидация диапазона 0-2000μm
+  
+- ✅ **mock/** - DEV мок-устройство
+  - MockThicknessDevice.kt - явная пометка [MOCK MODE]
+  - Реалистичные данные (60% factory, 25% repaint, 10% major, 5% bodywork)
+  
+- ✅ **workflow/** - Оркестрация процесса
+  - ThicknessWorkflow.kt - полный цикл измерений
+  - State machine: Idle → Connecting → Ready → Measuring → Completed → Error
+  
+- ✅ **utils/** - Утилиты
+  - ThicknessValidation.kt - валидация измерений
+  - ThicknessFormatter.kt - HTML генератор, локализация
+  
+- ✅ **di/** - Dependency Injection
+  - ThicknessModule.kt - Hilt-ready, DEV/QA/PROD modes
+
+**Session 13B (24.11.2025)**: Completion (5 файлов, ~1530 строк, 47 тестов)
+- ✅ **exceptions/** - Специализированные исключения
+  - ThicknessConnectionException - ошибки BLE подключения (timeout, refused, disconnected)
+  - MeasurementTimeoutException - таймауты измерений с зональным контекстом
+  - ThicknessProtocolException - ошибки парсинга данных
+  - ThicknessValueOutOfRangeException - значения вне диапазона (negative, infinite, NaN)
+  - MaxReconnectAttemptsExceededException - превышение лимита переподключений
+  - BleStackException - ошибки BLE-стека
+  
+- ✅ **api/** - UI API интерфейсы
+  - ThicknessController - управление процессом измерений (StateFlow API)
+  - ThicknessProgressObserver - наблюдение за прогрессом
+  - ThicknessConfiguration - конфигурирование
+  - ThicknessReconnectStrategy - стратегия переподключения (exponential backoff)
+  - ThicknessMeasurementValidator - валидация измерений
+  - ThicknessDataExporter - экспорт CSV/JSON/HTML/PDF
+  - ThicknessMeasurementCache - кэширование результатов
+  
+- ✅ **tests/** - Comprehensive тестирование
+  - ThicknessExceptionsTest.kt - 27 тестов для exceptions
+  - ThicknessBleAdapterTest.kt - 20 тестов с Mock BLE (Mockito)
+
+### Итоговые метрики
+
+| Категория | Файлов | Строк | Тестов |
+|-----------|--------|-------|--------|
+| Session 12B | 22 | ~4800 | 123 |
+| Session 13B | 5 | ~1530 | 47 |
+| **Итого** | **27** | **~6330** | **170** |
+
+### Интеграция с platform/bluetooth
+
+```
+platform/bluetooth/           # Session 11C
+  ├── BlessedBleScanner      # Нативный сканер BLE устройств
+  ├── BleConnectionManager   # Менеджер подключений
+  └── BlessedBleConnectionManager # Реализация на blessed-kotlin
+
+feature-thickness/            # Session 12B + 13B
+  ├── ble/
+  │   └── ThicknessBleAdapter ← использует platform/bluetooth API
+  ├── exceptions/             # Специализированные exceptions
+  ├── api/                    # UI-facing интерфейсы
+  ├── models/                 # Модели данных
+  ├── protocol/               # Протокол обмена
+  ├── mock/                   # DEV мок
+  ├── workflow/               # Оркестрация
+  └── di/                     # DI модуль
+```
+
+### Следующие шаги
+
+1. ~~Базовая миграция толщиномера~~ ✅ Session 12B
+2. ~~Exception classes и comprehensive tests~~ ✅ Session 13B
+3. ~~UI API интерфейсы~~ ✅ Session 13B
+4. Session 14: Интеграция с ViewModels
+5. Session 15+: UI экраны для толщиномера

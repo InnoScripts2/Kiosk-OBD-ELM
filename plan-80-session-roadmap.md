@@ -373,7 +373,7 @@
 - **Статус**: ✅ ЗАВЕРШЕНО
 - **Метрики**: 22 файла, 48,422 строки
 
-## Completed Sessions (23.11.2025)
+## Completed Sessions (24.11.2025)
 
 ### Категория B (BLE/OBD Diagnostics)
 | Сессия | Дата | Описание | Метрики |
@@ -381,6 +381,8 @@
 | 10B | 23.11.2025 | blessed-kotlin API fixes, Timber logging | 6 файлов, ~500 строк, 9 тестов |
 | 10C | 23.11.2025 | Memory leaks fixes (scope.cancel()) | 6 файлов, ~300 строк, 18 fixes |
 | 11C | 23.11.2025 | BLE state machine timeouts & deadlock fixes | 3 файла, ~600 строк тестов, 23 теста |
+| 12B | 24.11.2025 | Thickness driver Node→Kotlin migration | 22 файла, ~4800 строк, 123 теста |
+| 13B | 24.11.2025 | Thickness driver completion: exceptions, tests, UI API | 5 файлов, ~1530 строк, 47 тестов |
 
 ### Категория C (Reports/Payments)
 | Сессия | Дата | Описание | Метрики |
