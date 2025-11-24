@@ -1,13 +1,13 @@
 {
   "filename": "session-11c.json",
   "checksum": {
-    "algorithm": "md5",
-    "value": "d4a2e2be62e045727b74e61ef77bfa2c"
+    "algorithm": "MD5",
+    "value": "15d4588f0f68f0bbf6334f0256a879c9"
   },
-  "size": 7336,
-  "created": "2025-11-24T03:35:00Z",
-  "lastModified": "2025-11-24T03:35:00Z",
-  "version": "1.0",
+  "size": 4080,
+  "created": "2025-11-24T04:10:00Z",
+  "lastModified": "2025-11-24T04:10:00Z",
+  "version": 1,
   "author": "GitHub Copilot",
-  "notes": "Session 11C: BLE state machine fixes - Timeouts sync (tconn=5s, tscan=90s), reconnect deadlock fix, 23 tests added, blocked by AGP 8.4.1"
+  "notes": "Session 11C: BLE state machine critical fixes - Deadlock resolution, GlobalScope replacement, timeout unification, 23 tests"
 }

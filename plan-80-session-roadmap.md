@@ -373,49 +373,70 @@
 - **Статус**: ✅ ЗАВЕРШЕНО
 - **Метрики**: 22 файла, 48,422 строки
 
-## Completed Sessions (23.11.2025)
+## Completed Sessions (24.11.2025)
 
 ### Категория B (BLE/OBD Diagnostics)
-| Сессия | Дата | Описание | Метрики |
-|--------|------|----------|---------|
-| 10B | 23.11.2025 | blessed-kotlin API fixes, Timber logging | 6 файлов, ~500 строк, 9 тестов |
-| 10C | 23.11.2025 | Memory leaks fixes (scope.cancel()) | 6 файлов, ~300 строк, 18 fixes |
-| 11C | 23.11.2025 | BLE state machine timeouts & deadlock fixes | 3 файла, ~600 строк тестов, 23 теста |
+| Сессия | Дата | Описание | Метрики | APK Size | Lint/Test Result |
+|--------|------|----------|---------|----------|------------------|
+| 10B | 23.11.2025 | blessed-kotlin API fixes, Timber logging | 6 файлов, ~500 строк, 9 тестов | N/A (AGP blocker) | ✅ Code review OK |
+| 10C | 23.11.2025 | Memory leaks fixes (scope.cancel()) | 6 файлов, ~300 строк, 18 fixes | N/A (AGP blocker) | ✅ Code review OK |
+| 11C | 23.11.2025 | BLE state machine timeouts & deadlock fixes | 3 файла, ~600 строк тестов, 23 теста | N/A (AGP blocker) | ✅ Code review OK |
+| 12B | 24.11.2025 | Thickness device migration to Kotlin | 20 файлов, 4796 строк, 123 теста | N/A (AGP blocker) | ✅ Code review OK |
 
 ### Категория C (Reports/Payments)
-| Сессия | Дата | Описание | Метрики |
-|--------|------|----------|---------|
-| 11B | 23.11.2025 | ReportService Compose migration | 7 файлов, ~2000 строк, 16 тестов |
-| 12 | 23.11.2025 | ReportService полная реализация | 30 файлов, ~12000 строк, 42 теста |
+| Сессия | Дата | Описание | Метрики | APK Size | Lint/Test Result |
+|--------|------|----------|---------|----------|------------------|
+| 11B | 23.11.2025 | ReportService Compose migration | 7 файлов, ~2000 строк, 16 тестов | N/A (AGP blocker) | ✅ Code review OK |
+| 12 | 23.11.2025 | ReportService полная реализация | 30 файлов, ~12000 строк, 42 теста | N/A (AGP blocker) | ✅ Code review OK |
+| 12C | 24.11.2025 | Payment UI chain error fixes | 6 файлов, ~1400 строк, 18 тестов | N/A (AGP blocker) | ✅ Code review OK |
 
 ### Категория G (Documentation/Infrastructure)
-| Сессия | Дата | Описание | Метрики |
-|--------|------|----------|---------|
-| 1G | 23.11.2025 | Документация, логи, .env, README | 22 файла, 48,422 строки |
+| Сессия | Дата | Описание | Метрики | APK Size | Lint/Test Result |
+|--------|------|----------|---------|----------|------------------|
+| 1G | 23.11.2025 | Документация, логи, .env, README | 22 файла, 48,422 строки | N/A (docs only) | ✅ Markdown valid |
+| 2G | 24.11.2025 | Documentation mass maintenance | 31 файл, 5,050 строк | N/A (docs only) | ✅ Markdown valid |
 
-## Upcoming Sessions (2G+)
+## Sessions 13C/13B/3G (In Progress)
 
-### Session 2G (текущая): Массовое обслуживание документации
-**Цель**: Привести в порядок второстепенные артефакты после 10C/11B/11C/1G
-- [ ] Обновить plan-80-session-roadmap.md: секция "Completed", таблица "Upcoming"
-- [ ] Переписать plan-testing.md, plan-component-migration.md, plan-connectivity.md
-- [ ] Создать логи sessions: 11b.json, 11c.json, 1g.json (с checksums)
-- [ ] Обновить .env.example и корневой README.md
-- [ ] Обновить скрипты: android/scripts/*, infra/scripts/*
-- [ ] Создать SESSION_2G_SUMMARY.md и android/session-logs/session-2g.md
-**Требования**: ≥25 файлов, ≥4000 строк, никаких изменений .kt/.ts кода
+### Session 3G (текущая): Maintenance Mass Update
+**Статус**: 🚧 В работе  
+**Приоритет**: Высокий  
+**Категория**: G (Documentation/Infrastructure)
 
-### Session 12B: UI экраны итогов отчётов
-- [ ] ReportSummaryScreen (итоговый экран)
-- [ ] ReportPreviewScreen (предпросмотр отчёта)
-- [ ] ReportDeliveryScreen (статус доставки email/SMS)
-- [ ] Интеграция с ReportDeliveryViewModel
-- [ ] Espresso UI тесты
+**Цель**: Выполнить крупный пакет мелких задач обслуживания
 
-### Session 12C: Недостающие тесты Reports
-- [ ] HtmlReportExporterTest (unit)
-- [ ] ReportDeliveryViewModelTest (unit)
-- [ ] ReportLockBridgeTest (integration)
-- [ ] Прогон всех тестов (если AGP разрешён)
+#### Задачи
+- [ ] Обновить plan-80-session-roadmap.md: таблица Sessions 13C/13B/3G, колонки APK size/Lint
+- [ ] Переписать plan-testing.md: раздел Current blockers, smoke-тесты DEV
+- [ ] Переписать plan-component-migration.md: раздел Current blockers
+- [ ] Переписать plan-connectivity.md: раздел Current blockers
+- [ ] Создать JSON логи: session-11b.json, session-11c.json, session-12b.json, session-12c.json, session-2g.json
+- [ ] Обновить logs/sessions/README.md с описанием полей и ротации
+- [ ] Обновить корневой README.md и .env.example
+- [ ] Обновить скрипты: android/scripts/session-05-archive-plan.ps1, infra/scripts/*
+- [ ] Создать SESSION_3G_SUMMARY.md и android/session-logs/session-3g.md
+- [ ] Создать plan-maintenance-backlog.md раздел Session 3G (при необходимости)
+
+**Требования**: ≥30 файлов, ≥5000 строк (Markdown/PowerShell/JSON)  
+**Ограничения**: Никаких изменений в .kt/.ts файлах, модулях 13B/13C
+
+### Session 13B: Интеграция донорских модулей (рес 1-7)
+**Статус**: ⏳ Запланировано  
+**Категория**: B (Component Migration)
+
+**Задачи**:
+- [ ] Миграция QRCode-Kotlin (рес 1) в android/platform/camera
+- [ ] Миграция Kiosk-Launcher (рес 2) в android/feature-kiosk-mode
+- [ ] Миграция KasirPraktis (рес 3) в android/feature-payments
+- [ ] Тесты и метрики APK
+
+### Session 13C: Reports/Payments полировка
+**Статус**: ⏳ Запланировано  
+**Категория**: C (Reports/Payments refinement)
+
+**Задачи**:
+- [ ] UI экраны итогов отчётов
+- [ ] Недостающие тесты Reports
+- [ ] Payment flow E2E тесты
 - [ ] Метрики APK (если AGP разрешён)
 
