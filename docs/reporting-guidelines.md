@@ -515,6 +515,49 @@ for (const sessionId of sessions) {
 - [ ] Batch обработка отчётов
 - [ ] Webhook уведомления при генерации
 
+---
+
+## Синхронизация с реализацией
+
+**Обновлено**: 23.11.2025 (Session 1G)
+
+### Kotlin/Android реализация (Session 12)
+
+Node.js/TypeScript версия из `packages/report` успешно портирована в `android/feature-reports` со следующими изменениями:
+
+**Совпадения**:
+- ✅ Симметричный дизайн (#0B0D17 фон, #00C4B4 толщиномер, #FFC857 OBD-II)
+- ✅ 12-колоночная сетка (gutter 24px, margins 40px)
+- ✅ WCAG AA accessibility (контраст минимум 4.5:1)
+- ✅ DEV-режим бейдж [МОК-РЕЖИМ]
+- ✅ HTML генерация с inline CSS
+- ✅ Маскирование VIN/email/телефона
+- ✅ Retention policy 30 дней
+
+**Различия**:
+- PDF генератор: Puppeteer (Node.js) → Android PdfDocument (Kotlin)
+  - Production TODO: WebView.printPdf() для лучшего качества
+- Email delivery: Nodemailer → MockEmailDeliveryService
+  - Production TODO: SendGrid API integration
+- SMS delivery: Mock → MockSmsDeliveryService
+  - Production TODO: Twilio API integration
+- Хранилище: filesystem (Node.js) → `logs/reports/` с JSON metadata (Kotlin)
+- Checksums: нет (Node.js) → SHA-256 (Kotlin)
+
+**Модули**:
+- `ThicknessReportGenerator` и `DiagnosticsReportGenerator` (генераторы)
+- `ThicknessReportHtmlFormatter` и `DiagnosticsReportHtmlFormatter` (форматирование)
+- `PdfGenerator` (Android PdfDocument, multi-page A4)
+- `ReportStorageManager` (хранение, retention, checksums)
+- `MockEmailDeliveryService` и `MockSmsDeliveryService` (доставка)
+- `ReportServiceImpl` (оркестрация с AppMode DEV/QA/PROD)
+
+**Тесты**: 42 unit-теста, все зелёные (code review, APK сборка заблокирована AGP 8.4.1)
+
+**Детали**: См. `SESSION_12_SUMMARY.md`, `android/session-logs/session-12.md`, `logs/sessions/session-12.json`
+
+---
+
 ## Лицензия
 
 UNLICENSED - Проприетарное ПО InnoScripts2
@@ -523,3 +566,17 @@ UNLICENSED - Проприетарное ПО InnoScripts2
 
 - GitHub: https://github.com/InnoScripts2/Kiosk-OBD-ELM
 - Issues: https://github.com/InnoScripts2/Kiosk-OBD-ELM/issues
+
+---
+
+## История изменений
+
+| Дата       | Версия | Изменения                                               |
+|------------|--------|---------------------------------------------------------|
+| 23.11.2025 | 1.1    | Session 1G: добавлена секция "Синхронизация с реализацией" |
+| 20.11.2025 | 1.0    | Session 10: создание reporting guidelines               |
+
+---
+
+**Актуально на**: 23.11.2025  
+**Следующее обновление**: после Session 2G (UI полировка отчётов)
