@@ -1,8 +1,8 @@
 # План подключения киоска к интернету
 
-**Дата обновления**: 24.11.2025 (Session 2G)  
-**Версия**: 1.1  
-**Связанные документы**: `plan-device-monitoring.md`, `plan-offline-resilience.md`, `plan-incident-response.md`, `plan-power-management.md`, `plan-mdm-integration.md`, `plan-ota-updates.md`
+**Дата обновления**: 24.11.2025 (Session 14Z)  
+**Версия**: 1.2  
+**Связанные документы**: `plan-device-monitoring.md`, `plan-offline-resilience.md`, `plan-incident-response.md`, `plan-power-management.md`, `plan-mdm-integration.md`, `plan-ota-updates.md`, `docs/infra/agp-unblock-plan.md`, `docs/infra/agp-access-handbook.md`
 
 ## Оглавление
 1. [Цели и границы](#1-цели-и-границы)
@@ -218,9 +218,105 @@ Pass/Fail: отсутствуют недоставленные отчёты, с�
 
 ---
 
+## 6. AGP & Build Infrastructure
+
+### Проблема доступа к Google Maven Repository
+
+**Обнаружено**: Session 10C (23.11.2025)  
+**Проанализировано**: Session 14Z (24.11.2025)  
+**Статус**: BLOCKED
+
+#### Описание проблемы
+Android Gradle Plugin (AGP) версии 8.4.1 недоступен из-за сетевой блокировки доступа к:
+- `dl.google.com` (Google Maven Repository)
+- `maven.aliyun.com` (китайские зеркала)
+
+Это блокирует:
+- ❌ Сборку Android APK (`./gradlew assembleDebug`)
+- ❌ Запуск Android тестов
+- ❌ Линтинг и статический анализ
+
+#### Диагностика сети
+
+| Репозиторий | URL | Статус | Примечание |
+|------------|-----|--------|------------|
+| Google Maven | https://dl.google.com | ❌ БЛОКИРОВАН | Could not resolve host |
+| Aliyun mirrors | https://maven.aliyun.com | ❌ БЛОКИРОВАН | Could not resolve host |
+| Maven Central | https://repo1.maven.org | ✅ ДОСТУПЕН | AGP только ≤2.3.0 |
+| Gradle Plugin Portal | https://plugins.gradle.org | ✅ ДОСТУПЕН | AGP не публикуется там |
+
+#### Стратегии разблокировки
+
+См. детальный анализ в `docs/infra/agp-unblock-plan.md`.
+
+**Приоритетные решения**:
+
+1. **GitHub-hosted runner** (рекомендуется):
+   - Использовать `ubuntu-latest` вместо self-hosted runner
+   - ИЛИ запросить whitelist для `dl.google.com`
+   - Время реализации: 1-2 часа
+
+2. **Корпоративный прокси**:
+   - Настроить прокси с доступом к Google Maven
+   - Добавить секреты: `PROXY_HOST`, `PROXY_PORT`, `PROXY_USER`, `PROXY_PASSWORD`
+   - Время реализации: 2-4 часа
+
+3. **Локальное зеркало Maven (Nexus)**:
+   - Развернуть Nexus Repository Manager
+   - Загрузить AGP артефакты вручную
+   - Время реализации: 4-8 часов
+
+#### Требования к сетевой инфраструктуре
+
+После выбора стратегии:
+
+**Для стратегии Прокси**:
+- Доступ к прокси-серверу из GitHub Actions runner
+- Whitelist для `dl.google.com` на прокси
+- Порты: 80, 443 (HTTP/HTTPS)
+
+**Для стратегии Nexus**:
+- Сервер: 4GB RAM, 50GB storage
+- Доступ к серверу из GitHub Actions runner
+- Порты: 8081 (Nexus UI/API)
+
+**Для стратегии GitHub-hosted**:
+- Отсутствие сетевых ограничений для GitHub-hosted runners
+- ИЛИ whitelist для `dl.google.com` на организационном уровне
+
+#### Документация
+
+- `docs/infra/agp-unblock-plan.md` - Комплексный план разблокировки (4 стратегии)
+- `docs/infra/agp-access-handbook.md` - Руководство по обслуживанию AGP
+- `android/session-logs/session-14z.md` - Детальные логи диагностики
+- `logs/issues/agp-blocker-14z.json` - Issue log в JSON формате
+
+#### Временные меры
+
+Пока блокер не снят:
+- ✅ Разработка TypeScript компонентов
+- ✅ Статический анализ Kotlin кода (без компиляции)
+- ✅ Написание документации
+- ❌ НЕ коммитить Android APK сборки
+
+#### Мониторинг (после снятия блокера)
+
+Добавить в регулярный мониторинг:
+- Еженедельная проверка доступности Google Maven (`infra/scripts/check-maven-access.sh`)
+- Мониторинг размера Gradle cache (warning при >10GB)
+- Проверка времени сборки (baseline: 3-5 минут чистая сборка)
+
+**Алерты**:
+- Google Maven недоступен → CRITICAL
+- Maven Central недоступен → HIGH
+- Nexus недоступен (если используется) → CRITICAL
+
+---
+
 ## История изменений
 
 | Версия | Дата | Изменения |
 |--------|------|-----------|
 | 1.0 | 22.11.2025 | Первоначальная версия с планом подключения киосков |
 | 1.1 | 24.11.2025 | Добавлены текущий статус реализации, текущие блокеры (Session 2G) |
+| 1.2 | 24.11.2025 | Добавлен раздел "AGP & Build Infrastructure" с анализом блокировки (Session 14Z) |

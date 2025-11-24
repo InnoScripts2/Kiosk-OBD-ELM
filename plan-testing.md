@@ -1,7 +1,7 @@
 # План тестирования — контрольные листы
 
-**Дата**: Обновлено 24.11.2025 (Session 3G)  
-**Версия**: 1.3
+**Дата**: Обновлено 24.11.2025 (Session 14Z)  
+**Версия**: 1.4
 
 ## Оглавление
 1. [Smoke-тесты DEV-окружения](#smoke-тесты-dev-окружения)
@@ -220,33 +220,100 @@ npm --prefix packages/report test
 
 ---
 
-## Текущие блокеры и ограничения (обновлено 24.11.2025, Session 2G)
+## Текущие блокеры и ограничения (обновлено 24.11.2025, Session 14Z)
 
 ### AGP 8.4.1 недоступен (критический) ❌
 
-**Статус**: Открыт с Session 10C  
-**Воздействие**: Блокирует все Android-related тесты
+**Статус**: Открыт с Session 10C, проанализирован в Session 14Z  
+**Воздействие**: Блокирует все Android-related тесты и сборки
 
 **Проблема**:
-- Android Gradle Plugin 8.4.1 не найден ни в Google Maven, ни в зеркалах (maven.aliyun.com)
+- Android Gradle Plugin 8.4.1 не найден из-за сетевой блокировки
+- Доступ к `dl.google.com` (Google Maven) заблокирован
+- Доступ к `maven.aliyun.com` (китайские зеркала) заблокирован
+- AGP не публикуется в Maven Central (только версии ≤2.3.0)
+- AGP не публикуется в Gradle Plugin Portal
 - Невозможно выполнить `./gradlew` команды
 - Все unit/instrumented тесты Android не могут быть запущены
+
+**Сетевая диагностика** (Session 14Z):
+| Репозиторий | Статус | Примечание |
+|------------|--------|------------|
+| Google Maven | ❌ БЛОКИРОВАН | Could not resolve host: dl.google.com |
+| Aliyun mirrors | ❌ БЛОКИРОВАН | Could not resolve host: maven.aliyun.com |
+| Maven Central | ✅ ДОСТУПЕН | AGP только ≤2.3.0 (несовместимо) |
+| Gradle Plugin Portal | ✅ ДОСТУПЕН | AGP не публикуется там |
 
 **Попытки решения** (Session 10C):
 - ❌ AGP 8.4.1 (исходная версия)
 - ❌ AGP 8.3.2
 - ❌ AGP 8.2.2
 - ❌ AGP 7.4.2
+- ❌ Downgrade до AGP ≤2.3.0 (несовместимо с Kotlin 1.9.24, compileSdk 35, Gradle 8.7)
 
-**Workaround**:
+**Стратегии разблокировки** (Session 14Z):
+
+Детальный анализ в `docs/infra/agp-unblock-plan.md`.
+
+1. **GitHub-hosted runner** (приоритет 1, рекомендуется):
+   - Использовать `ubuntu-latest` вместо self-hosted runner
+   - ИЛИ запросить whitelist для `dl.google.com`
+   - Время: 1-2 часа
+   - Требования: Изменение CI/CD политик
+
+2. **Корпоративный прокси** (приоритет 2):
+   - Настроить прокси с доступом к Google Maven
+   - Добавить секреты: `PROXY_HOST`, `PROXY_PORT`, `PROXY_USER`, `PROXY_PASSWORD`
+   - Время: 2-4 часа
+   - Требования: Прокси-сервер, учётные данные
+
+3. **Локальное зеркало Maven (Nexus)** (приоритет 3):
+   - Развернуть Nexus Repository Manager
+   - Загрузить AGP артефакты вручную
+   - Время: 4-8 часов
+   - Требования: Сервер (4GB RAM, 50GB storage), Docker
+
+**Workaround** (временные меры):
 - Код пишется и проверяется через code review
 - Тесты пишутся, но остаются не выполненными (0/N run)
-- Node.js компоненты тестируются полностью
+- Node.js компоненты тестируются полностью (46/46 tests green)
+- TypeScript разработка продолжается без ограничений
+- Статический анализ Kotlin кода (без компиляции)
 - Документация поддерживается в актуальном состоянии
 
-**Требуется**: Внешнее вмешательство для настройки доступа к Google Maven или локального Maven репозитория
+**Требуется**: **РЕШЕНИЕ ВЛАДЕЛЬЦА ПРОЕКТА** по выбору стратегии (A, B или D) и предоставлению ресурсов
 
-**Связанные логи**: `logs/issues/2025-11-23-agp-blocker.json`
+**Связанные документы**:
+- `docs/infra/agp-unblock-plan.md` - Комплексный план разблокировки (4 стратегии)
+- `docs/infra/agp-access-handbook.md` - Руководство по обслуживанию AGP
+- `android/session-logs/session-14z.md` - Детальные логи диагностики
+- `logs/issues/agp-blocker-14z.json` - Issue log в JSON формате
+- `SESSION_10C_AGP_BLOCKER_ANALYSIS.md` - Первое обнаружение
+- `SESSION_14Z_SUMMARY.md` - Комплексный анализ
+
+**Команды проверки** (после снятия блокера):
+```bash
+# Проверка доступности репозиториев
+./infra/scripts/check-maven-access.sh
+
+# Сборка Android
+cd android
+./gradlew clean --refresh-dependencies
+./gradlew assembleDebug
+
+# Запуск тестов
+./gradlew testDebugUnitTest
+
+# Линтинг
+./gradlew lint detekt
+```
+
+**Ожидаемые результаты** (после снятия блокера):
+- ✅ `./gradlew assembleDebug` завершается успешно
+- ✅ APK размером ≥60 MB генерируется
+- ✅ 300+ unit-тестов проходят
+- ✅ Lint без критичных ошибок
+- ✅ Build time: 3-5 минут (чистая сборка)
 
 ### Maven зеркала неполные (высокий) ⚠️
 
@@ -304,3 +371,4 @@ npm --prefix packages/report test
 | 1.1 | 23.11.2025 | Добавлены DEV smoke-тесты (Session 1G) |
 | 1.2 | 24.11.2025 | Добавлены текущие блокеры и ограничения (Session 2G) |
 | 1.3 | 24.11.2025 | Актуализация Current blockers, добавлены ссылки на Session 12B/12C (Session 3G) |
+| 1.4 | 24.11.2025 | Расширение раздела AGP blocker с сетевой диагностикой, 3 стратегиями разблокировки, детальной документацией (Session 14Z) |

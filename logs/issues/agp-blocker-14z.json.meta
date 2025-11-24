@@ -1,0 +1,13 @@
+{
+  "filename": "agp-blocker-14z.json",
+  "checksum": {
+    "algorithm": "MD5",
+    "value": "f1b75bd06b8ea1bea1310927525bf255"
+  },
+  "size": 9807,
+  "created": "2025-11-24T04:45:00Z",
+  "lastModified": "2025-11-24T04:45:00Z",
+  "version": 1,
+  "author": "GitHub Copilot Agent",
+  "notes": "Issue log for AGP 8.4.1 blocker - Session 14Z analysis and resolution strategies"
+}
