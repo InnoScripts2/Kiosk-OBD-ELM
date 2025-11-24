@@ -3,7 +3,10 @@
 Модуль содержит TypeScript/JavaScript/React компоненты для веб-интерфейсов киоска, локальные Node.js агенты и dev-tools.
 
 ## Родительский модуль
-`android/platform-ui` — платформенный UI-слой Android-монорепозитория
+`android/platform/ui` — платформенный UI-слой Android-монорепозитория
+
+## Путь
+`android/platform/ui/web/` (согласовано с Gradle модулем `:platform-ui`)
 
 ## Структура (планируемая)
 
@@ -24,24 +27,26 @@ web/
 
 ## Текущий статус миграции
 
-### Волна A — UI и Node-инфраструктура
+### Волна A — UI и Node-инфраструктура ✅
 
-**Планируется перенести**:
-1. `03-apps/02-application/kiosk-shell/agent/` → `android/platform-ui/web/agent/`
+**Session 16A (24.11.2025)** — Завершено:
+1. ✅ `03-apps/02-application/kiosk-shell/agent/` → `android/platform/ui/web/agent/`
+   - Перенесено 14 файлов (~260 KB)
    - Основной локальный TypeScript сервис (Electron, Node.js)
    - Управляет устройствами (BLE/Serial), замками, платежами, отчётами
    - Хранит конфигурацию и логи
 
-2. `03-apps/02-application/kiosk-agent/` → `android/platform-ui/web/kiosk-agent/`
-   - Актуальный ESM агент
-   - Редактируется по требованию отдельными задачами
+2. ✅ `android/platform/ui/web/kiosk-agent/` — создан placeholder
+   - Зарезервирован для будущей миграции ESM агента
+   - Исходный каталог `03-apps/02-application/kiosk-agent/` не существует
 
-**Требуемые действия**:
-- [ ] Физический перенос каталогов
-- [ ] Создание Gradle-таски для запуска `npm run build`
-- [ ] Настройка зависимостей (артефакты → `android/platform-ui/web/dist/`)
-- [ ] Обновление CI workflows для работы с новыми путями
-- [ ] Создание README каждого агента с инструкциями по переменным окружения
+**Выполненные действия**:
+- [x] Физический перенос agent через `cp -r`
+- [x] Создание Gradle-тасок в `build.gradle.kts` (npm install/build/test/lint)
+- [x] Настройка артефактов (dist/ внутри web/agent/)
+- [x] Создание README для kiosk-agent placeholder
+- [ ] Обновление CI workflows (.github/workflows/node-tests.yml)
+- [ ] Валидация: запуск buildWebAgent и testWebAgent
 
 ## Gradle интеграция (планируется)
 

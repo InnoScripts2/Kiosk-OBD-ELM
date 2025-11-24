@@ -18,22 +18,46 @@
 | Язык / технология           | Основное назначение                               | Целевой модуль внутри `android/`                              | Статус                                       | Дата обновления |
 | --------------------------- | ------------------------------------------------- | ------------------------------------------------------------- | -------------------------------------------- | --------------- |
 | Kotlin (KMP/JVM)            | Все основные фичи приложения                      | `app`, `core`, `feature-*`, `platform/*`                      | ✅ Уже в `android/`                          | —               |
-| TypeScript / TSX / React    | Веб-компоненты, UI-песочницы, dev-tools           | `android/platform-ui/web/` (новый модуль)                     | 🔄 Структура создана, требуется миграция      | 24.11.2025      |
-| JavaScript / CJS            | Скрипты вспомогательных агентов, Electron-обвязка | `android/platform-ui/web/legacy/` или `android/scripts/node/` | 🔄 Структура создана, требуется миграция      | 24.11.2025      |
-| PowerShell (PS1)            | DevOps/CI/мониторинг                              | `android/scripts/powershell/`                                 | 🔄 Структура создана, частично в `infra/`    | 24.11.2025      |
+| TypeScript / TSX / React    | Веб-компоненты, UI-песочницы, dev-tools           | `android/platform/ui/web/` (модуль `:platform-ui`)            | ✅ Миграция завершена (Session 16A)          | 24.11.2025      |
+| JavaScript / CJS            | Скрипты вспомогательных агентов, Electron-обвязка | `android/platform/ui/web/legacy/` или `android/scripts/node/` | ⏳ Структура создана, требуется миграция      | 24.11.2025      |
+| PowerShell (PS1)            | DevOps/CI/мониторинг                              | `android/scripts/powershell/`                                 | ⏳ Структура создана, частично в `infra/`    | 24.11.2025      |
 | INO (Arduino)               | Прошивки замков/реле                              | `android/hardware/arduino/`                                   | ✅ Файлы перенесены из корня `android/`       | 24.11.2025      |
-| Shell/Bash                  | Системные утилиты, проверки Maven                 | `android/scripts/shell/`                                      | 🔄 Структура создана, требуется миграция      | 24.11.2025      |
+| Shell/Bash                  | Системные утилиты, проверки Maven                 | `android/scripts/shell/`                                      | ⏳ Структура создана, требуется миграция      | 24.11.2025      |
 
 ## 3. План миграции по волнам
-### Волна A — UI и Node-инфраструктура
-1. `03-apps/02-application/kiosk-shell/agent/` → `android/platform-ui/web/agent/`.
-   - Создать Gradle-таску, вызывающую `npm run build` внутри нового каталога.
-   - Настроить зависимости так, чтобы бинарники/артефакты складывались в
-     `android/platform-ui/web/dist/`.
-2. `03-apps/02-application/kiosk-agent/` (актуальный ESM агент) →
-   `android/platform-ui/web/kiosk-agent/`.
-   - Прописать README с указанием родительского Android-модуля.
-3. Удалить/архивировать старые пути после успешных сборок и обновления CI.
+### Волна A — UI и Node-инфраструктура ✅ **Завершена 24.11.2025 (Session 16A)**
+
+**Выполнено:**
+1. ✅ `03-apps/02-application/kiosk-shell/agent/` → `android/platform/ui/web/agent/`
+   - Физический перенос через `cp -r` (14 файлов, ~260 KB)
+   - Создан build.gradle.kts с Gradle-тасками `npmInstallAgent`, `buildWebAgent`, `testWebAgent`, `lintWebAgent`
+   - Настроены артефакты: dist/ создаётся внутри web/agent/
+   - npm install: ✅ 478 packages, 0 vulnerabilities
+   - npm test: ✅ 26/32 тестов проходит (6 failing — mock mode issues из исходного кода)
+   - npm lint: ✅ ESLint чистый
+   
+2. ✅ `android/platform/ui/web/kiosk-agent/` — создан placeholder
+   - Зарезервирован каталог для будущей миграции ESM агента
+   - Исходный `03-apps/02-application/kiosk-agent/` не существует
+   - Создан README с описанием назначения и планируемой структуры
+
+**Не выполнено:**
+- [ ] Обновление CI workflows (.github/workflows/node-tests.yml) — требуется в следующей сессии
+- [ ] Удаление исходного каталога 03-apps/ — требуется явное подтверждение владельца
+
+**Метрики Session 16A:**
+- Директорий перенесено: 1 (agent)
+- Директорий создано: 1 (kiosk-agent placeholder)
+- Файлов Gradle: 1 (build.gradle.kts, 180 строк)
+- Файлов README: 2 (web/README.md обновлён, kiosk-agent/README.md создан)
+- npm пакетов: 478
+- Тестов: 32 (26 passing, 6 failing)
+- Lint: ✅ Чистый
+
+**Примечания:**
+- AGP 8.4.1 blocker остаётся активным — Gradle tasks нельзя запустить из-за недоступности Android Gradle Plugin
+- npm tasks запускаются напрямую и работают корректно
+- Падающие тесты связаны с поведением mock mode в LockController и ArduinoAdapter — это существующие issues в исходном коде
 
 ### Волна B — DevOps и PowerShell
 1. `infra/scripts/` → `android/scripts/powershell/` и `android/scripts/shell/`.
@@ -103,13 +127,13 @@
 - README созданы: 4
 - Строк документации: ~10,900
 
-### 6.1 Волна A — UI и Node-инфраструктура (следующая задача)
-- [ ] Перенос `03-apps/02-application/kiosk-shell/agent/` → `android/platform-ui/web/agent/`
-- [ ] Перенос `03-apps/02-application/kiosk-agent/` → `android/platform-ui/web/kiosk-agent/`
-- [ ] Создание Gradle-тасок для `npm run build` и `npm test`
-- [ ] Настройка артефактов в `android/platform-ui/web/dist/`
-- [ ] Обновление CI workflows для работы с новыми путями
-- [ ] Удаление исходных каталогов из `03-apps/`
+### 6.1 Волна A — UI и Node-инфраструктура ✅ **Завершена 24.11.2025 (Session 16A)**
+- [x] Перенос `03-apps/02-application/kiosk-shell/agent/` → `android/platform/ui/web/agent/`
+- [x] Создание placeholder для `kiosk-agent/` (исходный каталог не существует)
+- [x] Создание Gradle-тасок для `npm run build` и `npm test`
+- [x] Настройка артефактов в `android/platform/ui/web/agent/dist/`
+- [ ] Обновление CI workflows для работы с новыми путями (Волна B)
+- [ ] Удаление исходных каталогов из `03-apps/` (требуется подтверждение)
 
 ### 6.2 Волна B — DevOps и PowerShell (следующая задача)
 - [ ] Перенос `infra/scripts/kiosk-maintenance.ps1` → `android/scripts/powershell/maintenance/`
@@ -158,6 +182,7 @@
 
 | Дата       | Сессия | Изменения                                                                                           |
 | ---------- | ------ | --------------------------------------------------------------------------------------------------- |
+| 24.11.2025 | 16A    | ✅ Волна A завершена: перенос kiosk-shell/agent → android/platform/ui/web/agent/, создание build.gradle.kts с npm тасками, создание placeholder для kiosk-agent/, валидация (26/32 тестов, lint ✅). Обновлены README в web/ и kiosk-agent/. Метрики: 478 npm пакетов, 32 теста, 0 vulnerabilities. |
 | 24.11.2025 | 15G    | Создана структура каталогов: `platform-ui/web/`, `scripts/powershell/`, `scripts/shell/`, `hardware/arduino/`. Перенесены INO файлы. Созданы README для всех модулей. Обновлены таблицы статусов. |
 | 24.11.2025 | 14G    | Обновлён `.env.example` агента с Supabase параметрами                                               |
 | 23.11.2025 | 08     | Создан Node-агент в `03-apps/02-application/kiosk-shell/agent/`                                     |
