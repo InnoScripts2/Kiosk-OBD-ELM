@@ -405,11 +405,13 @@
 | 14Z    | 24.11.2025 | AGP blocker analysis & GitHub Actions workflow | 7 файлов, ~54,000 символов | N/A (BLOCKED)   | ⏸️ BLOCKED AGP    |
 | 15G    | 24.11.2025 | Структура для полиязычной разработки           | 5 каталогов, 4 README      | N/A (structure) | ✅ Markdown valid |
 | 16A    | 24.11.2025 | Волна A: Миграция Node-агентов в android       | 14 файлов, 478 npm пакетов | N/A (npm only)  | ✅ 26/32 tests ✅ lint |
+| 17A    | 24.11.2025 | Волна B: Миграция DevOps скриптов в android    | 8 файлов, ~553 строки кода, 3 Gradle-таски | N/A (scripts) | ✅ pwsh/bash tests ✅ |
 
 **Примечания**:
 - **14Z**: AGP 8.4.1 недоступен из-за сетевой блокировки (dl.google.com). Проведён комплексный анализ, созданы 4 стратегии разблокировки. Создан workflow `.github/workflows/android-build.yml`, который исполняет `lint`, `test`, `assembleDebug` на GitHub-hosted runner и выгружает APK + Gradle caches (реализация Стратегии D). Требуется подтверждение запуска и анализ результатов. Документация: `docs/infra/agp-unblock-plan.md`, `docs/infra/agp-access-handbook.md`.
 - **15G**: Создана структура каталогов для полиязычной разработки: `platform-ui/web/`, `scripts/powershell/`, `scripts/shell/`, `hardware/arduino/`. Перенесены Arduino прошивки (dispencer.ino, dispenser.ino). Созданы 4 README (10,884 символов) с детальными инструкциями. Обновлён plan-multi-language-consolidation.md (+2,300 символов).
 - **16A**: Волна A завершена — перенос `03-apps/02-application/kiosk-shell/agent/` → `android/platform/ui/web/agent/`. Создан build.gradle.kts с 12 npm тасками (install/build/test/lint). Валидация: npm install (478 packages, 0 vulnerabilities), npm test (26/32 passing), npm lint (clean). Создан placeholder для kiosk-agent. Обновлены README, plan-multi-language-consolidation.md. Блокер AGP 8.4.1 остаётся.
+- **17A**: Волна B частично завершена — перенос DevOps скриптов из `infra/scripts/` → `android/scripts/` (kiosk-maintenance.ps1, log-rotation.ps1, check-maven-access.sh). Созданы 3 Gradle-таски (runKioskMaintenance, runLogRotation, checkMavenAccess) в корневом build.gradle.kts. Обновлены 5 README (powershell/, shell/, maintenance/). Создан ARCHIVE_NOTE.md с пометкой UTILIZED. Тестирование: все скрипты запущены с -DryRun/без параметров, детерминированный вывод ✅. Maven health check: Central ✅, Gradle ✅, Google ❌, JitPack ❌ (сетевая изоляция). Остаётся: обновление CI workflows на новые пути (следующая сессия).
 
 ## Sessions 13C/13B/3G (In Progress)
 
