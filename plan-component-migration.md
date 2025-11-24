@@ -1,5 +1,17 @@
 # План миграции внешних компонентов в Android монорепозиторий
 
+**Дата обновления**: 24.11.2025 (Session 2G)  
+**Версия**: 1.1  
+**Связанные документы**: `plan-obd-base-integration.md`, `plan-80-session-roadmap.md`, `SESSION_11B_SUMMARY.md`, `SESSION_12_SUMMARY.md`
+
+## Оглавление
+1. [Цели и ограничения](#цели-и-ограничения)
+2. [Исходные активы](#исходные-активы)
+3. [Части миграции](#части-миграции)
+4. [Текущий статус](#текущий-статус)
+5. [Текущие блокеры](#текущие-блокеры)
+6. [История изменений](#история-изменений)
+
 ## Цели и ограничения
 - Сконсолидировать рабочий код в каталоге `android/`, минимизируя количество «внешних» форков в корне репозитория.
 - Поддержать требования плана 80 сессий: сохранение структуры модулей `app`, `core`, `feature-*`, `platform`, а также выполнение задач фазы B (диагностика) параллельно с подготовкой платежного и лаунчер-контуров.
@@ -74,3 +86,122 @@
 2. Подготовить заготовку модуля `feature-obd-elm-port` и smoke-тест для USB транспорта.
 3. Согласовать с безопасностью требования к YooKassa и зафиксировать placeholders в `.env`.
 4. Одновременно вести документацию в `plan-80-session-roadmap.md` + `session-logs/` (без расширения общих текстов, только техники).
+
+---
+
+## Текущий статус (24.11.2025, Session 2G)
+
+### Завершённые миграции ✅
+
+#### Session 11B: ReportService → feature-reports (Категория C)
+- **Источник**: Node.js TypeScript (03-apps/02-application/kiosk-shell/agent/src/services/ReportService.ts)
+- **Цель**: android/feature-reports
+- **Статус**: ✅ Завершено
+- **Результат**:
+  - 7 новых Kotlin файлов (~2000 строк)
+  - ComposeReportRenderer (550 строк) с полным UI набором
+  - HtmlReportExporter (280 строк) - унифицированный экспорт
+  - ReportDeliveryViewModel (280 строк) - StateFlow управление
+  - ReportLockBridge (180 строк) - интеграция с feature-lock-control
+  - 16 тестов (5 unit + 11 snapshot)
+  - Compose dependencies добавлены в build.gradle.kts
+- **Блокер**: AGP 8.4.1 недоступен (тесты написаны, но не выполнены)
+- **Детали**: `SESSION_11B_SUMMARY.md`
+
+#### Session 12: ReportService полная реализация (Категория C)
+- **Источник**: Node.js packages/report
+- **Цель**: android/feature-reports
+- **Статус**: ✅ Завершено
+- **Результат**:
+  - 30 файлов (~12000 строк)
+  - Дизайн-система (DesignTokens, SvgIcons, HtmlStyles)
+  - HTML форматтеры (Thickness, Diagnostics с симметричным дизайном)
+  - PdfGenerator (Android PdfDocument, A4, multi-page)
+  - ReportStorageManager (logs/reports/, SHA-256, retention 30 дней)
+  - Delivery сервисы (MockEmail, MockSMS с валидацией)
+  - ReportServiceImpl (AppMode DEV/QA/PROD)
+  - 42 unit-теста
+- **Production TODO**: WebView.printPdf(), SendGrid/Twilio интеграция
+- **Детали**: `SESSION_12_SUMMARY.md`
+
+### В процессе 🚧
+
+#### Session 11C: BLE State Machine fixes (Категория B)
+- **Источник**: android/platform/bluetooth, android/feature-obd-core
+- **Цель**: Исправление багов, не миграция
+- **Статус**: ✅ Код исправлен, ожидает компиляции
+- **Результат**:
+  - Синхронизация таймаутов (tconn=5s, tscan=90s)
+  - Исправление reconnect deadlock
+  - Замена GlobalScope → instance scope
+  - 23 новых теста (ObdSessionStateMachineTest, BleTimeoutRecoveryTest)
+- **Блокер**: AGP 8.4.1 недоступен
+- **Детали**: `SESSION_11C_SUMMARY.md`
+
+### Не начато ⏳
+
+#### Часть 2: Диагностические библиотеки (Фаза B, сессии 13–15)
+- **Источник**: `AndroidOBD-main/AndroidOBD-main`, `obd-master`
+- **Цель**: android/feature-obd-elm-port, android/feature-obd-core
+- **Статус**: Частично начато в Session 11
+- **Детали**: Перенос ELM327 ядра, USB/Bluetooth транспортов
+
+#### Часть 3: Kiosk shell и лаунчер
+- **Источник**: `Kiosk-Launcher-main/Kiosk-Launcher-main`
+- **Цель**: android/feature-kiosk-mode, android/app
+- **Статус**: Не начато
+- **План**: Политики Device Owner, расписание рестартов, UI/UX компоненты
+
+#### Часть 4: Платежи и безопасность (Фаза E)
+- **Источник**: `yookassa-android-sdk-master/yookassa-android-sdk-master`
+- **Цель**: android/feature-payments
+- **Статус**: feature-payments уже существует (Session 06-07)
+- **План**: YooKassa SDK интеграция, секреты и конфигурация
+
+#### Часть 5: Рефакторинг и архивирование
+- **Статус**: Не начато
+- **План**: Перемещение migrated источников в archives/, обновление plan-reuse-rework.md
+
+---
+
+## Текущие блокеры (24.11.2025, Session 2G)
+
+### AGP 8.4.1 недоступен (критический) ❌
+
+**Воздействие на миграцию**:
+- Невозможно скомпилировать feature-reports после Session 11B/12
+- Невозможно запустить unit-тесты (16 тестов Session 11B, 42 теста Session 12)
+- Невозможно измерить APK size после добавления Compose dependencies
+- Блокирует все последующие Android миграции
+
+**Попытки разрешения**:
+- ❌ AGP 8.4.1 (исходная версия)
+- ❌ AGP 8.3.2, 8.2.2, 7.4.2 (все недоступны)
+
+**Workaround**:
+- Код пишется с code review (без компиляции)
+- Тесты пишутся (но не запускаются)
+- Node.js компоненты продолжают работать
+
+**Связанные логи**: `logs/issues/2025-11-23-agp-blocker.json`
+
+### Maven зеркала неполные (высокий) ⚠️
+
+**Воздействие**:
+- Некоторые androidx.* зависимости недоступны
+- Compose dependencies могут быть недоступны
+- Сторонние библиотеки (blessed-kotlin, Kable) требуют JitPack
+
+**Workaround**:
+- Используем maven.aliyun.com где возможно
+- JitPack для GitHub-based зависимостей
+- Минимизируем новые зависимости
+
+---
+
+## История изменений
+
+| Версия | Дата | Изменения |
+|--------|------|-----------|
+| 1.0 | 22.11.2025 | Первоначальная версия с планом миграции компонентов |
+| 1.1 | 24.11.2025 | Добавлены текущий статус (Sessions 11B/11C/12), текущие блокеры (Session 2G) |
