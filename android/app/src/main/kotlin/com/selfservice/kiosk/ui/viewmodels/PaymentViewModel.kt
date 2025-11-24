@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.selfservice.feature.payments.*
 import com.selfservice.kiosk.BuildConfig
 import com.selfservice.kiosk.ui.state.PaymentStatus
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -28,7 +29,11 @@ class PaymentViewModel(
     
     private val statusReducer = PaymentStatusReducer()
     private var currentPoller: PaymentStatusPoller? = null
+    private var pollerObserverJob: Job? = null
+    private var remainingTimeJob: Job? = null
     
+    // StateFlow with replay=1 (MutableStateFlow default) for deterministic state updates
+    // UI subscribers always receive the latest state immediately upon collection
     private val _paymentState = MutableStateFlow<PaymentUiState>(PaymentUiState.Idle)
     val paymentState: StateFlow<PaymentUiState> = _paymentState.asStateFlow()
     
@@ -43,13 +48,6 @@ class PaymentViewModel(
         viewModelScope.launch {
             statusReducer.state.collect { reducerState ->
                 handleReducerStateChange(reducerState)
-            }
-        }
-        
-        // Observe poller updates
-        viewModelScope.launch {
-            currentPoller?.pollingState?.collect { pollingState ->
-                handlePollingStateChange(pollingState)
             }
         }
     }
@@ -146,6 +144,10 @@ class PaymentViewModel(
      * Cancels current payment
      */
     fun cancelPayment() {
+        pollerObserverJob?.cancel()
+        pollerObserverJob = null
+        remainingTimeJob?.cancel()
+        remainingTimeJob = null
         currentPoller?.stopPolling()
         currentPoller = null
         _paymentState.value = PaymentUiState.Cancelled
@@ -179,7 +181,7 @@ class PaymentViewModel(
     /**
      * Checks if running in DEV mode with mocked payments
      */
-    private fun isDevMode(): Boolean {
+    fun isDevMode(): Boolean {
         return BuildConfig.PAYMENT_MOCK
     }
     
@@ -187,6 +189,9 @@ class PaymentViewModel(
      * Starts polling for payment status
      */
     private fun startPolling(intentId: String) {
+        // Cancel previous poller and observers
+        pollerObserverJob?.cancel()
+        remainingTimeJob?.cancel()
         currentPoller?.stopPolling()
         
         val poller = PaymentStatusPoller(
@@ -196,10 +201,19 @@ class PaymentViewModel(
         )
         
         currentPoller = poller
+        
+        // Observe poller state changes
+        pollerObserverJob = viewModelScope.launch {
+            poller.pollingState.collect { pollingState ->
+                handlePollingStateChange(pollingState)
+            }
+        }
+        
+        // Start the actual polling
         poller.startPolling()
         
         // Update remaining time periodically
-        viewModelScope.launch {
+        remainingTimeJob = viewModelScope.launch {
             while (poller.pollingState.value is PaymentStatusPoller.PollingState.Polling) {
                 _remainingTime.value = poller.getRemainingTimeMs()
                 kotlinx.coroutines.delay(1000) // Update every second
@@ -267,7 +281,10 @@ class PaymentViewModel(
     
     override fun onCleared() {
         super.onCleared()
+        pollerObserverJob?.cancel()
+        remainingTimeJob?.cancel()
         currentPoller?.stopPolling()
+        Timber.d("[PaymentViewModel] ViewModel cleared")
     }
 }
 
