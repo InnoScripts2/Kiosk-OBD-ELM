@@ -1,0 +1,13 @@
+{
+  "filename": "session-12.json",
+  "checksum": {
+    "algorithm": "MD5",
+    "value": "cd6569e8111d64fdfc551cacde4d9a7b"
+  },
+  "size": 3676,
+  "created": "2025-11-23T16:40:00Z",
+  "lastModified": "2025-11-23T16:40:00Z",
+  "version": 1,
+  "author": "GitHub Copilot",
+  "notes": "Session 12: Full ReportService implementation on Kotlin/Android"
+}

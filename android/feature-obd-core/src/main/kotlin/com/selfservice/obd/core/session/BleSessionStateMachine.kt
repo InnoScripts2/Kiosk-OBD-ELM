@@ -233,9 +233,9 @@ class BleSessionStateMachine(
     }
 
     data class SessionTimeouts(
-        val handshakeTimeoutMillis: Long = 5_000L,
-        val inactivityTimeoutMillis: Long = 15_000L,
-        val diagnosticsTimeoutMillis: Long = 45_000L
+        val handshakeTimeoutMillis: Long = 5_000L,      // tconn = 5s
+        val inactivityTimeoutMillis: Long = 15_000L,     // 15s inactivity
+        val diagnosticsTimeoutMillis: Long = 90_000L     // tscan = 90s
     )
 
     data class ObserverPayload(

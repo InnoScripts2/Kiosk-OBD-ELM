@@ -1,0 +1,13 @@
+{
+  "filename": "2025-11-23-agp-blocker.json",
+  "checksum": {
+    "algorithm": "MD5",
+    "value": "9320eadb502e47e5afc66592c87d84f6"
+  },
+  "size": 2435,
+  "created": "2025-11-23T16:45:00Z",
+  "lastModified": "2025-11-23T16:45:00Z",
+  "version": 1,
+  "author": "GitHub Copilot",
+  "notes": "Critical blocker: AGP 8.4.1 unavailable in Google Maven"
+}
