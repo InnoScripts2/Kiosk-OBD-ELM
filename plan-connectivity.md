@@ -1,8 +1,15 @@
 # План подключения киоска к интернету
 
-Дата обновления: 2025-11-22  
-Версия: 1.0  
-Связанные документы: `plan-device-monitoring.md`, `plan-offline-resilience.md`, `plan-incident-response.md`, `plan-power-management.md`, `plan-mdm-integration.md`, `plan-ota-updates.md`
+**Дата обновления**: 24.11.2025 (Session 2G)  
+**Версия**: 1.1  
+**Связанные документы**: `plan-device-monitoring.md`, `plan-offline-resilience.md`, `plan-incident-response.md`, `plan-power-management.md`, `plan-mdm-integration.md`, `plan-ota-updates.md`
+
+## Оглавление
+1. [Цели и границы](#1-цели-и-границы)
+2. [Каналы связи и профили](#2-каналы-связи-и-профили)
+3. [Текущий статус реализации](#текущий-статус-реализации)
+4. [Текущие блокеры](#текущие-блокеры)
+5. [История изменений](#история-изменений)
 
 ## 1. Цели и границы
 - Обеспечить устойчивое подключение киосков диагностики к интернету для телеметрии, Supabase, OTA и платёжных шлюзов.
@@ -100,3 +107,120 @@ Pass/Fail: отсутствуют недоставленные отчёты, с�
 2. Создать dashboards в Grafana/Prometheus с метриками QoS.
 3. Обновить runbooks `plan-offline-resilience.md` и `plan-incident-response.md` ссылкой на процедуры failover.
 4. Подготовить чек-лист site survey и включить в `plan-maintenance-schedule.md` регулярный аудит связи.
+
+---
+
+## Текущий статус реализации (24.11.2025, Session 2G)
+
+### Реализовано ✅
+
+#### Session 1G: .env.example переменные
+- ✅ `NODE_AGENT_PORT` — порт локального Node.js агента (default: 3000)
+- ✅ `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` — интеграция с Supabase
+- ✅ `PROMETHEUS_PUSHGATEWAY_URL`, `GRAFANA_API_KEY` — мониторинг и телеметрия
+- ✅ `KIOSK_SERIAL_NUMBER`, `HEARTBEAT_INTERVAL_SEC` — идентификация и heartbeat (default: 300s)
+
+#### Session 23 (In Progress): MDM/OTA контур
+- 🚧 `DeviceStatusSnapshot` модель (серийник, версия, батарея, сети)
+- 🚧 `DeviceStatusReporter` пишет heartbeat в Supabase каждые 5 мин
+- 🚧 Supabase outbox категория для device status
+- 🚧 UI отображение новой категории очереди
+
+**Статус Session 23**: Частично завершено (базовые модели созданы)
+**Требуется**: Supabase таблицы `device_commands`/`device_events`, MDM SDK, OTA/reboot обработка
+
+### Не реализовано ⏳
+
+#### Каналы связи (Section 2)
+- ⏳ Ethernet с PoE поддержкой
+- ⏳ Wi-Fi 5 GHz с WPA2-Enterprise
+- ⏳ LTE Cat 6 с eSIM/SIM multi-operator
+
+**План**: Session 24+ (требуется физическое оборудование)
+
+#### Failover и QoS (Sections 3-4)
+- ⏳ RouterOS/OpnSense конфигурация
+- ⏳ VLAN сегментация (VLAN 120 для киосков)
+- ⏳ QoS политики (DSCP маркировка)
+- ⏳ Latency/Packet loss мониторинг
+
+**План**: Session 25+ (зависит от оборудования и сетевой инфраструктуры)
+
+#### Безопасность сети (Section 5)
+- ⏳ SIM/eSIM управление и Vault хранение
+- ⏳ Частный APN с статическим IP
+- ⏳ Firewall allowlist доменов (Supabase, OTA CDN, PSP, NTP)
+- ⏳ Certificate pinning для Supabase/PSP
+- ⏳ 802.1X для Ethernet
+
+**План**: Session 26+ (интеграция с plan-secrets-config.md)
+
+#### Мониторинг и алерты (Section 7)
+- ⏳ SNMP monitoring для роутеров
+- ⏳ Prometheus метрики (`network_primary_status`, `lte_data_usage_daily`, `wifi_rssi_p95`)
+- ⏳ Alert правила для NOC/Ops
+
+**План**: Session 27+ (требуется Prometheus/Grafana инфраструктура)
+
+---
+
+## Текущие блокеры (24.11.2025, Session 2G)
+
+### Отсутствие тестовой инфраструктуры (критический) ❌
+
+**Воздействие**:
+- Невозможно протестировать Ethernet/Wi-Fi/LTE failover
+- Невозможно измерить QoS метрики (latency, packet loss, jitter)
+- Невозможно проверить VLAN сегментацию и firewall правила
+- Невозможно запустить роутер с RouterOS/OpnSense конфигурацией
+
+**Требуется**:
+- Физический роутер с RouterOS/OpnSense (или виртуальная машина)
+- SIM-карта с LTE для тестирования failover
+- Wi-Fi точка доступа с WPA2-Enterprise
+- Тестовая VLAN инфраструктура
+
+**План разрешения**: Session 24-25 (после приобретения оборудования)
+
+### Отсутствие MDM провайдера (высокий) ⚠️
+
+**Воздействие**:
+- Невозможно централизованно управлять Wi-Fi/VPN профилями
+- Невозможно проверить распространение сетевых конфигураций через MDM
+- Невозможно тестировать OTA updates через сетевые каналы
+
+**Текущий статус**: `MDM_PROVIDER=NONE` в .env.example
+
+**Требуется**:
+- Выбрать MDM провайдера (plan-mdm-integration.md)
+- Интегрировать MDM SDK в android/app
+- Подготовить Wi-Fi/VPN профили для распространения
+
+**План разрешения**: Session 26+ (в рамках plan-mdm-integration.md)
+
+### Supabase недоступен для heartbeat (средний) ⚠️
+
+**Воздействие**:
+- `DeviceStatusReporter` записывает heartbeat только локально
+- Невозможно проверить работу Supabase outbox для device status
+- Невозможно тестировать мониторинг доступности киосков
+
+**Текущий workaround**:
+- Heartbeat записывается в локальные логи
+- Supabase sync откладывается до разрешения AGP блокера
+
+**Требуется**:
+- Компиляция Android кода (AGP 8.4.1)
+- Настройка Supabase таблиц `device_status`, `device_commands`, `device_events`
+- Тестирование Supabase REST API интеграции
+
+**План разрешения**: Session 27+ (после разрешения AGP блокера)
+
+---
+
+## История изменений
+
+| Версия | Дата | Изменения |
+|--------|------|-----------|
+| 1.0 | 22.11.2025 | Первоначальная версия с планом подключения киосков |
+| 1.1 | 24.11.2025 | Добавлены текущий статус реализации, текущие блокеры (Session 2G) |
