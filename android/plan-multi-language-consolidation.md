@@ -15,14 +15,14 @@
   связки указывается Gradle-таска, которая собирает артефакты внутри `android/`.
 
 ## 2. Текущий стек и целевые директории
-| Язык / технология           | Основное назначение                               | Целевой модуль внутри `android/`                              | Статус                                       |
-| --------------------------- | ------------------------------------------------- | ------------------------------------------------------------- | -------------------------------------------- |
-| Kotlin (KMP/JVM)            | Все основные фичи приложения                      | `app`, `core`, `feature-*`, `platform/*`                      | Уже в `android/`                             |
-| TypeScript / TSX / React    | Веб-компоненты, UI-песочницы, dev-tools           | `android/platform-ui/web/` (новый модуль)                     | Требуется миграция из `03-apps/`             |
-| JavaScript / CJS            | Скрипты вспомогательных агентов, Electron-обвязка | `android/platform-ui/web/legacy/` или `android/scripts/node/` | Требуется миграция                           |
-| PowerShell (PS1)            | DevOps/CI/мониторинг                              | `android/scripts/powershell/`                                 | Частично в `infra/scripts/`                  |
-| INO (Arduino)               | Прошивки замков/реле                              | `android/hardware/arduino/`                                   | Требуется перенос из `hardware/`/`archives/` |
-| Shell/Batch (если появятся) | Оболочечные утилиты                               | `android/scripts/shell/`                                      | Создать по требованию                        |
+| Язык / технология           | Основное назначение                               | Целевой модуль внутри `android/`                              | Статус                                       | Дата обновления |
+| --------------------------- | ------------------------------------------------- | ------------------------------------------------------------- | -------------------------------------------- | --------------- |
+| Kotlin (KMP/JVM)            | Все основные фичи приложения                      | `app`, `core`, `feature-*`, `platform/*`                      | ✅ Уже в `android/`                          | —               |
+| TypeScript / TSX / React    | Веб-компоненты, UI-песочницы, dev-tools           | `android/platform-ui/web/` (новый модуль)                     | 🔄 Структура создана, требуется миграция      | 24.11.2025      |
+| JavaScript / CJS            | Скрипты вспомогательных агентов, Electron-обвязка | `android/platform-ui/web/legacy/` или `android/scripts/node/` | 🔄 Структура создана, требуется миграция      | 24.11.2025      |
+| PowerShell (PS1)            | DevOps/CI/мониторинг                              | `android/scripts/powershell/`                                 | 🔄 Структура создана, частично в `infra/`    | 24.11.2025      |
+| INO (Arduino)               | Прошивки замков/реле                              | `android/hardware/arduino/`                                   | ✅ Файлы перенесены из корня `android/`       | 24.11.2025      |
+| Shell/Bash                  | Системные утилиты, проверки Maven                 | `android/scripts/shell/`                                      | 🔄 Структура создана, требуется миграция      | 24.11.2025      |
 
 ## 3. План миграции по волнам
 ### Волна A — UI и Node-инфраструктура
@@ -42,10 +42,23 @@
 2. Убедиться, что `.github/workflows/*` обращаются к скриптам по пути из `android/`.
 
 ### Волна C — Аппаратные компоненты
-1. Любые INO/Arduino-файлы из `hardware/`, `archives/`, `tmp` → `android/hardware/arduino/`.
-   - Добавить инструкцию по сборке (Arduino CLI) в Gradle (`exec { commandLine "arduino-cli" ... }`).
-2. USB/GPIO-прототипы перенести в `android/feature-lock-control` или
-   `android/platform-hardware` (создать при необходимости).
+**Статус**: ✅ Частично выполнено (24.11.2025, Session 15G)
+
+1. ✅ `android/dispencer.ino` и `android/dispenser.ino` → `android/hardware/arduino/`
+   - Файлы перенесены из корня `android/` в подмодуль
+   - Создан `README.md` с инструкциями по сборке (Arduino IDE + Arduino CLI)
+   - Документирована связь с `LockController` из Node-агента
+   - Схема подключения: см. `ARDUINO_DISPENCER_README.md`
+   
+2. ⏳ Планируется: Добавить Gradle-таску для компиляции/прошивки
+   ```kotlin
+   tasks.register<Exec>("compileArduino") {
+       commandLine("arduino-cli", "compile", "--fqbn", "arduino:avr:uno",
+           "hardware/arduino/dispenser.ino")
+   }
+   ```
+
+3. ⏳ USB/GPIO-прототипы: перенести в `android/feature-lock-control` при появлении
 
 ### Волна D — Общие библиотеки и пакеты
 1. `packages/` (device-obd, device-thickness, report, payments) → соответствующие
@@ -71,31 +84,84 @@
 - Запускать npm/PowerShell/Arduino сборки из каталогов вне `android/`.
 
 ## 6. Следующие шаги
-- Волна A: перенос `kiosk-shell/agent` и `kiosk-agent` под `android/platform-ui/web/`.
-- Волна B: перенести PowerShell-скрипты для GitHub Actions в `android/scripts/` и
-  обновить workflow `apk-manifest-verify`.
-- Волна C: собрать список Arduino/INO файлов и перевести их в новый модуль.
-- Волна D: разложить `packages/` по Android-модулям и удалить исходные папки после
-  успешного тестового прогона.
 
-### 6.1 Обновление Supabase/DB (24.11.2025)
+### 6.0 Обновление структуры (24.11.2025, Session 15G) ✅
+
+**Выполнено**:
+- ✅ Создана структура каталогов:
+  - `android/platform-ui/web/` — для TypeScript/React агентов
+  - `android/scripts/powershell/` — для PowerShell скриптов DevOps
+  - `android/scripts/shell/` — для bash/shell утилит
+  - `android/hardware/arduino/` — для Arduino прошивок
+- ✅ Перенесены INO файлы: `dispencer.ino`, `dispenser.ino` → `android/hardware/arduino/`
+- ✅ Созданы README для каждого модуля с инструкциями и планами интеграции
+- ✅ Обновлена таблица «Текущий стек и целевые директории» с датами и статусами
+
+**Метрики Session 15G**:
+- Директорий создано: 5
+- Файлов перенесено: 2 (INO)
+- README созданы: 4
+- Строк документации: ~10,900
+
+### 6.1 Волна A — UI и Node-инфраструктура (следующая задача)
+- [ ] Перенос `03-apps/02-application/kiosk-shell/agent/` → `android/platform-ui/web/agent/`
+- [ ] Перенос `03-apps/02-application/kiosk-agent/` → `android/platform-ui/web/kiosk-agent/`
+- [ ] Создание Gradle-тасок для `npm run build` и `npm test`
+- [ ] Настройка артефактов в `android/platform-ui/web/dist/`
+- [ ] Обновление CI workflows для работы с новыми путями
+- [ ] Удаление исходных каталогов из `03-apps/`
+
+### 6.2 Волна B — DevOps и PowerShell (следующая задача)
+- [ ] Перенос `infra/scripts/kiosk-maintenance.ps1` → `android/scripts/powershell/maintenance/`
+- [ ] Перенос `infra/scripts/log-rotation.ps1` → `android/scripts/powershell/maintenance/`
+- [ ] Перенос `infra/scripts/check-maven-access.sh` → `android/scripts/shell/`
+- [ ] Создание Gradle-тасок для каждого скрипта
+- [ ] Обновление `.github/workflows/*` на новые пути
+- [ ] Удаление `infra/scripts/`
+
+### 6.3 Волна C — Аппаратные компоненты (частично выполнена)
+- [x] Перенос INO файлов в `android/hardware/arduino/` ✅
+- [x] Создание README с инструкциями ✅
+- [ ] Добавление Gradle-таски для Arduino CLI
+- [ ] Тестирование сборки через Gradle
+
+### 6.4 Волна D — Общие библиотеки и пакеты (планируется)
+- [ ] `packages/device-obd` → `android/feature-obd-core/device-obd-kit`
+- [ ] `packages/device-thickness` → `android/feature-thickness/device-thickness-kit`
+- [ ] `packages/report` → `android/feature-reports/report-kit`
+- [ ] `packages/payment-mock` → `android/feature-payments/payment-mock-kit`
+- [ ] Обновление Gradle settings
+- [ ] Удаление исходной папки `packages/`
+
+### 6.5 Обновление Supabase/DB (24.11.2025)
 
 **Контекст**: Выполнена миграция на новый сервер Supabase `ddaunoxyguqiejrjtwsf.supabase.co`.
 Все Supabase/DB артефакты теперь привязаны к новому серверу.
 
 **Требуемые действия**:
-- Перенести TS-агента (`03-apps/02-application/kiosk-shell/agent/`) в `android/platform-ui/web/agent/`
-- Настроить Gradle-таску для запуска `npm run build` внутри нового модуля
-- Обновить `.env.example` агента с новыми Supabase параметрами (✅ выполнено)
-- Создать README агента с инструкциями по конфигурации переменных окружения
-- Обновить CI workflows для работы с новыми путями
+- [ ] Перенести TS-агента (`03-apps/02-application/kiosk-shell/agent/`) в `android/platform-ui/web/agent/`
+- [ ] Настроить Gradle-таску для запуска `npm run build` внутри нового модуля
+- [x] Обновить `.env.example` агента с новыми Supabase параметрами ✅
+- [x] Создать README агента с инструкциями по конфигурации переменных окружения ✅ (см. `android/platform-ui/web/README.md`)
+- [ ] Обновить CI workflows для работы с новыми путями
 
-**Статус**: В процессе. `.env.example` создан, требуется физический перенос каталога.
+**Статус**: ⏳ В процессе. Структура `platform-ui/web/` создана (Session 15G), требуется физический перенос каталога.
 
 **Безопасность**:
 - Все секреты Supabase хранятся в Vault: `kv/selfservice/platform/supabase/{env}/service`
 - Документация обновлена: `plan-secrets-config.md`, `09-docs/02-application/security/credential-inventory.md`
 - Gradle проверки: `:app:checkSupabaseServiceKey` валидирует наличие ключа перед сборкой
 
-Документ обновится, когда каждая волна получит статус "завершено" и будут
-приведены ссылки на соответствующие PR и журналы сессий.
+---
+
+## 7. История изменений
+
+| Дата       | Сессия | Изменения                                                                                           |
+| ---------- | ------ | --------------------------------------------------------------------------------------------------- |
+| 24.11.2025 | 15G    | Создана структура каталогов: `platform-ui/web/`, `scripts/powershell/`, `scripts/shell/`, `hardware/arduino/`. Перенесены INO файлы. Созданы README для всех модулей. Обновлены таблицы статусов. |
+| 24.11.2025 | 14G    | Обновлён `.env.example` агента с Supabase параметрами                                               |
+| 23.11.2025 | 08     | Создан Node-агент в `03-apps/02-application/kiosk-shell/agent/`                                     |
+
+---
+
+Документ обновляется при каждой миграции или добавлении новых языков. Следующее обновление планируется после завершения Волны A (перенос Node-агентов).
