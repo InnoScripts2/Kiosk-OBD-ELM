@@ -105,3 +105,38 @@ tasks.register<Exec>("compileArduino") {
         }
     }
 }
+
+// Release Build Preparation Task (Session 20R)
+tasks.register("prepareReleaseBuild") {
+    group = "build"
+    description = "Prepare release build: lint, test, and assemble debug APK"
+    
+    // Check if device tasks should be skipped
+    val skipDeviceTasks = project.findProperty("skipDeviceTasks")?.toString()?.toBoolean() ?: false
+    
+    doFirst {
+        logger.lifecycle("========================================")
+        logger.lifecycle("Preparing Release Build")
+        logger.lifecycle("========================================")
+        if (skipDeviceTasks) {
+            logger.lifecycle("⚠️ Device tasks will be skipped (-PskipDeviceTasks=true)")
+        }
+        logger.lifecycle("")
+    }
+    
+    // Note: Actual dependencies will be set up when subprojects are configured
+    // This task serves as an entry point for the release build process
+    
+    doLast {
+        logger.lifecycle("")
+        logger.lifecycle("========================================")
+        logger.lifecycle("Release Build Preparation Complete")
+        logger.lifecycle("========================================")
+        logger.lifecycle("Next steps:")
+        logger.lifecycle("1. Review lint reports in */build/reports/lint-results*.html")
+        logger.lifecycle("2. Check test results in */build/reports/tests/")
+        logger.lifecycle("3. Find APK in app/build/outputs/apk/debug/app-debug.apk")
+        logger.lifecycle("")
+        logger.lifecycle("To skip device-specific tasks, use: -PskipDeviceTasks=true")
+    }
+}

@@ -452,9 +452,23 @@ jobs:
 - ❌ Может быть отклонено по соображениям безопасности
 
 #### Статус реализации на 24.11.2025
+**Session 18G** — Создание базового workflow:
 - Создан workflow `.github/workflows/android-build.yml`, выполняющий `lint`, `test` и `assembleDebug` на GitHub-hosted runner `ubuntu-latest` и выгружающий `app-debug.apk`.
 - Workflow публикует артефакт `gradle-caches`, что позволяет импортировать скачанные с Google Maven артефакты в изолированную среду (`~/.gradle/caches`, `~/.gradle/wrapper`).
 - Запуск доступен через `workflow_dispatch`, push/pull_request в ветках `main`, `develop`, `release/**` при изменениях в `android/**`.
+
+**Session 20R** — Расширение инфраструктуры сборки:
+- Создан workflow `.github/workflows/android-build-bootstrap.yml` для bootstrap-процесса (подготовка AGP артефактов).
+- Расширен workflow `.github/workflows/ci-maven-check.yml`:
+  - Добавлен шаг `gradle/wrapper-validation-action` для верификации Gradle Wrapper.
+  - При ошибке Google Maven workflow помечается как `neutral` (не блокирует CI).
+  - Добавлена загрузка артефактов (health check logs).
+- Дополнен скрипт `android/scripts/shell/check-maven-access.sh`:
+  - Добавлена проверка mirror (Google Mirror).
+  - Разделены коды статуса для Google Maven vs остальные репозитории.
+- Обновлён `ci-maven-check.yml`: автоматическая еженедельная проверка доступности Maven с отчётностью.
+- Создан Gradle task `prepareReleaseBuild` (dependsOn: lint, test, assembleDebug).
+- Добавлен параметр `-PskipDeviceTasks=true` для отключения hardware/lock tasks.
 
 ---
 

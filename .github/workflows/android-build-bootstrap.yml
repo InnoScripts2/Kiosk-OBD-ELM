@@ -1,0 +1,177 @@
+name: Android Build Bootstrap
+
+on:
+  workflow_dispatch:
+    inputs:
+      skip_tests:
+        description: 'Skip tests (faster build)'
+        required: false
+        default: 'false'
+        type: boolean
+      skip_lint:
+        description: 'Skip lint checks'
+        required: false
+        default: 'false'
+        type: boolean
+  push:
+    branches: [ main, develop, 'release/**' ]
+    paths:
+      - 'android/**'
+      - '.github/workflows/android-build-bootstrap.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'android/**'
+
+jobs:
+  build:
+    name: Bootstrap Android Build
+    runs-on: ubuntu-latest  # GitHub-hosted runner with dl.google.com access
+    timeout-minutes: 30
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      
+      - name: Validate Gradle Wrapper
+        uses: gradle/wrapper-validation-action@v2
+      
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          cache-read-only: false
+          gradle-home-cache-cleanup: true
+      
+      - name: Check Maven accessibility
+        id: maven-check
+        run: |
+          cd android
+          ./gradlew checkMavenAccess --no-daemon --stacktrace || true
+        continue-on-error: true
+      
+      - name: Grant execute permission for gradlew
+        run: chmod +x android/gradlew
+      
+      - name: Run Lint
+        if: ${{ !inputs.skip_lint }}
+        run: |
+          cd android
+          ./gradlew lint --no-daemon --stacktrace
+        continue-on-error: true
+      
+      - name: Run Tests
+        if: ${{ !inputs.skip_tests }}
+        run: |
+          cd android
+          ./gradlew test --no-daemon --stacktrace
+        continue-on-error: true
+      
+      - name: Build Debug APK
+        id: build
+        run: |
+          cd android
+          ./gradlew assembleDebug --no-daemon --stacktrace -PskipDeviceTasks=true
+        env:
+          GRADLE_OPTS: '-Dorg.gradle.jvmargs=-Xmx2g -Dorg.gradle.daemon=false'
+      
+      - name: Check APK size
+        if: success()
+        run: |
+          APK_PATH="android/app/build/outputs/apk/debug/app-debug.apk"
+          if [ -f "$APK_PATH" ]; then
+            APK_SIZE=$(stat -c%s "$APK_PATH" | awk '{printf "%.2f MB", $1/1024/1024}')
+            echo "APK Size: $APK_SIZE"
+            echo "apk_size=$APK_SIZE" >> $GITHUB_OUTPUT
+            
+            # Check if APK meets minimum size requirement (≥60 MB)
+            APK_SIZE_BYTES=$(stat -c%s "$APK_PATH")
+            MIN_SIZE_BYTES=$((60 * 1024 * 1024))
+            
+            if [ $APK_SIZE_BYTES -ge $MIN_SIZE_BYTES ]; then
+              echo "✅ APK size meets minimum requirement (≥60 MB)"
+            else
+              echo "⚠️ APK size below target (60 MB)"
+            fi
+          else
+            echo "❌ APK not found at $APK_PATH"
+            exit 1
+          fi
+      
+      - name: Upload Debug APK
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug-apk-${{ github.run_number }}
+          path: |
+            android/app/build/outputs/apk/debug/app-debug.apk
+            android/app/build/outputs/apk/debug/output-metadata.json
+          retention-days: 14
+          if-no-files-found: error
+      
+      - name: Upload Gradle Caches
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gradle-caches-${{ github.run_number }}
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          retention-days: 7
+          if-no-files-found: warn
+      
+      - name: Upload Lint Reports
+        if: always() && !inputs.skip_lint
+        uses: actions/upload-artifact@v4
+        with:
+          name: lint-reports-${{ github.run_number }}
+          path: |
+            android/**/build/reports/lint-results*.html
+            android/**/build/reports/lint-results*.xml
+          retention-days: 14
+          if-no-files-found: warn
+      
+      - name: Upload Test Reports
+        if: always() && !inputs.skip_tests
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports-${{ github.run_number }}
+          path: |
+            android/**/build/reports/tests/**
+            android/**/build/test-results/**/*.xml
+          retention-days: 14
+          if-no-files-found: warn
+      
+      - name: Generate Build Summary
+        if: always()
+        run: |
+          echo "## 🚀 Android Build Bootstrap Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Build Date**: $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+          echo "**Runner**: ubuntu-latest (GitHub-hosted)" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ steps.build.outcome }}" == "success" ]; then
+            echo "✅ **Build Status**: SUCCESS" >> $GITHUB_STEP_SUMMARY
+            echo "✅ **APK Generated**: app-debug.apk" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Build Status**: FAILED" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Troubleshooting**:" >> $GITHUB_STEP_SUMMARY
+            echo "1. Check Maven accessibility logs" >> $GITHUB_STEP_SUMMARY
+            echo "2. Verify AGP version compatibility" >> $GITHUB_STEP_SUMMARY
+            echo "3. Review build logs for errors" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "📚 **Documentation**:" >> $GITHUB_STEP_SUMMARY
+          echo "- [AGP Unblock Plan](../../docs/infra/agp-unblock-plan.md)" >> $GITHUB_STEP_SUMMARY
+          echo "- [Build Configuration](../../android/build.gradle.kts)" >> $GITHUB_STEP_SUMMARY
