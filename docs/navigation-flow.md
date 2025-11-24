@@ -162,19 +162,41 @@
 ---
 
 ### 5a. Thickness QR Payment Screen
-**Компонент**: `ThicknessQrPaymentScreen.kt`
+**Компонент**: `PaymentQRScreen.kt`  
+**ViewModel**: `PaymentViewModel.kt`
 
 **Содержимое**:
 - QR-код (центр, крупный)
 - Текст: "Отсканируйте QR для оплаты"
-- В DEV: кнопка "Имитация оплаты"
-- Кнопка "Готово" (неактивна до подтверждения)
+- Сумма оплаты
+- Таймер обратного отсчёта (10 минут)
+- Прогресс-бар (зелёный → красный при < 2 минут)
+- В DEV: кнопка "[DEV MODE] Подтвердить"
+- Кнопка "Отмена" (всегда доступна)
+- Индикатор "[MOCK MODE] Режим разработки" (только при PAYMENT_MOCK=true)
+
+**Состояния**:
+- `Idle` — начальное состояние
+- `CreatingIntent` — создание платёжного интента
+- `Processing` — ожидание оплаты (показ QR, таймер)
+- `Completed` — оплата подтверждена
+- `TimedOut` — таймаут 10 минут истёк
+- `Cancelled` — отменено пользователем
+- `Error` — ошибка обработки платежа
+
+**Логика**:
+- PaymentStatusPoller опрашивает статус каждые 2 секунды
+- PaymentStatusReducer предотвращает двойные эмиты
+- Таймаут 10 минут строго соблюдается
+- Кнопка "Подтвердить" доступна только при BuildConfig.PAYMENT_MOCK=true
+- Автоматические переходы при Completed/TimedOut
 
 **Переходы**:
 - Платёж подтверждён → Prepare Device Screen
 - Таймаут 10 минут → Service Selection Screen
+- Отмена → Service Selection Screen
 
-**DEV-кнопка**: "Имитация оплаты" (вызывает PaymentService.confirmPayment)
+**DEV-кнопка**: "[DEV MODE] Подтвердить" (вызывает PaymentViewModel.confirmPaymentDev(), доступна только при APP_MODE=DEV)
 
 ---
 

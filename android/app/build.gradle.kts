@@ -112,6 +112,18 @@ android {
         val yooTimeoutMs = (project.findProperty("payments.yookassa.timeoutMs") as? String)?.trim()?.toIntOrNull() ?: 0
         val yooUserAgent = (project.findProperty("payments.yookassa.userAgent") as? String)?.trim().orEmpty()
         val mdmAllowedPackages = (project.findProperty("mdm.allowedPackages") as? String)?.trim().orEmpty()
+        
+        // APP_MODE and PAYMENT_MOCK from environment or gradle properties
+        val appMode = (project.findProperty("app.mode") as? String)?.trim()
+            ?: System.getenv("APP_MODE")?.trim()
+            ?: "DEV"
+        val paymentMock = (project.findProperty("payment.mock") as? String)?.trim()
+            ?.let { it.equals("true", ignoreCase = true) || it == "1" }
+            ?: System.getenv("PAYMENT_MOCK")?.trim()?.let { it.equals("true", ignoreCase = true) || it == "1" }
+            ?: (appMode.equals("DEV", ignoreCase = true))
+        
+        buildConfigField("String", "APP_MODE", "\"${appMode.escapeForBuildConfig()}\"")
+        buildConfigField("boolean", "PAYMENT_MOCK", paymentMock.toString())
         buildConfigField("String", "SUPABASE_URL", "\"${supabaseUrl.escapeForBuildConfig()}\"")
         buildConfigField(
             "String",

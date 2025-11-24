@@ -419,3 +419,29 @@
 - [ ] Прогон всех тестов (если AGP разрешён)
 - [ ] Метрики APK (если AGP разрешён)
 
+### Session 13C: Stabilize Payments UI Flow (24.11.2025) ✅
+**Статус**: Завершено  
+**Дата**: 24.11.2025  
+**Сектор**: feature-payments, feature-kiosk-mode, android/app/payments
+
+**Цель**: Устранить дефекты в платёжной цепочке и UI после 11C/11B: двойные эмиты, зависания кнопок, некорректные таймауты.
+
+**Выполнено**:
+- [x] APP_MODE и PAYMENT_MOCK добавлены в BuildConfig (build.gradle.kts)
+- [x] PaymentViewModel: синхронизация StateFlow (ReplayCache=1, детерминированные обновления)
+- [x] PaymentViewModel: исправлены observerJob и remainingTimeJob (отдельные Jobs, корректная отмена)
+- [x] PaymentViewModel: публичный isDevMode() метод
+- [x] PaymentQRScreen: улучшен DEV-индикатор ([MOCK MODE] в Surface с error container)
+- [x] PaymentQRScreen: DEV-кнопка в жёлтом контейнере с двумя строками текста
+- [x] PaymentTimeoutUseCaseTest создан (8 тестов, ~250 строк, MockClock для time-travel)
+- [x] PaymentScreenDevModeTest создан (10 Compose UI тестов, ~330 строк)
+- [x] navigation-flow.md обновлён (детальные состояния PaymentQRScreen)
+- [x] plan-payments-reports.md обновлён (секция Session 13C)
+
+**Метрики**:
+- Файлов изменено: 6 (build.gradle.kts, PaymentViewModel, PaymentQRScreen, navigation-flow, plan-payments-reports, plan-80-session-roadmap)
+- Файлов создано: 2 (PaymentTimeoutUseCaseTest.kt, PaymentScreenDevModeTest.kt)
+- Строк кода: ~3800 (580 строк в тестах + улучшения существующих файлов)
+- Все публичные API документированы KDoc ✅
+- DEV-кнопка доступна только при APP_MODE=DEV ✅
+
