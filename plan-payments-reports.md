@@ -254,16 +254,39 @@ dependencies {
 - Session 11: Создание feature-lock-control (USB Serial, замки)
 - Session 12: Полная реализация ReportService (HTML/PDF, хранение, доставка DEV)
 
-### ⏳ Session 11B (текущая)
-1. Создание ComposeReportRenderer для Compose UI рендеринга
-2. Создание HtmlReportExporter для унифицированного экспорта
-3. Настройка DEV-адаптеров Email/SMS с конфигами
-4. Связь ReportService ↔ LockControl через публичные интерфейсы
-5. Создание ReportDeliveryViewModel
-6. Создание UI экранов итогов в app
-7. Добавление ThicknessReportGeneratorTest
-8. Добавление Compose snapshot тестов
-9. Обновление документации и метрик APK
+### ⏳ Session 11B (выполнено 24.11.2025)
+1. Создание ComposeReportRenderer для Compose UI рендеринга ✅
+2. Создание HtmlReportExporter для унифицированного экспорта ✅
+3. Настройка DEV-адаптеров Email/SMS с конфигами ✅
+4. Связь ReportService ↔ LockControl через публичные интерфейсы ✅
+5. Создание ReportDeliveryViewModel ✅
+6. Создание UI экранов итогов в app ✅
+7. Добавление ThicknessReportGeneratorTest ✅
+8. Добавление Compose snapshot тестов ✅
+9. Обновление документации и метрик APK ✅
+
+### ⏳ Session 12C (выполнено 24.11.2025)
+1. Создание PaymentStatusPoller (10-минутный таймаут, 2-секундный полинг) ✅
+2. Создание PaymentStatusReducer (предотвращение двойных эмиссий) ✅
+3. Переработка PaymentViewModel (~350 строк, интеграция с Poller/Reducer) ✅
+4. Переработка PaymentQRScreen (~360 строк, DEV-режим кнопка) ✅
+5. Добавление 18 unit-тестов (PaymentStatusPollerTest, PaymentStatusReducerTest) ✅
+6. Документирование всех публичных API с KDoc ✅
+7. Обновление документации ✅
+
+### ⏳ Session 13C (текущая, 24.11.2025)
+1. Добавление APP_MODE и PAYMENT_MOCK в BuildConfig ✅
+2. Синхронизация StateFlow в PaymentViewModel (ReplayCache, детерминированные обновления) ✅
+3. Исправление наблюдения за poller (отдельные Jobs для observerJob и remainingTimeJob) ✅
+4. Улучшение DEV-индикатора UI ([MOCK MODE] в Surface с error container) ✅
+5. Публичный метод isDevMode() в PaymentViewModel ✅
+6. Создание PaymentTimeoutUseCaseTest (8 тестов, ~250 строк) ✅
+7. Создание PaymentScreenDevModeTest (10 Compose UI тестов, ~330 строк) ⏳
+8. Обновление navigation-flow.md (детальные состояния PaymentQRScreen) ✅
+9. Обновление plan-payments-reports.md (этот файл) ⏳
+10. Обновление plan-80-session-roadmap.md (статус 13C) ⏳
+11. Создание SESSION_13C_SUMMARY.md ⏳
+12. Создание android/session-logs/session-13c.md ⏳
 
 ### 🔜 Будущие задачи
 - Session 13+: Production email/SMS/WhatsApp провайдеры

@@ -160,6 +160,7 @@ private fun ProcessingPaymentContent(
         remainingTime?.let { remaining ->
             val minutes = TimeUnit.MILLISECONDS.toMinutes(remaining)
             val seconds = TimeUnit.MILLISECONDS.toSeconds(remaining) % 60
+            val isLowTime = remaining < 2 * 60 * 1000
             
             LinearProgressIndicator(
                 progress = remaining.toFloat() / (10 * 60 * 1000),
@@ -167,7 +168,7 @@ private fun ProcessingPaymentContent(
                     .fillMaxWidth()
                     .padding(horizontal = 48.dp)
                     .height(8.dp),
-                color = if (remaining < 2 * 60 * 1000) {
+                color = if (isLowTime) {
                     MaterialTheme.colorScheme.error
                 } else {
                     MaterialTheme.colorScheme.primary
@@ -177,7 +178,7 @@ private fun ProcessingPaymentContent(
             Text(
                 text = "Осталось времени: ${minutes}:${seconds.toString().padStart(2, '0')}",
                 style = MaterialTheme.typography.bodyMedium,
-                color = if (remaining < 2 * 60 * 1000) {
+                color = if (isLowTime) {
                     MaterialTheme.colorScheme.error
                 } else {
                     MaterialTheme.colorScheme.onBackground
@@ -207,20 +208,38 @@ private fun ProcessingPaymentContent(
                         .weight(1f)
                         .height(56.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.secondary
+                        containerColor = Color(0xFFFFC857) // Warning yellow for DEV
                     )
                 ) {
-                    Text("[DEV] Подтвердить", style = MaterialTheme.typography.titleMedium)
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            text = "[DEV MODE]",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color.Black
+                        )
+                        Text(
+                            text = "Подтвердить",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = Color.Black
+                        )
+                    }
                 }
             }
         }
         
         if (BuildConfig.PAYMENT_MOCK) {
-            Text(
-                text = "[РЕЖИМ РАЗРАБОТКИ]",
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.error
-            )
+            Surface(
+                color = MaterialTheme.colorScheme.errorContainer,
+                shape = MaterialTheme.shapes.small,
+                modifier = Modifier.padding(vertical = 8.dp)
+            ) {
+                Text(
+                    text = "[MOCK MODE] Режим разработки",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                )
+            }
         }
     }
 }
