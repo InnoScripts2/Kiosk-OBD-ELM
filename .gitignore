@@ -18,6 +18,10 @@ logs/issues/*.json
 !logs/sessions/README.md
 !logs/issues/README.md
 
+# Agent logs
+03-apps/02-application/kiosk-shell/agent/logs/**/*.json
+03-apps/02-application/kiosk-shell/agent/logs/**/*.log
+
 # Build artifacts
 dist/
 *.log

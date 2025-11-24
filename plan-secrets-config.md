@@ -60,6 +60,50 @@ payments.yookassa.webhookSecret=whsec_xxx
 
 - При отсутствии значений Android-приложение автоматически переключается на `DevPaymentGateway`, что недопустимо для QA/PROD. Перед выкладкой выполняем последовательность: `./gradlew :app:checkYooKassaWebhookSecret -Pkiosk.environment=<ENV> -Ppayments.gateway=yookassa` (фиксируем секрет), затем `./gradlew :feature-payments:testDebugUnitTest --tests "*YooKassaPaymentGatewayTest*"` и `./gradlew :app:testDebugUnitTest --tests "*PaymentGatewayResolverTest*"`.
 
+## Конфигурация Supabase
+
+### Миграция сервера (24.11.2025)
+
+**Новый сервер**: `https://ddaunoxyguqiejrjtwsf.supabase.co`
+
+**Дата миграции**: 24 ноября 2025 (UTC)
+
+**Ответственный**: BKG Agent (автоматизированная миграция)
+
+**Vault пути**:
+- DEV: `kv/selfservice/platform/supabase/dev/service`
+- QA: `kv/selfservice/platform/supabase/qa/service`
+- PROD: `kv/selfservice/platform/supabase/prod/service`
+
+**Параметры Gradle** (добавлены в `android/gradle.properties`):
+```
+supabase.url=https://ddaunoxyguqiejrjtwsf.supabase.co
+supabase.serviceKey=<получать из Vault>
+```
+
+**Postgres соединение**:
+- Host: `db.ddaunoxyguqiejrjtwsf.supabase.co`
+- Database: `postgres`
+- User: `postgres`
+- Pooler: `aws-1-us-east-1.pooler.supabase.com:6543`
+- Direct: `aws-1-us-east-1.pooler.supabase.com:5432`
+
+**Безопасность**:
+- Service Role Key хранится только в Vault
+- Anon Key может быть в публичных конфигах
+- JWT Secret только в Vault и secure environment variables
+- Postgres Password только в Vault
+
+**Процедура для CI/CD**:
+1. Вызвать `pwsh ./android/scripts/export-supabase-service-key.ps1 -Environment <ENV> -EmitPipelineVariables`
+2. Запустить `./gradlew :app:checkSupabaseServiceKey -Pkiosk.environment=<ENV>`
+3. При успехе продолжить сборку `./gradlew lint test assembleDebug`
+
+**Node-агент**:
+- Создан `.env.example` в `03-apps/02-application/kiosk-shell/agent/`
+- Переменные: `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`
+- Postgres URLs: `POSTGRES_URL`, `POSTGRES_PRISMA_URL`, `POSTGRES_URL_NON_POOLING`
+
 ### CI-скрипт экспорта секрета
 
 - Скрипт `android/scripts/export-yookassa-webhook-secret.ps1` оборачивает `vault kv get kv/selfservice/payments/<ENV>/psp -field=webhookSecret`, заполняет переменные окружения `YOOKASSA_WEBHOOK_SECRET`/`PAYMENTS_YOOKASSA_WEBHOOK_SECRET`, а при флаге `-EmitPipelineVariables` — публикует секрет для Azure DevOps (`##vso[task.setvariable]`) и GitHub Actions (`GITHUB_ENV`, `::add-mask::`).
