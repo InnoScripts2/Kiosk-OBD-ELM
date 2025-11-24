@@ -59,32 +59,43 @@ tasks.register<Exec>("checkMavenAccess") {
     }
 }
 
-// Arduino Compilation Task (Session 18G)
+// Arduino Compilation Task (Session 18G → 19G)
 tasks.register<Exec>("compileArduino") {
     group = "hardware"
     description = "Compile Arduino sketches for dispenser lock control (requires arduino-cli)"
     workingDir = projectDir
     
-    // Default to dry-run mode unless explicitly disabled
+    // Parameters (can be overridden via -P flags)
     val dryRun = project.findProperty("arduinoDryRun")?.toString()?.toBoolean() ?: true
+    val arduinoCliPath = project.findProperty("arduinoCliPath")?.toString() ?: "arduino-cli"
+    val fqbn = project.findProperty("fqbn")?.toString() ?: "arduino:avr:uno"
+    val sketchPath = project.findProperty("sketchPath")?.toString() ?: "hardware/arduino/dispenser.ino"
     
     if (dryRun) {
-        commandLine("echo", "[DRY-RUN] Would compile Arduino sketches in hardware/arduino/")
+        commandLine("echo", "[DRY-RUN] Would compile Arduino sketches:")
+        doLast {
+            logger.lifecycle("  arduino-cli: $arduinoCliPath")
+            logger.lifecycle("  FQBN: $fqbn")
+            logger.lifecycle("  Sketch: $sketchPath")
+        }
     } else {
         commandLine(
-            "arduino-cli", "compile",
-            "--fqbn", "arduino:avr:uno",
-            "hardware/arduino/dispenser.ino"
+            arduinoCliPath, "compile",
+            "--fqbn", fqbn,
+            sketchPath
         )
     }
     
     doFirst {
         if (dryRun) {
             logger.lifecycle("Running Arduino compilation in DRY-RUN mode...")
-            logger.lifecycle("To compile real sketches, run: ./gradlew compileArduino -ParduinoDryRun=false")
+            logger.lifecycle("To compile real sketches:")
+            logger.lifecycle("  ./gradlew compileArduino -ParduinoDryRun=false")
+            logger.lifecycle("  ./gradlew compileArduino -ParduinoDryRun=false -Pfqbn=arduino:avr:mega")
             logger.lifecycle("Requires arduino-cli in PATH: https://arduino.github.io/arduino-cli/")
         } else {
-            logger.lifecycle("Compiling Arduino sketches...")
+            logger.lifecycle("Compiling Arduino sketch: $sketchPath")
+            logger.lifecycle("FQBN: $fqbn")
         }
     }
     

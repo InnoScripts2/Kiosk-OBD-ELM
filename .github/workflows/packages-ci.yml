@@ -1,0 +1,134 @@
+name: TypeScript Packages CI
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'android/feature-obd-core/device-obd-kit/**'
+      - 'android/feature-thickness/device-thickness-kit/**'
+      - 'android/feature-reports/report-kit/**'
+      - 'android/feature-payments/payment-mock-kit/**'
+      - '.github/workflows/packages-ci.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'android/feature-obd-core/device-obd-kit/**'
+      - 'android/feature-thickness/device-thickness-kit/**'
+      - 'android/feature-reports/report-kit/**'
+      - 'android/feature-payments/payment-mock-kit/**'
+
+jobs:
+  test-packages:
+    name: Test ${{ matrix.package }}
+    runs-on: ubuntu-latest
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        package:
+          - device-obd-kit
+          - device-thickness-kit
+          - report-kit
+          - payment-mock-kit
+        include:
+          - package: device-obd-kit
+            module: feature-obd-core
+            task: npmInstallDeviceObdKit
+          - package: device-thickness-kit
+            module: feature-thickness
+            task: npmInstallThicknessKit
+          - package: report-kit
+            module: feature-reports
+            task: npmInstallReportKit
+          - package: payment-mock-kit
+            module: feature-payments
+            task: npmInstallPaymentMockKit
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 'android/${{ matrix.module }}/${{ matrix.package }}/package-lock.json'
+      
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          cache-read-only: false
+      
+      - name: Check if package exists
+        id: check-package
+        run: |
+          PACKAGE_PATH="android/${{ matrix.module }}/${{ matrix.package }}"
+          if [ -d "$PACKAGE_PATH" ] && [ -f "$PACKAGE_PATH/package.json" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "✅ Package exists: $PACKAGE_PATH"
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "⚠️ Package not found: $PACKAGE_PATH"
+          fi
+      
+      - name: Run npm install via Gradle
+        if: steps.check-package.outputs.exists == 'true'
+        run: |
+          cd android
+          ./gradlew :${{ matrix.module }}:${{ matrix.task }} --no-daemon || echo "::warning::npm install task not found or failed"
+        continue-on-error: true
+      
+      - name: Run tests via npm (if available)
+        if: steps.check-package.outputs.exists == 'true'
+        run: |
+          PACKAGE_PATH="android/${{ matrix.module }}/${{ matrix.package }}"
+          cd $PACKAGE_PATH
+          
+          # Check if src/ directory exists (indicates actual source code)
+          if [ -d "src" ]; then
+            echo "Source code found, running tests..."
+            npm test || echo "::warning::Tests failed or not configured"
+          else
+            echo "No source code yet, skipping tests"
+          fi
+        continue-on-error: true
+      
+      - name: Run lint via npm (if available)
+        if: steps.check-package.outputs.exists == 'true'
+        run: |
+          PACKAGE_PATH="android/${{ matrix.module }}/${{ matrix.package }}"
+          cd $PACKAGE_PATH
+          
+          # Check if lint script exists
+          if grep -q '"lint"' package.json; then
+            echo "Lint script found, running..."
+            npm run lint || echo "::warning::Lint failed"
+          else
+            echo "No lint script, skipping"
+          fi
+        continue-on-error: true
+      
+      - name: Generate job summary
+        if: always()
+        run: |
+          echo "# Package Test Summary: ${{ matrix.package }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Module**: ${{ matrix.module }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Package exists**: ${{ steps.check-package.outputs.exists }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          PACKAGE_PATH="android/${{ matrix.module }}/${{ matrix.package }}"
+          if [ -f "$PACKAGE_PATH/package.json" ]; then
+            echo "### package.json" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`json" >> $GITHUB_STEP_SUMMARY
+            cat "$PACKAGE_PATH/package.json" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          fi

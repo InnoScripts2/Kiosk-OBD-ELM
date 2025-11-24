@@ -1,8 +1,8 @@
 # ARCHIVE NOTE — packages/
 
 **Дата**: 24.11.2025  
-**Сессия**: 18G (Волна D миграции)  
-**Статус**: UTILIZED — Частично мигрировано в android/
+**Сессия**: 18G → 19G (Волна D миграции)  
+**Статус**: UTILIZED — Полностью мигрировано в android/
 
 ## Контекст
 Каталог `packages/` содержит общие TypeScript/JavaScript библиотеки для работы с устройствами, платежами и отчётами. В рамках политики консолидации (см. `android/plan-multi-language-consolidation.md`) все активные компоненты переносятся в соответствующие модули внутри `android/`.
@@ -15,11 +15,11 @@
 | `packages/device-obd` | `android/feature-obd-core/device-obd-kit/`    | 24.11.2025 | ✅ Мигрировано |
 | `packages/report`     | `android/feature-reports/report-kit/`         | 24.11.2025 | ✅ Мигрировано |
 
-### ⏳ Планируется
-| Исходный путь             | Целевой модуль                                    | Приоритет |
-| ------------------------- | ------------------------------------------------- | --------- |
-| `packages/device-thickness` | `android/feature-thickness/device-thickness-kit/` | Средний   |
-| `packages/payment-mock`     | `android/feature-payments/payment-mock-kit/`      | Низкий    |
+### ✅ Перенесено (обновлено)
+| Исходный путь               | Целевой модуль                                    | Дата       | Статус |
+| --------------------------- | ------------------------------------------------- | ---------- | ------ |
+| `packages/device-thickness` | `android/feature-thickness/device-thickness-kit/` | 24.11.2025 | ✅ Мигрировано (Session 19G) |
+| `packages/payment-mock`     | `android/feature-payments/payment-mock-kit/`      | 24.11.2025 | ✅ Мигрировано (Session 19G) |
 
 ## Артефакты миграции
 - **README**: Созданы описания в целевых модулях
