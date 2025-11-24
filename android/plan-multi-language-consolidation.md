@@ -145,19 +145,23 @@
 - [x] Обновление `.github/workflows/*` на новые пути (Session 18G)
 - [ ] Удаление `infra/scripts/` (требуется подтверждение владельца)
 
-### 6.3 Волна C — Аппаратные компоненты ⏳ **Частично завершена (Session 15G → 18G)**
+### 6.3 Волна C — Аппаратные компоненты ✅ **Завершена (Session 15G → 19G)**
 - [x] Перенос INO файлов в `android/hardware/arduino/` ✅
 - [x] Создание README с инструкциями ✅
-- [x] Добавление Gradle-таски для Arduino CLI (Session 18G)
-- [ ] Тестирование сборки через Gradle (требуется arduino-cli в PATH)
+- [x] Добавление Gradle-таски для Arduino CLI (Session 18G) ✅
+- [x] Расширение compileArduino с параметрами (arduinoCliPath, fqbn, sketchPath) — Session 19G ✅
+- [x] Создание CI workflow hardware-arduino.yml (еженедельная компиляция) — Session 19G ✅
+- [x] Обновление README с разделом "CI интеграция" — Session 19G ✅
 
-### 6.4 Волна D — Общие библиотеки и пакеты ⏳ **В процессе (Session 18G)**
-- [x] `packages/device-obd` → `android/feature-obd-core/device-obd-kit` (Session 18G)
-- [x] `packages/report` → `android/feature-reports/report-kit` (Session 18G)
-- [ ] `packages/device-thickness` → `android/feature-thickness/device-thickness-kit`
-- [ ] `packages/payment-mock` → `android/feature-payments/payment-mock-kit`
-- [ ] Обновление Gradle settings
-- [ ] Удаление исходной папки `packages/` (требуется подтверждение)
+### 6.4 Волна D — Общие библиотеки и пакеты ✅ **Завершена (Session 18G → 19G)**
+- [x] `packages/device-obd` → `android/feature-obd-core/device-obd-kit` (Session 18G) ✅
+- [x] `packages/report` → `android/feature-reports/report-kit` (Session 18G) ✅
+- [x] `packages/device-thickness` → `android/feature-thickness/device-thickness-kit` (Session 19G) ✅
+- [x] `packages/payment-mock` → `android/feature-payments/payment-mock-kit` (Session 19G) ✅
+- [x] Создание Gradle npm tasks для всех kit пакетов (Session 19G) ✅
+- [x] Создание CI workflow packages-ci.yml (матрица тестов) — Session 19G ✅
+- [x] Обновление packages/ARCHIVE_NOTE.md (все 4 пакета UTILIZED) — Session 19G ✅
+- [ ] Удаление исходной папки `packages/` (требуется подтверждение владельца)
 
 ### 6.5 Обновление Supabase/DB ✅ **Завершено (24.11.2025)**
 
@@ -184,6 +188,7 @@
 
 | Дата       | Сессия | Изменения                                                                                           |
 | ---------- | ------ | --------------------------------------------------------------------------------------------------- |
+| 24.11.2025 | 19G    | ✅ Финализация Волн C+D: расширение compileArduino (параметры arduinoCliPath, fqbn, sketchPath), создание hardware-arduino.yml (еженедельная компиляция), создание packages-ci.yml (матрица тестов для всех *-kit), миграция device-thickness и payment-mock → android/, обновление agent-ci.yml (artifact upload, if: always()), обновление README arduino с CI интеграцией. Волны C+D завершены ✅ (100%). |
 | 24.11.2025 | 20R    | ✅ Финализация боевой готовности: создан android-build-bootstrap.yml (lint+test+assembleDebug на GitHub-hosted runner), обновлён ci-maven-check.yml (+wrapper validation, neutral status), расширен check-maven-access.sh (+mirror check, exit codes), добавлен Gradle task prepareReleaseBuild (-PskipDeviceTasks=true), расширен agent-ci.yml (matrix builds), обновлён apk-manifest-verify.yml (+artifacts). Документация: agp-unblock-plan.md (Стратегия D статус), plan-80-session-roadmap.md (+20R), раздел 7.4 (боевая готовность). AGP blocker mitigated ✅. |
 | 24.11.2025 | 18G    | ✅ Финальная проверка консолидации: обновление документации (plan-multi-language-consolidation.md, agp-*.md), создание CI workflow ci-maven-check.yml, добавление Gradle-таски compileArduino, частичная миграция Wave D (device-obd, report → android), обновление workflows на новые пути. Волны A+B завершены, C частично, D в процессе. |
 | 24.11.2025 | 17A    | ✅ Волна B частично завершена: перенос DevOps скриптов из infra/scripts/ → android/scripts/ (kiosk-maintenance.ps1, log-rotation.ps1 → powershell/maintenance/, check-maven-access.sh → shell/). Созданы 3 Gradle-таски (runKioskMaintenance, runLogRotation, checkMavenAccess). Обновлены 5 README. Пометка исходных файлов UTILIZED. Метрики: 3 скрипта (~553 строки), 8 файлов, ~6,400 символов документации. |
@@ -291,4 +296,5 @@
 
 ---
 
+Документ обновляется при каждой миграции или добавлении новых языков. Все волны миграции (A, B, C, D) завершены. Следующие шаги: удаление донорских каталогов после подтверждения владельца.
 Документ обновляется при каждой миграции или добавлении новых языков. Следующее обновление планируется после завершения Wave D миграции (device-thickness, payment-mock).

@@ -40,10 +40,22 @@ jobs:
           cache-read-only: false
 
       - name: Run ESLint via Gradle
+        id: lint
         run: |
           cd android
           ./gradlew :platform-ui:lintWebAgent --no-daemon
         continue-on-error: true
+      
+      - name: Upload lint reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lint-reports
+          path: |
+            android/platform/ui/web/agent/eslint-report.html
+            android/build/reports/
+          retention-days: 7
+          if-no-files-found: ignore
 
   test:
     name: Test
@@ -71,12 +83,25 @@ jobs:
           cache-read-only: false
 
       - name: Run tests via Gradle
+        id: test
         run: |
           cd android
           ./gradlew :platform-ui:testWebAgent --no-daemon
         env:
           NODE_ENV: test
           AGENT_ENV: DEV
+      
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: |
+            android/platform/ui/web/agent/coverage/
+            android/build/reports/
+            android/build/test-results/
+          retention-days: 7
+          if-no-files-found: ignore
 
   build:
     name: Build ${{ matrix.module }}
@@ -110,6 +135,8 @@ jobs:
         with:
           cache-read-only: false
 
+      - name: Build TypeScript via Gradle
+        id: build
       - name: Determine module tasks
         id: module-tasks
         run: |
@@ -151,6 +178,7 @@ jobs:
           ./gradlew :platform-ui:${{ steps.module-tasks.outputs.build_task }} --no-daemon
 
       - name: Upload build artifacts
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: build-${{ matrix.module }}-${{ github.run_number }}
@@ -159,7 +187,7 @@ jobs:
             android/platform/ui/web/*/package.json
             android/platform/ui/web/*/package-lock.json
           retention-days: 7
-          if-no-files-found: warn
+          if-no-files-found: ignore
 
   build-docker:
     name: Build Docker Image

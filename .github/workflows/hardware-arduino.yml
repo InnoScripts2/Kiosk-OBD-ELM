@@ -1,0 +1,95 @@
+name: Hardware Arduino Compilation Check
+
+on:
+  schedule:
+    # Every Friday at 10:00 UTC
+    - cron: '0 10 * * 5'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry-run mode (true) or real compilation (false)'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+      fqbn:
+        description: 'Fully Qualified Board Name'
+        required: false
+        default: 'arduino:avr:uno'
+        type: string
+
+jobs:
+  compile-arduino:
+    name: Compile Arduino Sketches
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      
+      - name: Install Arduino CLI
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/arduino/arduino-cli/master/install.sh | sh
+          echo "$HOME/bin" >> $GITHUB_PATH
+      
+      - name: Install Arduino platforms and libraries
+        run: |
+          arduino-cli core update-index
+          arduino-cli core install arduino:avr
+      
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          cache-read-only: false
+      
+      - name: Compile Arduino sketches (Gradle)
+        id: compile
+        run: |
+          cd android
+          DRY_RUN="${{ github.event.inputs.dry_run || 'false' }}"
+          FQBN="${{ github.event.inputs.fqbn || 'arduino:avr:uno' }}"
+          
+          if [ "$DRY_RUN" = "true" ]; then
+            echo "Running in DRY-RUN mode..."
+            ./gradlew compileArduino -ParduinoDryRun=true
+          else
+            echo "Compiling for FQBN: $FQBN"
+            ./gradlew compileArduino -ParduinoDryRun=false -Pfqbn="$FQBN" --no-daemon
+          fi
+        continue-on-error: true
+      
+      - name: Upload build artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: arduino-build-artifacts
+          path: |
+            android/hardware/arduino/build/
+            android/hardware/arduino/*.hex
+          retention-days: 30
+          if-no-files-found: ignore
+      
+      - name: Generate job summary
+        if: always()
+        run: |
+          echo "# Arduino Compilation Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Dry-run mode**: ${{ github.event.inputs.dry_run || 'false' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **FQBN**: ${{ github.event.inputs.fqbn || 'arduino:avr:uno' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: ${{ steps.compile.outcome }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ -f android/hardware/arduino/dispenser.ino ]; then
+            echo "✅ Sketch found: dispenser.ino" >> $GITHUB_STEP_SUMMARY
+          fi
+          if [ -f android/hardware/arduino/dispencer.ino ]; then
+            echo "✅ Sketch found: dispencer.ino" >> $GITHUB_STEP_SUMMARY
+          fi

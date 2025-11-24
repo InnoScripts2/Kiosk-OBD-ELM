@@ -1,0 +1,22 @@
+{
+  "name": "@kiosk/device-thickness",
+  "version": "1.0.0",
+  "description": "Thickness gauge device driver (BLE)",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest"
+  },
+  "keywords": ["thickness", "gauge", "ble", "measurement"],
+  "author": "InnoScripts2",
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0",
+    "jest": "^29.0.0",
+    "@types/jest": "^29.0.0",
+    "ts-jest": "^29.0.0"
+  }
+}

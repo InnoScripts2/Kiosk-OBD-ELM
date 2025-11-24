@@ -76,6 +76,68 @@ tasks.register<Exec>("compileArduino") {
 
 Для тестирования без физического оборудования используйте mock LockController в Node-агенте (флаг `DEVICE_MOCK_LOCK=true`).
 
+## 5. CI интеграция
+
+### Gradle-таска compileArduino
+
+Создана Gradle-таска для автоматизации сборки прошивок из корня репозитория:
+
+```bash
+# Dry-run режим (по умолчанию, безопасно для локальной работы)
+./gradlew compileArduino
+
+# Реальная компиляция (требует arduino-cli в PATH)
+./gradlew compileArduino -ParduinoDryRun=false
+
+# Настройка FQBN для других плат (например, Arduino Mega)
+./gradlew compileArduino -ParduinoDryRun=false -Pfqbn=arduino:avr:mega
+
+# Указание пути к arduino-cli (если не в PATH)
+./gradlew compileArduino -ParduinoDryRun=false -ParduinoCliPath=/usr/local/bin/arduino-cli
+
+# Компиляция другого sketch
+./gradlew compileArduino -ParduinoDryRun=false -PsketchPath=hardware/arduino/dispencer.ino
+```
+
+### GitHub Actions Workflow
+
+Создан workflow `.github/workflows/hardware-arduino.yml` для еженедельной проверки компилируемости прошивок:
+
+- **Расписание**: каждую пятницу в 10:00 UTC
+- **Ручной запуск**: через workflow_dispatch с параметрами (dry-run, fqbn)
+- **Шаги**:
+  1. Checkout кода
+  2. Установка Arduino CLI
+  3. Установка платформ и библиотек (arduino:avr)
+  4. Компиляция всех sketch в `hardware/arduino/`
+  5. Upload артефактов (hex файлы, build logs)
+  6. Генерация job summary с результатами
+
+### Параметры таски
+
+| Параметр          | Описание                                          | По умолчанию                  |
+| ----------------- | ------------------------------------------------- | ----------------------------- |
+| `arduinoDryRun`   | Режим dry-run (true) или реальная компиляция (false) | `true`                        |
+| `arduinoCliPath`  | Путь к исполняемому файлу arduino-cli             | `arduino-cli` (из PATH)       |
+| `fqbn`            | Fully Qualified Board Name                        | `arduino:avr:uno`             |
+| `sketchPath`      | Путь к sketch относительно корня репозитория      | `hardware/arduino/dispenser.ino` |
+
+### Требования
+
+1. **Локально**: Установить [Arduino CLI](https://arduino.github.io/arduino-cli/)
+2. **CI**: Workflow устанавливает arduino-cli автоматически
+3. **Платформы**: `arduino:avr` (устанавливается через `arduino-cli core install`)
+4. **Библиотеки**: Пока нет внешних зависимостей (все встроенные)
+
+### Логирование
+
+Все операции компиляции логируются:
+- **Dry-run**: Выводится список параметров без реальной компиляции
+- **Реальная**: Полный вывод arduino-cli в stdout
+- **Ошибки**: Передаются через exit code (≠ 0)
+
+Лог-файлы сохраняются в `hardware/arduino/build/` (локально) или загружаются как artifacts (CI).
+
 ## История изменений
 
 - **24.11.2025**: Перенос из корня `android/` в `android/hardware/arduino/` (Session 15G)
