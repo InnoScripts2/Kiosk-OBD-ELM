@@ -49,6 +49,7 @@ jobs:
           }
 
       - name: Execute apk-manifest with full trace
+        id: apk-manifest
         shell: pwsh
         run: |
           $scriptPath = ".\06-infra\04-infrastructure\infra-root\scripts\apk-manifest.ps1"
@@ -63,3 +64,32 @@ jobs:
             Write-Error $_.Exception.StackTrace
             Exit 1
           }
+      
+      - name: Upload APK Manifest Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: apk-manifest-reports-${{ github.run_number }}
+          path: |
+            10-tools/04-infrastructure/artifacts/third-party/**/*.json
+            10-tools/04-infrastructure/artifacts/third-party/**/*.md
+            06-infra/04-infrastructure/infra-root/scripts/logs/*.log
+          retention-days: 30
+          if-no-files-found: warn
+      
+      - name: Generate Summary
+        if: always()
+        shell: pwsh
+        run: |
+          $summary = "## 📦 APK Manifest Verification`n`n"
+          $summary += "**Date**: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss UTC')`n"
+          $summary += "**Status**: ${{ steps.apk-manifest.outcome }}`n`n"
+          
+          if ("${{ steps.apk-manifest.outcome }}" -eq "success") {
+            $summary += "✅ All APK manifests verified successfully`n"
+          } else {
+            $summary += "❌ APK manifest verification failed`n"
+            $summary += "`n**Action Required**: Check uploaded reports for details`n"
+          }
+          
+          $summary | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Encoding utf8
