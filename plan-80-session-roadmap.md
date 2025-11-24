@@ -312,6 +312,21 @@
 - ⚠️ AGP 8.4.1 блокер: Google Maven недоступен
 - **Готовность**: 60% (Session 10: 55% → Session 11: 60%)
 
+## Обновления Session 11B (23.11.2025)
+
+**Сессия 11B**: Миграция ReportService в Android Compose
+- ⏳ Создан `plan-payments-reports.md` — план интеграции платежей и отчётности
+- ⏳ ComposeReportRenderer для Compose UI рендеринга отчётов
+- ⏳ HtmlReportExporter для унифицированного HTML/PDF экспорта
+- ⏳ DEV-адаптеры Email/SMS настройка (конфигурация из plan-secrets-config.md)
+- ⏳ Связь ReportService ↔ LockControl через публичные интерфейсы
+- ⏳ ReportDeliveryViewModel для управления доставкой
+- ⏳ UI экраны итогов в app модуле
+- ⏳ ThicknessReportGeneratorTest (unit test)
+- ⏳ Compose snapshot тесты для UI компонентов
+- ⏳ Обновление документации и метрик APK
+- ⚠️ AGP 8.4.1 блокер: сохраняется, код пишется без компиляции
+- **Готовность**: 60% → 65% (цель Session 11B)
 **Сессия 11C** (23.11.2025): Исправление ошибок BLE state machine
 - ✅ Синхронизированы таймауты: tconn=5с, tscan=90с в `BleSessionStateMachine`
 - ✅ Исправлен `BlessedBleConnectionManager`: 

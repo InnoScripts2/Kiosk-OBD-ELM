@@ -30,6 +30,11 @@ android {
 
     buildFeatures {
         buildConfig = true
+        compose = true
+    }
+    
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.14"
     }
 
     testOptions {
@@ -50,11 +55,27 @@ dependencies {
     // Project modules
     implementation(project(":core"))
     implementation(project(":platform-data"))
+    implementation(project(":feature-lock-control"))
     
     // Kotlin
     implementation(libs.kotlin.stdlib)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
+    
+    // Timber logging
+    implementation(libs.timber)
+    
+    // Compose UI (Session 11B)
+    implementation("androidx.compose.ui:ui:1.6.8")
+    implementation("androidx.compose.material3:material3:1.2.1")
+    implementation("androidx.compose.foundation:foundation:1.6.8")
+    implementation("androidx.compose.runtime:runtime:1.6.8")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.4")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.4")
+    
+    // Compose preview support
+    debugImplementation("androidx.compose.ui:ui-tooling:1.6.8")
+    implementation("androidx.compose.ui:ui-tooling-preview:1.6.8")
     
     // Testing
     testImplementation(libs.kotlin.test)
@@ -65,4 +86,8 @@ dependencies {
     
     // Robolectric для Android тестов
     testImplementation(libs.robolectric)
+    
+    // Compose testing
+    testImplementation("androidx.compose.ui:ui-test-junit4:1.6.8")
+    debugImplementation("androidx.compose.ui:ui-test-manifest:1.6.8")
 }
