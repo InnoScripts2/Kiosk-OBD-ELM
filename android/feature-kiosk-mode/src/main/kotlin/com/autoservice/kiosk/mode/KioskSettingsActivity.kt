@@ -2,7 +2,6 @@ package com.autoservice.kiosk.mode
 
 import android.content.Intent
 import android.os.Bundle
-import android.provider.Settings
 import androidx.appcompat.app.AppCompatActivity
 
 /**
@@ -11,7 +10,11 @@ import androidx.appcompat.app.AppCompatActivity
 class KioskSettingsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        startActivity(Intent(Settings.ACTION_DEVICE_ADMIN_SETTINGS))
+        startActivity(Intent(ACTION_DEVICE_ADMIN_SETTINGS))
         finish()
+    }
+
+    companion object {
+        private const val ACTION_DEVICE_ADMIN_SETTINGS = "android.settings.DEVICE_ADMIN_SETTINGS"
     }
 }

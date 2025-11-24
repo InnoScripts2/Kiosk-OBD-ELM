@@ -376,36 +376,36 @@
 ## Completed Sessions (24.11.2025)
 
 ### Категория B (BLE/OBD Diagnostics)
-| Сессия | Дата | Описание | Метрики |
-|--------|------|----------|---------|
-| 10B | 23.11.2025 | blessed-kotlin API fixes, Timber logging | 6 файлов, ~500 строк, 9 тестов |
-| 10C | 23.11.2025 | Memory leaks fixes (scope.cancel()) | 6 файлов, ~300 строк, 18 fixes |
-| 11C | 23.11.2025 | BLE state machine timeouts & deadlock fixes | 3 файла, ~600 строк тестов, 23 теста |
-| 12B | 24.11.2025 | Thickness driver Node→Kotlin migration | 22 файла, ~4800 строк, 123 теста |
-| 13B | 24.11.2025 | Thickness driver completion: exceptions, tests, UI API | 5 файлов, ~1530 строк, 47 тестов |
-| Сессия | Дата | Описание | Метрики | APK Size | Lint/Test Result |
-|--------|------|----------|---------|----------|------------------|
-| 10B | 23.11.2025 | blessed-kotlin API fixes, Timber logging | 6 файлов, ~500 строк, 9 тестов | N/A (AGP blocker) | ✅ Code review OK |
-| 10C | 23.11.2025 | Memory leaks fixes (scope.cancel()) | 6 файлов, ~300 строк, 18 fixes | N/A (AGP blocker) | ✅ Code review OK |
-| 11C | 23.11.2025 | BLE state machine timeouts & deadlock fixes | 3 файла, ~600 строк тестов, 23 теста | N/A (AGP blocker) | ✅ Code review OK |
-| 12B | 24.11.2025 | Thickness device migration to Kotlin | 20 файлов, 4796 строк, 123 теста | N/A (AGP blocker) | ✅ Code review OK |
+| Сессия   | Дата       | Описание                                               | Метрики                              |
+| -------- | ---------- | ------------------------------------------------------ | ------------------------------------ |
+| 10B      | 23.11.2025 | blessed-kotlin API fixes, Timber logging               | 6 файлов, ~500 строк, 9 тестов       |
+| 10C      | 23.11.2025 | Memory leaks fixes (scope.cancel())                    | 6 файлов, ~300 строк, 18 fixes       |
+| 11C      | 23.11.2025 | BLE state machine timeouts & deadlock fixes            | 3 файла, ~600 строк тестов, 23 теста |
+| 12B      | 24.11.2025 | Thickness driver Node→Kotlin migration                 | 22 файла, ~4800 строк, 123 теста     |
+| 13B      | 24.11.2025 | Thickness driver completion: exceptions, tests, UI API | 5 файлов, ~1530 строк, 47 тестов     |
+| Сессия   | Дата       | Описание                                               | Метрики                              | APK Size          | Lint/Test Result   |
+| -------- | ------     | ----------                                             | ---------                            | ----------        | ------------------ |
+| 10B      | 23.11.2025 | blessed-kotlin API fixes, Timber logging               | 6 файлов, ~500 строк, 9 тестов       | N/A (AGP blocker) | ✅ Code review OK   |
+| 10C      | 23.11.2025 | Memory leaks fixes (scope.cancel())                    | 6 файлов, ~300 строк, 18 fixes       | N/A (AGP blocker) | ✅ Code review OK   |
+| 11C      | 23.11.2025 | BLE state machine timeouts & deadlock fixes            | 3 файла, ~600 строк тестов, 23 теста | N/A (AGP blocker) | ✅ Code review OK   |
+| 12B      | 24.11.2025 | Thickness device migration to Kotlin                   | 20 файлов, 4796 строк, 123 теста     | N/A (AGP blocker) | ✅ Code review OK   |
 
 ### Категория C (Reports/Payments)
-| Сессия | Дата | Описание | Метрики | APK Size | Lint/Test Result |
-|--------|------|----------|---------|----------|------------------|
-| 11B | 23.11.2025 | ReportService Compose migration | 7 файлов, ~2000 строк, 16 тестов | N/A (AGP blocker) | ✅ Code review OK |
-| 12 | 23.11.2025 | ReportService полная реализация | 30 файлов, ~12000 строк, 42 теста | N/A (AGP blocker) | ✅ Code review OK |
-| 12C | 24.11.2025 | Payment UI chain error fixes | 6 файлов, ~1400 строк, 18 тестов | N/A (AGP blocker) | ✅ Code review OK |
+| Сессия | Дата       | Описание                        | Метрики                           | APK Size          | Lint/Test Result |
+| ------ | ---------- | ------------------------------- | --------------------------------- | ----------------- | ---------------- |
+| 11B    | 23.11.2025 | ReportService Compose migration | 7 файлов, ~2000 строк, 16 тестов  | N/A (AGP blocker) | ✅ Code review OK |
+| 12     | 23.11.2025 | ReportService полная реализация | 30 файлов, ~12000 строк, 42 теста | N/A (AGP blocker) | ✅ Code review OK |
+| 12C    | 24.11.2025 | Payment UI chain error fixes    | 6 файлов, ~1400 строк, 18 тестов  | N/A (AGP blocker) | ✅ Code review OK |
 
 ### Категория G (Documentation/Infrastructure)
-| Сессия | Дата | Описание | Метрики | APK Size | Lint/Test Result |
-|--------|------|----------|---------|----------|------------------|
-| 1G | 23.11.2025 | Документация, логи, .env, README | 22 файла, 48,422 строки | N/A (docs only) | ✅ Markdown valid |
-| 2G | 24.11.2025 | Documentation mass maintenance | 31 файл, 5,050 строк | N/A (docs only) | ✅ Markdown valid |
-| 14Z | 24.11.2025 | AGP blocker analysis & resolution strategies | 6 файлов, ~52,000 символов | N/A (BLOCKED) | ⏸️ BLOCKED AGP |
+| Сессия | Дата       | Описание                                       | Метрики                    | APK Size        | Lint/Test Result |
+| ------ | ---------- | ---------------------------------------------- | -------------------------- | --------------- | ---------------- |
+| 1G     | 23.11.2025 | Документация, логи, .env, README               | 22 файла, 48,422 строки    | N/A (docs only) | ✅ Markdown valid |
+| 2G     | 24.11.2025 | Documentation mass maintenance                 | 31 файл, 5,050 строк       | N/A (docs only) | ✅ Markdown valid |
+| 14Z    | 24.11.2025 | AGP blocker analysis & GitHub Actions workflow | 7 файлов, ~54,000 символов | N/A (BLOCKED)   | ⏸️ BLOCKED AGP    |
 
 **Примечания**:
-- **14Z**: AGP 8.4.1 недоступен из-за сетевой блокировки (dl.google.com). Проведён комплексный анализ, созданы 4 стратегии разблокировки. Требуется решение владельца проекта. Документация: `docs/infra/agp-unblock-plan.md`, `docs/infra/agp-access-handbook.md`.
+- **14Z**: AGP 8.4.1 недоступен из-за сетевой блокировки (dl.google.com). Проведён комплексный анализ, созданы 4 стратегии разблокировки. Создан workflow `.github/workflows/android-build.yml`, который исполняет `lint`, `test`, `assembleDebug` на GitHub-hosted runner и выгружает APK + Gradle caches (реализация Стратегии D). Требуется подтверждение запуска и анализ результатов. Документация: `docs/infra/agp-unblock-plan.md`, `docs/infra/agp-access-handbook.md`.
 
 ## Sessions 13C/13B/3G (In Progress)
 

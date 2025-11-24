@@ -26,10 +26,10 @@ class ThicknessReportGeneratorTest {
         val input = createThicknessReportInput(
             sessionId = "test-session-001",
             measurements = listOf(
-                ThicknessMeasurement("Капот центр", 125, MeasurementStatus.OK),
-                ThicknessMeasurement("Крыша передняя", 98, MeasurementStatus.OK),
-                ThicknessMeasurement("Передняя левая дверь", 180, MeasurementStatus.WARNING),
-                ThicknessMeasurement("Задняя правая дверь", 250, MeasurementStatus.CRITICAL)
+                measurement(1, "Капот центр", 125f, MeasurementStatus.OK),
+                measurement(2, "Крыша передняя", 98f, MeasurementStatus.OK),
+                measurement(3, "Передняя левая дверь", 180f, MeasurementStatus.WARNING),
+                measurement(4, "Задняя правая дверь", 250f, MeasurementStatus.CRITICAL)
             )
         )
         
@@ -107,7 +107,7 @@ class ThicknessReportGeneratorTest {
         val input = createThicknessReportInput(
             sessionId = "test-session-002",
             measurements = listOf(
-                ThicknessMeasurement("Капот", 120, MeasurementStatus.OK)
+                measurement(1, "Капот", 120f, MeasurementStatus.OK)
             )
         )
         
@@ -150,11 +150,11 @@ class ThicknessReportGeneratorTest {
         val input = createThicknessReportInput(
             sessionId = "test-session-003",
             measurements = listOf(
-                ThicknessMeasurement("Zone1", 100, MeasurementStatus.OK),
-                ThicknessMeasurement("Zone2", 120, MeasurementStatus.OK),
-                ThicknessMeasurement("Zone3", 180, MeasurementStatus.WARNING),
-                ThicknessMeasurement("Zone4", 200, MeasurementStatus.WARNING),
-                ThicknessMeasurement("Zone5", 300, MeasurementStatus.CRITICAL)
+                measurement(1, "Zone1", 100f, MeasurementStatus.OK),
+                measurement(2, "Zone2", 120f, MeasurementStatus.OK),
+                measurement(3, "Zone3", 180f, MeasurementStatus.WARNING),
+                measurement(4, "Zone4", 200f, MeasurementStatus.WARNING),
+                measurement(5, "Zone5", 300f, MeasurementStatus.CRITICAL)
             )
         )
         
@@ -178,14 +178,14 @@ class ThicknessReportGeneratorTest {
         val stats = input.stats
         
         // Average: (100 + 120 + 180 + 200 + 300) / 5 = 180
-        assertEquals(180, stats.avgValue)
+        assertEquals(180f, stats.average)
         
         // Deviations: 3 (WARNING + CRITICAL zones)
         assertEquals(3, stats.deviations)
         
         // Min/Max
-        assertEquals(100, stats.minValue)
-        assertEquals(300, stats.maxValue)
+        assertEquals(100f, stats.min)
+        assertEquals(300f, stats.max)
         
         // Verify HTML contains stats
         assertTrue(html.contains("180"), "HTML should show average value")
@@ -201,7 +201,7 @@ class ThicknessReportGeneratorTest {
         val input = createThicknessReportInput(
             sessionId = "test-session-004",
             measurements = listOf(
-                ThicknessMeasurement("Капот", 120, MeasurementStatus.OK)
+                measurement(1, "Капот", 120f, MeasurementStatus.OK)
             )
         )
         
@@ -245,7 +245,7 @@ class ThicknessReportGeneratorTest {
         val input = createThicknessReportInput(
             sessionId = "test-session-005",
             measurements = listOf(
-                ThicknessMeasurement("Капот", 120, MeasurementStatus.OK)
+                measurement(1, "Капот", 120f, MeasurementStatus.OK)
             )
         )
         
@@ -273,54 +273,67 @@ class ThicknessReportGeneratorTest {
         sessionDir.deleteRecursively()
     }
     
+    private fun measurement(
+        zoneNumber: Int,
+        zoneName: String,
+        value: Float,
+        status: MeasurementStatus,
+        comment: String? = null
+    ): ThicknessMeasurement {
+        return ThicknessMeasurement(
+            zoneNumber = zoneNumber,
+            zoneName = zoneName,
+            value = value,
+            status = status,
+            comment = comment
+        )
+    }
+    
     // Helper function to create test input
     private fun createThicknessReportInput(
         sessionId: String,
         measurements: List<ThicknessMeasurement>
     ): ThicknessReportInput {
-        val okCount = measurements.count { it.status == MeasurementStatus.OK }
-        val warningCount = measurements.count { it.status == MeasurementStatus.WARNING }
-        val criticalCount = measurements.count { it.status == MeasurementStatus.CRITICAL }
-        
         val values = measurements.mapNotNull { 
             if (it.status != MeasurementStatus.EMPTY && it.status != MeasurementStatus.ERROR) 
                 it.value 
             else null 
         }
         
-        val avgValue = if (values.isNotEmpty()) values.average().toInt() else 0
-        val minValue = values.minOrNull() ?: 0
-        val maxValue = values.maxOrNull() ?: 0
+        val completedCount = measurements.count { it.status != MeasurementStatus.EMPTY }
+        val deviationsCount = measurements.count { it.status == MeasurementStatus.WARNING || it.status == MeasurementStatus.CRITICAL }
         
         val stats = ThicknessStats(
-            avgValue = avgValue,
-            minValue = minValue,
-            maxValue = maxValue,
-            deviations = warningCount + criticalCount,
-            okCount = okCount,
-            warningCount = warningCount,
-            criticalCount = criticalCount,
-            emptyCount = measurements.count { it.status == MeasurementStatus.EMPTY },
-            errorCount = measurements.count { it.status == MeasurementStatus.ERROR }
+            total = measurements.size,
+            completed = completedCount,
+            average = if (values.isNotEmpty()) values.average().toFloat() else 0f,
+            min = values.minOrNull() ?: 0f,
+            max = values.maxOrNull() ?: 0f,
+            deviations = deviationsCount,
+            deviationPercent = if (completedCount == 0) 0f else deviationsCount.toFloat() / completedCount * 100f
         )
+        
+        val warningCount = measurements.count { it.status == MeasurementStatus.WARNING }
+        val criticalCount = measurements.count { it.status == MeasurementStatus.CRITICAL }
         
         val overallStatus = when {
             criticalCount > 0 -> OverallStatus.CRITICAL
-            warningCount > 2 -> OverallStatus.ATTENTION_NEEDED
-            warningCount > 0 -> OverallStatus.GOOD
+            warningCount > 2 -> OverallStatus.POOR
+            warningCount > 0 -> OverallStatus.FAIR
             else -> OverallStatus.EXCELLENT
         }
         
         val analysis = ThicknessAnalysis(
-            overallStatus = overallStatus,
             recommendation = "Тестовая рекомендация",
-            details = listOf("Деталь 1", "Деталь 2")
+            normalRange = ValueRange(min = 80f, max = 200f),
+            overallStatus = overallStatus
         )
         
         return ThicknessReportInput(
             sessionId = sessionId,
             generatedAtMillis = System.currentTimeMillis(),
             vehicleType = "Седан",
+            price = 350,
             measurements = measurements,
             stats = stats,
             analysis = analysis,

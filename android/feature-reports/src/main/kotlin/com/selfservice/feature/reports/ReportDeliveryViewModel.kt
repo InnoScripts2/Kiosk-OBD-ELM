@@ -69,6 +69,7 @@ class ReportDeliveryViewModel(
                     success = false,
                     channel = DeliveryChannel.EMAIL,
                     messageId = null,
+                    recipient = email,
                     deliveryTimeMs = 0,
                     error = e.message
                 )
@@ -117,6 +118,7 @@ class ReportDeliveryViewModel(
                     success = false,
                     channel = DeliveryChannel.SMS,
                     messageId = null,
+                    recipient = phone,
                     deliveryTimeMs = 0,
                     error = e.message
                 )
@@ -155,6 +157,7 @@ class ReportDeliveryViewModel(
                     success = false,
                     channel = DeliveryChannel.EMAIL,
                     messageId = null,
+                    recipient = email,
                     deliveryTimeMs = 0,
                     error = e.message
                 )
@@ -169,6 +172,7 @@ class ReportDeliveryViewModel(
                     success = false,
                     channel = DeliveryChannel.SMS,
                     messageId = null,
+                    recipient = phone,
                     deliveryTimeMs = 0,
                     error = e.message
                 )

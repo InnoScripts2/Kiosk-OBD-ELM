@@ -6,9 +6,9 @@ import com.selfservice.obd.core.commands.OBDCommand
 import com.selfservice.obd.core.enums.ObdModes
 import com.selfservice.obd.core.enums.ObdProtocols
 import com.selfservice.obd.core.models.PID
-import com.selfservice.obd.core.statics.ObdLibrary.TAG
-import com.selfservice.obd.core.statics.PIDUtils.getPid
-import com.selfservice.obd.core.statics.PersistentStorage.clearAll
+import com.selfservice.obd.core.utils.ObdLibrary.TAG
+import com.selfservice.obd.core.utils.PIDUtils.getPid
+import com.selfservice.obd.core.utils.PersistentStorage.clearAll
 import java.io.IOException
 
 @Suppress("unused")

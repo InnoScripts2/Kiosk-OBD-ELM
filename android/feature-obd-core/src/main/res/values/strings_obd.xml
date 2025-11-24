@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="mode1_pid01_translation_on">On</string>
+    <string name="mode1_pid01_translation_off">Off</string>
+    <string name="mode1_pid01_translation">%1$s %2$s</string>
+
+    <string name="pid_value_unavailable">Value unavailable</string>
+
+    <string-array name="mode1_pid51_translation">
+        <item>Not available</item>
+        <item>Gasoline</item>
+        <item>Methanol</item>
+        <item>Ethanol</item>
+        <item>Diesel</item>
+        <item>LPG</item>
+        <item>CNG</item>
+        <item>Propane</item>
+        <item>Electric</item>
+        <item>Bifuel running Gasoline</item>
+        <item>Bifuel running Methanol</item>
+        <item>Bifuel running Ethanol</item>
+        <item>Bifuel running LPG</item>
+        <item>Bifuel running CNG</item>
+        <item>Bifuel running Propane</item>
+        <item>Bifuel running Electricity</item>
+        <item>Bifuel running electric and combustion engine</item>
+        <item>Hybrid gasoline</item>
+        <item>Hybrid Ethanol</item>
+        <item>Hybrid Diesel</item>
+        <item>Hybrid Electric</item>
+        <item>Hybrid running electric and combustion engine</item>
+        <item>Hybrid Regenerative</item>
+        <item>Bifuel running diesel</item>
+    </string-array>
+</resources>

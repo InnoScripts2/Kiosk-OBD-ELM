@@ -40,7 +40,7 @@ class DiagnosticsReportWorkflow(
     )
 
     fun interface ReportProducer {
-        fun generate(input: DiagnosticsReportInput): DiagnosticsReport
+        suspend fun generate(input: DiagnosticsReportInput): DiagnosticsReport
     }
 
     suspend fun run(

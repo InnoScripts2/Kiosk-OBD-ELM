@@ -52,8 +52,8 @@ class ComposeReportRendererTest {
         }
         
         // Assert
-        composeTestRule.onNodeWithText("Капот центр").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Крыша передняя").assertIsDisplayed()
+        composeTestRule.onNodeWithText("1. Капот центр").assertIsDisplayed()
+        composeTestRule.onNodeWithText("2. Крыша передняя").assertIsDisplayed()
     }
     
     @Test
@@ -223,37 +223,37 @@ class ComposeReportRendererTest {
     
     private fun createSampleThicknessInput(): ThicknessReportInput {
         val measurements = listOf(
-            ThicknessMeasurement("Капот центр", 125, MeasurementStatus.OK),
-            ThicknessMeasurement("Крыша передняя", 98, MeasurementStatus.OK),
-            ThicknessMeasurement("Передняя левая дверь", 180, MeasurementStatus.WARNING),
-            ThicknessMeasurement("Задняя правая дверь", 250, MeasurementStatus.CRITICAL)
+            ThicknessMeasurement(1, "Капот центр", 125f, MeasurementStatus.OK),
+            ThicknessMeasurement(2, "Крыша передняя", 98f, MeasurementStatus.OK),
+            ThicknessMeasurement(3, "Передняя левая дверь", 180f, MeasurementStatus.WARNING),
+            ThicknessMeasurement(4, "Задняя правая дверь", 250f, MeasurementStatus.CRITICAL)
         )
         
+        val values = measurements.map { it.value }
+        val completed = measurements.count { it.status != MeasurementStatus.EMPTY }
+        val deviations = measurements.count { it.status == MeasurementStatus.WARNING || it.status == MeasurementStatus.CRITICAL }
+        
         val stats = ThicknessStats(
-            avgValue = 163,
-            minValue = 98,
-            maxValue = 250,
-            deviations = 2,
-            okCount = 2,
-            warningCount = 1,
-            criticalCount = 1,
-            emptyCount = 0,
-            errorCount = 0
+            total = measurements.size,
+            completed = completed,
+            average = values.average().toFloat(),
+            min = values.minOrNull() ?: 0f,
+            max = values.maxOrNull() ?: 0f,
+            deviations = deviations,
+            deviationPercent = if (completed > 0) deviations.toFloat() / completed * 100f else 0f
         )
         
         val analysis = ThicknessAnalysis(
-            overallStatus = OverallStatus.ATTENTION_NEEDED,
             recommendation = "Обнаружены значительные отклонения в толщине ЛКП на некоторых панелях.",
-            details = listOf(
-                "Задняя правая дверь: критическое значение 250 µm",
-                "Передняя левая дверь: повышенное значение 180 µm"
-            )
+            normalRange = ValueRange(min = 80f, max = 200f),
+            overallStatus = OverallStatus.FAIR
         )
         
         return ThicknessReportInput(
             sessionId = "test-session-001",
             generatedAtMillis = System.currentTimeMillis(),
             vehicleType = "Седан",
+            price = 350,
             measurements = measurements,
             stats = stats,
             analysis = analysis,

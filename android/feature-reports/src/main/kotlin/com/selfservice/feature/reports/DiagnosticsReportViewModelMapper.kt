@@ -15,7 +15,7 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 import kotlin.math.abs
 
-internal data class ReportViewModel(
+data class ReportViewModel(
     val sessionId: String,
     val generatedAt: ZonedDateTime,
     val vehicleLine: String?,
@@ -26,7 +26,7 @@ internal data class ReportViewModel(
     val recommendations: List<ReportRecommendationRow>
 )
 
-internal data class ReportSummary(
+data class ReportSummary(
     val total: Int,
     val normal: Int,
     val warning: Int,
@@ -34,7 +34,7 @@ internal data class ReportSummary(
     val noData: Int
 )
 
-internal data class ReportMetricRow(
+data class ReportMetricRow(
     val title: String,
     val valueText: String,
     val statusLabel: String,
@@ -42,7 +42,7 @@ internal data class ReportMetricRow(
     val advice: String
 )
 
-internal data class ReportRecommendationRow(
+data class ReportRecommendationRow(
     val title: String,
     val severityLabel: String,
     val priorityLabel: String,

@@ -1,9 +1,9 @@
-package com.pnuema.android.obd
+package com.selfservice.obd.core
 
 import android.app.Application
 import android.content.Context
 import androidx.startup.Initializer
-import com.pnuema.android.obd.statics.ObdLibrary
+import com.selfservice.obd.core.utils.ObdLibrary
 
 @Suppress("unused") //inited in the manifest
 class ObdInitializer: Initializer<Context> {

@@ -29,12 +29,13 @@ android {
 
 dependencies {
     api(project(":core"))
-    api(project(":platform-bluetooth"))
     implementation(project(":platform-data"))
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinxSerializationJson)
     implementation(libs.org.json)
+    implementation(libs.androidx.startup)
+    implementation(libs.evalex)
     testImplementation(libs.kotlin.test)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.mockito.core)

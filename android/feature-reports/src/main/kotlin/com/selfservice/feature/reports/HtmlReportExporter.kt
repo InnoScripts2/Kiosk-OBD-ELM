@@ -55,7 +55,7 @@ class HtmlReportExporter(
      */
     fun exportDiagnosticsToHtml(input: DiagnosticsReportInput): String {
         validateDiagnosticsInput(input)
-        return diagnosticsHtmlFormatter.format(input, devMode)
+        return diagnosticsHtmlFormatter.format(input)
     }
     
     /**
@@ -67,7 +67,7 @@ class HtmlReportExporter(
      */
     suspend fun exportDiagnosticsToPdf(input: DiagnosticsReportInput): ByteArray {
         validateDiagnosticsInput(input)
-        val html = diagnosticsHtmlFormatter.format(input, devMode)
+        val html = diagnosticsHtmlFormatter.format(input)
         return pdfGenerator.generateFromHtml(html, ReportType.DIAGNOSTICS)
     }
     
@@ -228,7 +228,8 @@ class HtmlReportExporter(
         
         // Проверка на корректность значений измерений
         input.measurements.forEach { measurement ->
-            require(measurement.zone.isNotBlank()) { "Measurement zone cannot be blank" }
+            require(measurement.zoneName.isNotBlank()) { "Measurement zone cannot be blank" }
+            require(measurement.zoneNumber > 0) { "Zone number must be positive" }
             require(measurement.value >= 0) { "Measurement value cannot be negative: ${measurement.value}" }
             require(measurement.value <= 2000) { "Measurement value exceeds maximum (2000 µm): ${measurement.value}" }
         }
@@ -236,7 +237,9 @@ class HtmlReportExporter(
     
     private fun validateDiagnosticsInput(input: DiagnosticsReportInput) {
         require(input.sessionId.isNotBlank()) { "Session ID cannot be blank" }
-        require(input.vehicle.make.isNotBlank()) { "Vehicle make cannot be blank" }
+        input.vehicle?.let { vehicle ->
+            require(vehicle.make.isNotBlank()) { "Vehicle make cannot be blank" }
+        }
         require(input.snapshot.metrics.isNotEmpty()) { "Diagnostics metrics cannot be empty" }
     }
     

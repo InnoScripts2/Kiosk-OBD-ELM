@@ -77,7 +77,7 @@ object ComposeReportRenderer {
             ) {
                 KpiCard(
                     title = "Среднее",
-                    value = "${input.stats.avgValue} µm",
+                    value = formatThicknessValue(input.stats.average),
                     modifier = Modifier.weight(1f)
                 )
                 KpiCard(
@@ -95,12 +95,12 @@ object ComposeReportRenderer {
             ) {
                 KpiCard(
                     title = "Мин",
-                    value = "${input.stats.minValue} µm",
+                    value = formatThicknessValue(input.stats.min),
                     modifier = Modifier.weight(1f)
                 )
                 KpiCard(
                     title = "Макс",
-                    value = "${input.stats.maxValue} µm",
+                    value = formatThicknessValue(input.stats.max),
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -128,7 +128,7 @@ object ComposeReportRenderer {
             AnalysisCard(
                 overallStatus = input.analysis.overallStatus,
                 recommendation = input.analysis.recommendation,
-                details = input.analysis.details
+                normalRange = input.analysis.normalRange
             )
             
             Spacer(modifier = Modifier.height(24.dp))
@@ -174,14 +174,22 @@ object ComposeReportRenderer {
             Spacer(modifier = Modifier.height(24.dp))
             
             // Vehicle info
-            InfoCard(
-                title = "Информация об автомобиле",
-                items = listOf(
-                    "Марка" to "${input.vehicle.make} ${input.vehicle.model}",
-                    "Год" to input.vehicle.year.toString(),
-                    "VIN" to maskVin(input.vehicle.vin)
+            input.vehicle?.let { vehicle ->
+                InfoCard(
+                    title = "Информация об автомобиле",
+                    items = buildList {
+                        add("Марка" to buildString {
+                            append(vehicle.make)
+                            vehicle.model?.let { model ->
+                                append(' ')
+                                append(model)
+                            }
+                        })
+                        vehicle.year?.let { year -> add("Год" to year.toString()) }
+                        vehicle.vin?.let { vin -> add("VIN" to maskVin(vin)) }
+                    }
                 )
-            )
+            }
             
             Spacer(modifier = Modifier.height(16.dp))
             
@@ -366,14 +374,14 @@ object ComposeReportRenderer {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = measurement.zone,
+                    text = "${measurement.zoneNumber}. ${measurement.zoneName}",
                     fontSize = 14.sp,
                     color = ColorScheme.TextPrimary,
                     modifier = Modifier.weight(1f)
                 )
                 
                 Text(
-                    text = "${measurement.value} µm",
+                    text = formatThicknessValue(measurement.value),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     color = statusColor
@@ -401,7 +409,7 @@ object ComposeReportRenderer {
     private fun AnalysisCard(
         overallStatus: OverallStatus,
         recommendation: String,
-        details: List<String>
+        normalRange: ValueRange
     ) {
         Card(
             modifier = Modifier.fillMaxWidth(),
@@ -418,10 +426,9 @@ object ComposeReportRenderer {
                 Spacer(modifier = Modifier.height(12.dp))
                 
                 val statusColor = when (overallStatus) {
-                    OverallStatus.EXCELLENT -> ColorScheme.StatusOk
-                    OverallStatus.GOOD -> ColorScheme.StatusOk
-                    OverallStatus.ATTENTION_NEEDED -> ColorScheme.StatusWarning
-                    OverallStatus.CRITICAL -> ColorScheme.StatusCritical
+                    OverallStatus.EXCELLENT, OverallStatus.GOOD -> ColorScheme.StatusOk
+                    OverallStatus.FAIR -> ColorScheme.StatusWarning
+                    OverallStatus.POOR, OverallStatus.CRITICAL -> ColorScheme.StatusCritical
                 }
                 
                 Surface(
@@ -445,18 +452,12 @@ object ComposeReportRenderer {
                     color = ColorScheme.TextPrimary
                 )
                 
-                if (details.isNotEmpty()) {
-                    Spacer(modifier = Modifier.height(12.dp))
-                    
-                    details.forEach { detail ->
-                        Text(
-                            text = "• $detail",
-                            fontSize = 13.sp,
-                            color = ColorScheme.TextSecondary
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                    }
-                }
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                    text = "Диапазон нормы: ${formatThicknessValue(normalRange.min)} – ${formatThicknessValue(normalRange.max)}",
+                    fontSize = 13.sp,
+                    color = ColorScheme.TextSecondary
+                )
             }
         }
     }
@@ -496,9 +497,10 @@ object ComposeReportRenderer {
         return formatter.format(Date(millis))
     }
     
-    private fun maskEmail(email: String): String {
-        val parts = email.split("@")
-        if (parts.size != 2) return email
+    private fun maskEmail(email: String?): String {
+        val value = email ?: return "—"
+        val parts = value.split("@")
+        if (parts.size != 2) return value
         val local = parts[0]
         val masked = if (local.length > 3) {
             "${local.take(2)}***${local.takeLast(1)}"
@@ -508,20 +510,26 @@ object ComposeReportRenderer {
         return "$masked@${parts[1]}"
     }
     
-    private fun maskPhone(phone: String): String {
-        return if (phone.length > 4) {
-            "${phone.take(2)}***${phone.takeLast(2)}"
+    private fun maskPhone(phone: String?): String {
+        val value = phone ?: return "—"
+        return if (value.length > 4) {
+            "${value.take(2)}***${value.takeLast(2)}"
         } else {
             "***"
         }
     }
     
-    private fun maskVin(vin: String): String {
-        return if (vin.length > 8) {
-            "${vin.take(4)}***${vin.takeLast(4)}"
+    private fun maskVin(vin: String?): String {
+        val value = vin ?: return "—"
+        return if (value.length > 8) {
+            "${value.take(4)}***${value.takeLast(4)}"
         } else {
             "***"
         }
+    }
+
+    private fun formatThicknessValue(value: Float): String {
+        return String.format(Locale.getDefault(), "%.1f µm", value)
     }
 }
 
@@ -549,6 +557,7 @@ private val OverallStatus.displayName: String
     get() = when (this) {
         OverallStatus.EXCELLENT -> "Отлично"
         OverallStatus.GOOD -> "Хорошо"
-        OverallStatus.ATTENTION_NEEDED -> "Требуется внимание"
+        OverallStatus.FAIR -> "Есть отклонения"
+        OverallStatus.POOR -> "Плохое"
         OverallStatus.CRITICAL -> "Критично"
     }

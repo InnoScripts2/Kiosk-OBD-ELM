@@ -26,9 +26,14 @@ import com.selfservice.feature.payments.PaymentLogger
 import com.selfservice.feature.payments.PaymentModule
 import com.selfservice.feature.payments.PaymentModuleOptions
 import com.selfservice.feature.payments.combinePaymentAuditSinks
+import com.selfservice.feature.reports.DiagnosticsReport
 import com.selfservice.feature.reports.DiagnosticsReportCustomer
 import com.selfservice.feature.reports.DiagnosticsReportGenerator
+import com.selfservice.feature.reports.DiagnosticsReportInput
 import com.selfservice.feature.reports.DiagnosticsReportVehicle
+import com.selfservice.feature.reports.ReportFormat
+import com.selfservice.feature.reports.ReportStorageConfig
+import com.selfservice.feature.reports.ReportStorageManager
 import com.selfservice.kiosk.diagnostics.PassThruDiagnosticsRuntime
 import com.selfservice.kiosk.diagnostics.PassThruDiagnosticsRuntimeProvider
 import com.selfservice.kiosk.diagnostics.ObdConnectionController
@@ -168,7 +173,8 @@ open class KioskApp : Application() {
     private val diagnosticsMetricTrends = MutableStateFlow<Map<String, DiagnosticsMetricTrend>>(emptyMap())
     private val diagnosticsReportResult = MutableStateFlow<DiagnosticsReportWorkflow.Result?>(null)
     private val diagnosticsReportSummaryState = MutableStateFlow(DiagnosticsReportSummary.empty())
-    private val diagnosticsReportGenerator by lazy { DiagnosticsReportGenerator.create() }
+    private lateinit var diagnosticsReportGenerator: DiagnosticsReportGenerator
+    private lateinit var reportStorageManager: ReportStorageManager
     private val paymentModule: PaymentModule by lazy { buildPaymentModule() }
     private val paymentAuditSink = MutablePaymentAuditSink()
     private val diagnosticsClock: () -> Long = { System.currentTimeMillis() }
@@ -248,6 +254,8 @@ open class KioskApp : Application() {
         diagnosticsLogSummaryObserver = summaryObserver
         diagnosticsLogRetentionCoordinator = retentionCoordinator
     diagnosticsTelemetryRetentionCoordinator = telemetryRetentionCoordinator
+    reportStorageManager = buildReportStorageManager()
+    diagnosticsReportGenerator = buildDiagnosticsReportGenerator(reportStorageManager)
     initializeDiagnosticsReportPersistence(database)
     initializeManufacturerDictionaries()
     initializePassThruSelfTests()
@@ -360,6 +368,45 @@ open class KioskApp : Application() {
         setDiagnosticsReportComponents(store, outbox, summaryObserver)
     }
 
+    private fun buildDiagnosticsReportGenerator(
+        storageManager: ReportStorageManager
+    ): DiagnosticsReportGenerator {
+        val devMode = BuildConfig.APP_MODE.equals("DEV", ignoreCase = true)
+        return DiagnosticsReportGenerator.create(
+            storageManager = storageManager,
+            devMode = devMode
+        )
+    }
+
+    private fun buildReportStorageManager(): ReportStorageManager {
+        val logsDir = File(filesDir, REPORT_LOGS_DIR).apply { mkdirs() }
+        val config = ReportStorageConfig(
+            baseDir = File(logsDir, REPORT_FILES_DIR),
+            metadataDir = File(logsDir, REPORT_METADATA_DIR),
+            issuesDir = File(logsDir, REPORT_ISSUES_DIR),
+            retentionDays = REPORT_RETENTION_DAYS,
+            maxTotalSizeMb = REPORT_STORAGE_MAX_MB
+        )
+        return ReportStorageManager(config)
+    }
+
+    private suspend fun generateDiagnosticsReport(
+        input: DiagnosticsReportInput
+    ): DiagnosticsReport {
+        val result = diagnosticsReportGenerator.generate(
+            input = input,
+            formats = listOf(ReportFormat.HTML, ReportFormat.PDF)
+        )
+        if (!result.success) {
+            val description = result.issue?.description ?: "unknown error"
+            Log.w(TAG, "Diagnostics report generation failed: $description")
+            throw IllegalStateException("Diagnostics report generation failed: $description")
+        }
+        val html = result.html ?: throw IllegalStateException("Diagnostics report HTML payload is missing")
+        val pdfBytes = result.pdfBytes ?: throw IllegalStateException("Diagnostics report PDF payload is missing")
+        return DiagnosticsReport(html = html, pdfBytes = pdfBytes)
+    }
+
     private fun setDiagnosticsReportComponents(
         store: DiagnosticsReportStore?,
         outbox: DiagnosticsReportOutboxBridge?,
@@ -418,7 +465,7 @@ open class KioskApp : Application() {
         diagnosticsRunner = runtime::runDiagnostics,
         metricEvaluator = ::evaluateDiagnosticsMetrics,
         reportProducer = DiagnosticsReportWorkflow.ReportProducer { input ->
-            diagnosticsReportGenerator.generate(input)
+            generateDiagnosticsReport(input)
         },
         timeProvider = diagnosticsClock,
         sessionIdProvider = diagnosticsSessionIdProvider
@@ -1246,6 +1293,12 @@ open class KioskApp : Application() {
         private const val STALE_LOG_INTERVAL_MILLIS = 60_000L
         private const val DEVICE_STATUS_REPORT_INTERVAL_MS = 5L * 60L * 1000L
         private const val DIAGNOSTICS_DIR = "diagnostics"
+        private const val REPORT_LOGS_DIR = "logs"
+        private const val REPORT_FILES_DIR = "reports"
+        private const val REPORT_METADATA_DIR = "sessions"
+        private const val REPORT_ISSUES_DIR = "issues"
+        private const val REPORT_RETENTION_DAYS = 30
+        private const val REPORT_STORAGE_MAX_MB = 500
         private const val MANUFACTURER_DTC_ASSET = "dtc_database.json"
         private const val MAX_PENDING_MDM_COMMANDS = 32
         private const val PENDING_MDM_COMMAND_PREVIEW_LIMIT = 5

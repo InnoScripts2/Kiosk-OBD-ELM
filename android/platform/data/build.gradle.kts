@@ -62,8 +62,9 @@ tasks.register<Exec>("generateDtcCatalog") {
     outputs.file(manufacturerOutPath)
     outputs.file(versionOutPath)
 
-    commandLine(
-        "python3",
+    val isWindowsHost = System.getProperty("os.name").startsWith("Windows", ignoreCase = true)
+    val pythonCommand = if (isWindowsHost) listOf("py", "-3") else listOf("python3")
+    val command = pythonCommand + listOf(
         scriptPath.absolutePath,
         "--base", basePath.absolutePath,
         "--generic-out", genericOutPath.absolutePath,
@@ -72,6 +73,8 @@ tasks.register<Exec>("generateDtcCatalog") {
         "--version", catalogVersion,
         "-v"
     )
+
+    commandLine(*command.toTypedArray())
 
     doFirst {
         logger.lifecycle("Generating DTC catalogs (version $catalogVersion)...")

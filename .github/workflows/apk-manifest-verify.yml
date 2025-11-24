@@ -1,22 +1,65 @@
 name: Verify APK Manifest
 
 on:
-    push:
-        paths:
-            - "10-tools/04-infrastructure/artifacts/third-party/**"
-            - "06-infra/04-infrastructure/infra-root/scripts/apk-manifest.ps1"
-            - ".github/workflows/apk-manifest-verify.yml"
-    pull_request:
-        paths:
-            - "10-tools/04-infrastructure/artifacts/third-party/**"
-            - "06-infra/04-infrastructure/infra-root/scripts/apk-manifest.ps1"
+  push:
+    paths:
+      - "10-tools/04-infrastructure/artifacts/third-party/**"
+      - "06-infra/04-infrastructure/infra-root/scripts/apk-manifest.ps1"
+      - ".github/workflows/apk-manifest-verify.yml"
+  pull_request:
+    paths:
+      - "10-tools/04-infrastructure/artifacts/third-party/**"
+      - "06-infra/04-infrastructure/infra-root/scripts/apk-manifest.ps1"
 
 jobs:
-    verify:
-        runs-on: windows-latest
-        steps:
-            - uses: actions/checkout@v4
-            - name: Verify manifest matches current APK files
-              shell: pwsh
-              run: |
-                  pwsh -NoProfile -ExecutionPolicy Bypass -File .\06-infra\04-infrastructure\infra-root\scripts\apk-manifest.ps1 -Verify -Deterministic
+  verify:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Show runner environment and list script directory
+        shell: pwsh
+        run: |
+          Write-Host "=== pwsh version ==="
+          pwsh -v
+          Write-Host "=== Current location ==="
+          Get-Location | Write-Host
+          Write-Host "=== List top-level files/dirs (showing .github and infra) ==="
+          Get-ChildItem -Force -Depth 2 | Where-Object { $_.FullName -like "*06-infra*" -or $_.FullName -like "*\.github*" } | Format-Table -AutoSize
+
+      - name: Verify script exists and show header
+        shell: pwsh
+        run: |
+          $scriptPath = ".\06-infra\04-infrastructure\infra-root\scripts\apk-manifest.ps1"
+          Write-Host "Looking for: $scriptPath"
+          if (-not (Test-Path $scriptPath)) {
+            Write-Error "Script not found at $scriptPath"
+            if (Test-Path ".\06-infra\04-infrastructure\infra-root\scripts") {
+              Write-Host "Files under scripts folder:"
+              Get-ChildItem -Path ".\06-infra\04-infrastructure\infra-root\scripts" -Recurse | Select-Object FullName,Length | Format-Table -AutoSize
+            } else {
+              Write-Host "Folder '.\06-infra/04-infrastructure/infra-root/scripts' does not exist in checkout."
+            }
+            exit 1
+          } else {
+            Write-Host "Script found. Showing first 120 lines:"
+            Get-Content $scriptPath -TotalCount 120 | ForEach-Object { Write-Host $_ }
+          }
+
+      - name: Execute apk-manifest with full trace
+        shell: pwsh
+        run: |
+          $scriptPath = ".\06-infra\04-infrastructure\infra-root\scripts\apk-manifest.ps1"
+          Write-Host "Executing: & $scriptPath -Verify -Deterministic"
+          # Включаем подробную трассировку и обработку ошибок
+          $ErrorActionPreference = "Stop"
+          try {
+            & $scriptPath -Verify -Deterministic
+            Write-Host "Script completed successfully."
+          } catch {
+            Write-Error "Script threw an exception: $($_.Exception.Message)"
+            Write-Error $_.Exception.StackTrace
+            Exit 1
+          }

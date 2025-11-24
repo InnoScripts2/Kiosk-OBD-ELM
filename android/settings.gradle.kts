@@ -7,6 +7,10 @@ pluginManagement {
         google()
         mavenCentral()
     }
+
+    plugins {
+        id("com.google.dagger.hilt.android") version "2.48.1"
+    }
 }
 
 dependencyResolutionManagement {

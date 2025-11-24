@@ -227,6 +227,22 @@ class ReportServiceImpl(
             )
         }
     }
+
+    /**
+     * Отправляет SMS с резюме отчёта, совместимый с текущими вызовами ViewModel.
+     */
+    suspend fun sendReportBySms(
+        sessionId: String,
+        phone: String,
+        reportType: ReportType
+    ): DeliveryResult {
+        return sendReportSummaryBySms(
+            sessionId = sessionId,
+            phone = phone,
+            reportType = reportType,
+            summaryData = null
+        )
+    }
     
     /**
      * Получает список всех отчётов (метаданные).

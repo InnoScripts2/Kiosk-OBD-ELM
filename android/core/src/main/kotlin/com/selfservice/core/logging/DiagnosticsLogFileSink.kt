@@ -100,14 +100,14 @@ class DiagnosticsLogFileSink(
     }
 
     private fun serialize(json: JSONObject): DiagnosticsLogEntry? {
-    val category = json.optString(KEY_CATEGORY).takeIf { it.isNotEmpty() } ?: return null
-    val message = json.optString(KEY_MESSAGE).takeIf { it.isNotEmpty() } ?: return null
+        val category = json.optString(KEY_CATEGORY).takeIf { it.isNotEmpty() } ?: return null
+        val message = json.optString(KEY_MESSAGE).takeIf { it.isNotEmpty() } ?: return null
         val timestamp = json.optLong(KEY_TIMESTAMP, Long.MIN_VALUE)
         if (timestamp == Long.MIN_VALUE) {
             return null
         }
-    val metadataValue = json.opt(KEY_METADATA)
-    val metadata = (metadataValue as? JSONObject)?.let(::fromJsonObject) ?: emptyMap()
+        val metadataValue = json.opt(KEY_METADATA)
+        val metadata = (metadataValue as? JSONObject)?.let(::fromJsonObject) ?: emptyMap()
         return DiagnosticsLogEntry(
                 category = category,
                 message = message,

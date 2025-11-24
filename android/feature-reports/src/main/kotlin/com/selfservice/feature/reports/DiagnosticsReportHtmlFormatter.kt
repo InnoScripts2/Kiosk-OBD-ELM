@@ -3,7 +3,7 @@ package com.selfservice.feature.reports
 /**
  * Формирует HTML-версии диагностических отчётов для предпросмотра и отправки.
  */
-internal class DiagnosticsReportHtmlFormatter(
+class DiagnosticsReportHtmlFormatter(
     private val mapper: DiagnosticsReportViewModelMapper
 ) {
 

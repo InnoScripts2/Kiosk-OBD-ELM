@@ -9,14 +9,12 @@ import java.util.Locale
 
 /**
  * Менеджер хранения отчётов.
- * 
- * Отвечает за:
- * - Сохранение HTML/PDF файлов в logs/reports/<sessionId>/
- * - Запись метаданных в logs/sessions/<date>.json
+ *
+ * - Сохранение отчётов и метаданных в файловой системе
  * - Запись проблем в logs/issues/<date>.json
- * - Очистку устаревших отчётов (30 дней)
+ * - Очистка устаревших отчётов (30 дней)
  * - Контроль использования дискового пространства
- * 
+ *
  * Структура хранения:
  * ```
  * logs/
@@ -31,7 +29,7 @@ import java.util.Locale
  * ```
  */
 class ReportStorageManager(
-    private val config: ReportStorageConfig
+    val config: ReportStorageConfig
 ) {
     
     private val dateFormat = SimpleDateFormat(config.dateFormat, Locale.US)

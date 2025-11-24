@@ -42,6 +42,8 @@ android {
 }
 
 dependencies {
+    api(project(":feature-obd-core"))
+
     // Core Android dependencies
     implementation(libs.androidx.core.ktx)
     
@@ -51,9 +53,6 @@ dependencies {
     
     // Logging
     implementation(libs.timber)
-    
-    // Module dependencies
-    api(project(":feature-obd-core"))
     
     // Testing
     testImplementation(libs.kotlin.test)

@@ -1,6 +1,6 @@
 {
-  "version": "1.0.1",
-  "build_timestamp": "2025-11-23T06:54:53.071732+00:00",
+  "version": "1.0.0",
+  "build_timestamp": "2025-11-24T08:49:48.201055+00:00",
   "generic_entries": 17958,
   "manufacturer_entries": 58217,
   "manufacturers": [
@@ -12,8 +12,8 @@
     "Toyota"
   ],
   "sources": {
-    "csharp_catalog": "base/OBDII.DTC-main/DTC.cs",
-    "dtc_mapping": "base/dtcmapping.json",
+    "csharp_catalog": "base\\OBDII.DTC-main\\DTC.cs",
+    "dtc_mapping": "base\\dtcmapping.json",
     "manufacturer_directories": [
       "All BMW OBD2 Codes List (7)",
       "All Lexus OBD2 Codes List (5)",
