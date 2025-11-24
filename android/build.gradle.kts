@@ -58,3 +58,39 @@ tasks.register<Exec>("checkMavenAccess") {
         logger.lifecycle("Checking Maven repository accessibility...")
     }
 }
+
+// Arduino Compilation Task (Session 18G)
+tasks.register<Exec>("compileArduino") {
+    group = "hardware"
+    description = "Compile Arduino sketches for dispenser lock control (requires arduino-cli)"
+    workingDir = projectDir
+    
+    // Default to dry-run mode unless explicitly disabled
+    val dryRun = project.findProperty("arduinoDryRun")?.toString()?.toBoolean() ?: true
+    
+    if (dryRun) {
+        commandLine("echo", "[DRY-RUN] Would compile Arduino sketches in hardware/arduino/")
+    } else {
+        commandLine(
+            "arduino-cli", "compile",
+            "--fqbn", "arduino:avr:uno",
+            "hardware/arduino/dispenser.ino"
+        )
+    }
+    
+    doFirst {
+        if (dryRun) {
+            logger.lifecycle("Running Arduino compilation in DRY-RUN mode...")
+            logger.lifecycle("To compile real sketches, run: ./gradlew compileArduino -ParduinoDryRun=false")
+            logger.lifecycle("Requires arduino-cli in PATH: https://arduino.github.io/arduino-cli/")
+        } else {
+            logger.lifecycle("Compiling Arduino sketches...")
+        }
+    }
+    
+    doLast {
+        if (!dryRun) {
+            logger.lifecycle("Arduino compilation completed. Output in hardware/arduino/build/")
+        }
+    }
+}

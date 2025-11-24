@@ -4,14 +4,14 @@ on:
   push:
     branches: [ main, develop ]
     paths:
-      - 'apps/kiosk-agent/**'
-      - 'packages/**'
+      - 'android/platform/ui/web/agent/**'
+      - 'android/platform/ui/build.gradle.kts'
       - '.github/workflows/agent-ci.yml'
   pull_request:
     branches: [ main, develop ]
     paths:
-      - 'apps/kiosk-agent/**'
-      - 'packages/**'
+      - 'android/platform/ui/web/agent/**'
+      - 'android/platform/ui/build.gradle.kts'
 
 jobs:
   lint:
@@ -21,20 +21,28 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
+          cache-dependency-path: 'android/platform/ui/web/agent/package-lock.json'
 
-      - name: Install dependencies
-        run: |
-          npm ci
-          npm ci --workspace=apps/kiosk-agent
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          cache-read-only: false
 
-      - name: Run ESLint
+      - name: Run ESLint via Gradle
         run: |
-          npm run lint --workspace=apps/kiosk-agent || true
+          cd android
+          ./gradlew :platform-ui:lintWebAgent --no-daemon
         continue-on-error: true
 
   test:
@@ -44,19 +52,28 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
+          cache-dependency-path: 'android/platform/ui/web/agent/package-lock.json'
 
-      - name: Install dependencies
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          cache-read-only: false
+
+      - name: Run tests via Gradle
         run: |
-          npm ci
-          npm ci --workspace=apps/kiosk-agent
-
-      - name: Run tests
-        run: npm run test --workspace=apps/kiosk-agent
+          cd android
+          ./gradlew :platform-ui:testWebAgent --no-daemon
         env:
           NODE_ENV: test
           AGENT_ENV: DEV
@@ -69,28 +86,37 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
+          cache-dependency-path: 'android/platform/ui/web/agent/package-lock.json'
 
-      - name: Install dependencies
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          cache-read-only: false
+
+      - name: Build TypeScript via Gradle
         run: |
-          npm ci
-          npm ci --workspace=apps/kiosk-agent
-
-      - name: Build TypeScript
-        run: npm run build --workspace=apps/kiosk-agent
+          cd android
+          ./gradlew :platform-ui:buildWebAgent --no-daemon
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: kiosk-agent-build
           path: |
-            apps/kiosk-agent/dist
-            apps/kiosk-agent/package.json
-            apps/kiosk-agent/package-lock.json
+            android/platform/ui/web/agent/dist
+            android/platform/ui/web/agent/package.json
+            android/platform/ui/web/agent/package-lock.json
           retention-days: 7
 
   build-docker:

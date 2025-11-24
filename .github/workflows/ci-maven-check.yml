@@ -1,0 +1,81 @@
+name: Maven Repository Health Check
+
+on:
+  schedule:
+    # Every Monday at 09:00 UTC
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+    inputs:
+      log_level:
+        description: 'Log level for diagnostics'
+        required: false
+        default: 'info'
+        type: choice
+        options:
+          - info
+          - debug
+
+jobs:
+  check-maven:
+    name: Check Maven Repositories
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          cache-read-only: false
+      
+      - name: Run Maven accessibility check
+        id: maven-check
+        run: |
+          cd android
+          ./gradlew checkMavenAccess --no-daemon --stacktrace
+        continue-on-error: true
+      
+      - name: Generate summary
+        if: always()
+        run: |
+          echo "## 📦 Maven Repository Health Check" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Дата проверки**: $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ steps.maven-check.outcome }}" == "success" ]; then
+            echo "✅ **Статус**: Все репозитории доступны" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ **Статус**: Обнаружены недоступные репозитории" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Действия**:" >> $GITHUB_STEP_SUMMARY
+            echo "1. Проверьте логи выполнения checkMavenAccess" >> $GITHUB_STEP_SUMMARY
+            echo "2. Если Google Maven недоступен, используйте GitHub-hosted runner для Android сборок" >> $GITHUB_STEP_SUMMARY
+            echo "3. Рассмотрите Стратегию A (прокси) или B (Nexus) из docs/infra/agp-unblock-plan.md" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "📚 **Документация**: [AGP Access Handbook](../docs/infra/agp-access-handbook.md)" >> $GITHUB_STEP_SUMMARY
+      
+      - name: Upload health check logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: maven-health-check-${{ github.run_number }}
+          path: |
+            logs/infrastructure/maven-health-*.log
+          retention-days: 30
+          if-no-files-found: warn
+      
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "::warning::Maven repository health check failed. See logs for details."
+          echo "::warning::AGP blocker may still be active. Verify access to dl.google.com"
