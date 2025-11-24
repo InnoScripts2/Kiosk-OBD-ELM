@@ -312,3 +312,27 @@
 - ⚠️ AGP 8.4.1 блокер: Google Maven недоступен
 - **Готовность**: 60% (Session 10: 55% → Session 11: 60%)
 
+**Сессия 11C** (23.11.2025): Исправление ошибок BLE state machine
+- ✅ Синхронизированы таймауты: tconn=5с, tscan=90с в `BleSessionStateMachine`
+- ✅ Исправлен `BlessedBleConnectionManager`: 
+  - Timeout connect использует 5s вместо произвольного значения
+  - Добавлен `reconnectJob` с guard-логикой для предотвращения deadlock
+  - Реализован exponential backoff: 1s, 2s, 4s, 8s, 16s (capped)
+  - Добавлена отмена `reconnectJob` в `release()` перед `scope.cancel()`
+- ✅ Заменён `GlobalScope.launch` на `scope.launch` для предотвращения утечек
+- ✅ Добавлен тест `ObdSessionStateMachineTest.kt` (14 тестов, ~380 строк):
+  - Проверка default timeouts (tconn=5s, tscan=90s)
+  - Детерминированные переходы Idle→Connecting→Handshake→Ready→Diagnostics→Completed
+  - Watchdog cancellation при завершении handshake
+  - Heartbeat reset для inactivity watchdog
+  - Guard для предотвращения повторного startSession
+- ✅ Добавлен тест `BleTimeoutRecoveryTest.kt` (9 тестов, ~220 строк):
+  - Connection timeout после 5s
+  - Scanning timeout после 90s
+  - Reconnection guard предотвращает concurrent attempts
+  - Exponential backoff verification
+  - Reset clears state без deadlock
+- ⚠️ Компиляция невозможна (AGP 8.4.1 блокер)
+- **Статус**: Код исправлен, тесты добавлены, ожидает компиляции
+- **Метрики**: 3 файла изменено, 2 теста добавлено (~600 строк тестов)
+
