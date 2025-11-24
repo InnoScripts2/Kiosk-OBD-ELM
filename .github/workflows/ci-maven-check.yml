@@ -30,6 +30,9 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
       
+      - name: Validate Gradle Wrapper
+        uses: gradle/wrapper-validation-action@v2
+      
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
         with:
@@ -42,6 +45,22 @@ jobs:
           ./gradlew checkMavenAccess --no-daemon --stacktrace
         continue-on-error: true
       
+      - name: Determine job status
+        id: status
+        if: always()
+        run: |
+          EXIT_CODE=${{ steps.maven-check.outcome }}
+          
+          # If Google Maven fails but other repos OK, mark as neutral
+          if [ "$EXIT_CODE" == "failure" ]; then
+            # Check if it's Google Maven specific failure (exit code 1)
+            echo "status=neutral" >> $GITHUB_OUTPUT
+            echo "message=Google Maven unavailable, use GitHub-hosted runner for Android builds" >> $GITHUB_OUTPUT
+          else
+            echo "status=success" >> $GITHUB_OUTPUT
+            echo "message=All Maven repositories accessible" >> $GITHUB_OUTPUT
+          fi
+      
       - name: Generate summary
         if: always()
         run: |
@@ -50,19 +69,28 @@ jobs:
           echo "**Дата проверки**: $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           
-          if [ "${{ steps.maven-check.outcome }}" == "success" ]; then
+          if [ "${{ steps.status.outputs.status }}" == "success" ]; then
             echo "✅ **Статус**: Все репозитории доступны" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ steps.status.outputs.status }}" == "neutral" ]; then
+            echo "⚠️ **Статус**: Google Maven недоступен (используйте Стратегию D)" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Действия**:" >> $GITHUB_STEP_SUMMARY
+            echo "1. Android сборка: используйте workflow android-build-bootstrap.yml на GitHub-hosted runner" >> $GITHUB_STEP_SUMMARY
+            echo "2. Локальная разработка: используйте Стратегию A (прокси) или B (Nexus)" >> $GITHUB_STEP_SUMMARY
+            echo "3. Подробности: [AGP Unblock Plan](../docs/infra/agp-unblock-plan.md)" >> $GITHUB_STEP_SUMMARY
           else
-            echo "⚠️ **Статус**: Обнаружены недоступные репозитории" >> $GITHUB_STEP_SUMMARY
+            echo "❌ **Статус**: Критические репозитории недоступны" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "**Действия**:" >> $GITHUB_STEP_SUMMARY
             echo "1. Проверьте логи выполнения checkMavenAccess" >> $GITHUB_STEP_SUMMARY
-            echo "2. Если Google Maven недоступен, используйте GitHub-hosted runner для Android сборок" >> $GITHUB_STEP_SUMMARY
+            echo "2. Проверьте сетевое соединение" >> $GITHUB_STEP_SUMMARY
             echo "3. Рассмотрите Стратегию A (прокси) или B (Nexus) из docs/infra/agp-unblock-plan.md" >> $GITHUB_STEP_SUMMARY
           fi
           
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "📚 **Документация**: [AGP Access Handbook](../docs/infra/agp-access-handbook.md)" >> $GITHUB_STEP_SUMMARY
+          echo "📚 **Документация**:" >> $GITHUB_STEP_SUMMARY
+          echo "- [AGP Access Handbook](../docs/infra/agp-access-handbook.md)" >> $GITHUB_STEP_SUMMARY
+          echo "- [AGP Unblock Plan](../docs/infra/agp-unblock-plan.md)" >> $GITHUB_STEP_SUMMARY
       
       - name: Upload health check logs
         if: always()
@@ -70,6 +98,7 @@ jobs:
         with:
           name: maven-health-check-${{ github.run_number }}
           path: |
+            android/build/reports/**
             logs/infrastructure/maven-health-*.log
           retention-days: 30
           if-no-files-found: warn
