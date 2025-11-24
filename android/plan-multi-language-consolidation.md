@@ -20,9 +20,9 @@
 | Kotlin (KMP/JVM)            | Все основные фичи приложения                      | `app`, `core`, `feature-*`, `platform/*`                      | ✅ Уже в `android/`                          | —               |
 | TypeScript / TSX / React    | Веб-компоненты, UI-песочницы, dev-tools           | `android/platform/ui/web/` (модуль `:platform-ui`)            | ✅ Миграция завершена (Session 16A)          | 24.11.2025      |
 | JavaScript / CJS            | Скрипты вспомогательных агентов, Electron-обвязка | `android/platform/ui/web/legacy/` или `android/scripts/node/` | ⏳ Структура создана, требуется миграция      | 24.11.2025      |
-| PowerShell (PS1)            | DevOps/CI/мониторинг                              | `android/scripts/powershell/`                                 | ⏳ Структура создана, частично в `infra/`    | 24.11.2025      |
-| INO (Arduino)               | Прошивки замков/реле                              | `android/hardware/arduino/`                                   | ✅ Файлы перенесены из корня `android/`       | 24.11.2025      |
-| Shell/Bash                  | Системные утилиты, проверки Maven                 | `android/scripts/shell/`                                      | ⏳ Структура создана, требуется миграция      | 24.11.2025      |
+| PowerShell (PS1)            | DevOps/CI/мониторинг                              | `android/scripts/powershell/`                                 | ✅ Миграция завершена (Session 17A)          | 24.11.2025      |
+| INO (Arduino)               | Прошивки замков/реле                              | `android/hardware/arduino/`                                   | ✅ Файлы перенесены, требуется Gradle-таска   | 24.11.2025      |
+| Shell/Bash                  | Системные утилиты, проверки Maven                 | `android/scripts/shell/`                                      | ✅ Миграция завершена (Session 17A)          | 24.11.2025      |
 
 ## 3. План миграции по волнам
 ### Волна A — UI и Node-инфраструктура ✅ **Завершена 24.11.2025 (Session 16A)**
@@ -135,43 +135,43 @@
 - [ ] Обновление CI workflows для работы с новыми путями (Волна B)
 - [ ] Удаление исходных каталогов из `03-apps/` (требуется подтверждение)
 
-### 6.2 Волна B — DevOps и PowerShell ✅ **Частично завершена 24.11.2025 (Session 17A)**
+### 6.2 Волна B — DevOps и PowerShell ✅ **Завершена 24.11.2025 (Session 17A → 18G)**
 - [x] Перенос `infra/scripts/kiosk-maintenance.ps1` → `android/scripts/powershell/maintenance/`
 - [x] Перенос `infra/scripts/log-rotation.ps1` → `android/scripts/powershell/maintenance/`
 - [x] Перенос `infra/scripts/check-maven-access.sh` → `android/scripts/shell/`
 - [x] Создание Gradle-тасок для каждого скрипта (runKioskMaintenance, runLogRotation, checkMavenAccess)
 - [x] Обновление README документации (5 файлов)
 - [x] Пометка исходных файлов как UTILIZED (infra/scripts/ARCHIVE_NOTE.md)
-- [ ] Обновление `.github/workflows/*` на новые пути (следующая сессия)
-- [ ] Удаление `infra/scripts/` (после обновления workflows)
+- [x] Обновление `.github/workflows/*` на новые пути (Session 18G)
+- [ ] Удаление `infra/scripts/` (требуется подтверждение владельца)
 
-### 6.3 Волна C — Аппаратные компоненты (частично выполнена)
+### 6.3 Волна C — Аппаратные компоненты ⏳ **Частично завершена (Session 15G → 18G)**
 - [x] Перенос INO файлов в `android/hardware/arduino/` ✅
 - [x] Создание README с инструкциями ✅
-- [ ] Добавление Gradle-таски для Arduino CLI
-- [ ] Тестирование сборки через Gradle
+- [x] Добавление Gradle-таски для Arduino CLI (Session 18G)
+- [ ] Тестирование сборки через Gradle (требуется arduino-cli в PATH)
 
-### 6.4 Волна D — Общие библиотеки и пакеты (планируется)
-- [ ] `packages/device-obd` → `android/feature-obd-core/device-obd-kit`
+### 6.4 Волна D — Общие библиотеки и пакеты ⏳ **В процессе (Session 18G)**
+- [x] `packages/device-obd` → `android/feature-obd-core/device-obd-kit` (Session 18G)
+- [x] `packages/report` → `android/feature-reports/report-kit` (Session 18G)
 - [ ] `packages/device-thickness` → `android/feature-thickness/device-thickness-kit`
-- [ ] `packages/report` → `android/feature-reports/report-kit`
 - [ ] `packages/payment-mock` → `android/feature-payments/payment-mock-kit`
 - [ ] Обновление Gradle settings
-- [ ] Удаление исходной папки `packages/`
+- [ ] Удаление исходной папки `packages/` (требуется подтверждение)
 
-### 6.5 Обновление Supabase/DB (24.11.2025)
+### 6.5 Обновление Supabase/DB ✅ **Завершено (24.11.2025)**
 
 **Контекст**: Выполнена миграция на новый сервер Supabase `ddaunoxyguqiejrjtwsf.supabase.co`.
 Все Supabase/DB артефакты теперь привязаны к новому серверу.
 
-**Требуемые действия**:
-- [ ] Перенести TS-агента (`03-apps/02-application/kiosk-shell/agent/`) в `android/platform-ui/web/agent/`
-- [ ] Настроить Gradle-таску для запуска `npm run build` внутри нового модуля
+**Выполненные действия**:
+- [x] Перенести TS-агента (`03-apps/02-application/kiosk-shell/agent/`) в `android/platform/ui/web/agent/` ✅ Session 16A
+- [x] Настроить Gradle-таску для запуска `npm run build` внутри нового модуля ✅ Session 16A
 - [x] Обновить `.env.example` агента с новыми Supabase параметрами ✅
-- [x] Создать README агента с инструкциями по конфигурации переменных окружения ✅ (см. `android/platform-ui/web/README.md`)
-- [ ] Обновить CI workflows для работы с новыми путями
+- [x] Создать README агента с инструкциями по конфигурации переменных окружения ✅ (см. `android/platform/ui/web/README.md`)
+- [x] Обновить CI workflows для работы с новыми путями ✅ Session 18G
 
-**Статус**: ⏳ В процессе. Структура `platform-ui/web/` создана (Session 15G), требуется физический перенос каталога.
+**Статус**: ✅ Выполнено.
 
 **Безопасность**:
 - Все секреты Supabase хранятся в Vault: `kv/selfservice/platform/supabase/{env}/service`
@@ -184,6 +184,7 @@
 
 | Дата       | Сессия | Изменения                                                                                           |
 | ---------- | ------ | --------------------------------------------------------------------------------------------------- |
+| 24.11.2025 | 18G    | ✅ Финальная проверка консолидации: обновление документации (plan-multi-language-consolidation.md, agp-*.md), создание CI workflow ci-maven-check.yml, добавление Gradle-таски compileArduino, частичная миграция Wave D (device-obd, report → android), обновление workflows на новые пути. Волны A+B завершены, C частично, D в процессе. |
 | 24.11.2025 | 17A    | ✅ Волна B частично завершена: перенос DevOps скриптов из infra/scripts/ → android/scripts/ (kiosk-maintenance.ps1, log-rotation.ps1 → powershell/maintenance/, check-maven-access.sh → shell/). Созданы 3 Gradle-таски (runKioskMaintenance, runLogRotation, checkMavenAccess). Обновлены 5 README. Пометка исходных файлов UTILIZED. Метрики: 3 скрипта (~553 строки), 8 файлов, ~6,400 символов документации. |
 | 24.11.2025 | 16A    | ✅ Волна A завершена: перенос kiosk-shell/agent → android/platform/ui/web/agent/, создание build.gradle.kts с npm тасками, создание placeholder для kiosk-agent/, валидация (26/32 тестов, lint ✅). Обновлены README в web/ и kiosk-agent/. Метрики: 478 npm пакетов, 32 теста, 0 vulnerabilities. |
 | 24.11.2025 | 15G    | Создана структура каталогов: `platform-ui/web/`, `scripts/powershell/`, `scripts/shell/`, `hardware/arduino/`. Перенесены INO файлы. Созданы README для всех модулей. Обновлены таблицы статусов. |

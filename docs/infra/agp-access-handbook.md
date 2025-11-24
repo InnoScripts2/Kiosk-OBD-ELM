@@ -177,7 +177,7 @@ was not found in any of the following sources:
 #### Проверка доступности репозиториев
 **Периодичность**: Раз в неделю (понедельник, 09:00)
 
-**Скрипт проверки** (`infra/scripts/check-maven-access.sh`):
+**Скрипт проверки** (`android/scripts/shell/check-maven-access.sh`):
 ```bash
 #!/bin/bash
 # Проверка доступности Maven репозиториев
@@ -198,6 +198,28 @@ check_repo() {
         echo "❌ НЕДОСТУПЕН"
         return 1
     fi
+}
+
+# Проверка основных репозиториев
+check_repo "Google Maven" "https://dl.google.com/android/maven2/"
+check_repo "Maven Central" "https://repo1.maven.org/maven2/"
+check_repo "Gradle Plugin Portal" "https://plugins.gradle.org/m2/"
+check_repo "JitPack" "https://jitpack.io/"
+
+# Проверка корпоративного Nexus (если есть)
+# check_repo "Nexus" "http://nexus.company.internal/repository/maven-public/"
+
+echo ""
+echo "=== Проверка завершена ==="
+```
+
+**Запуск проверки**:
+- Вручную: `cd android && ./gradlew checkMavenAccess`
+- Автоматически: через GitHub Actions workflow `ci-maven-check.yml` (еженедельно)
+- CI интеграция: каждый push в main выполняет `checkMavenAccess` в рамках общей проверки
+
+**Логирование результатов**:
+Результаты сохраняются в `logs/infrastructure/maven-health-YYYY-MM-DD.log`
 }
 
 # Проверка репозиториев
