@@ -677,3 +677,60 @@ Nexus UI → Administration → Repository → Cleanup Policies
 ---
 
 **Примечание**: Этот документ будет обновлён после выбора и реализации конкретной стратегии разблокировки.
+
+## Автоматизированные проверки (Session 19G)
+
+### CI Workflows
+
+**Maven Repository Health Check** (`.github/workflows/ci-maven-check.yml`):
+- **Расписание**: каждый понедельник в 09:00 UTC
+- **Ручной запуск**: через workflow_dispatch
+- **Проверяет**: Google Maven, Maven Central, Gradle Plugin Portal, JitPack
+- **Артефакты**: логи health check (retention 30 дней)
+- **Ссылка**: https://github.com/InnoScripts2/Kiosk-OBD-ELM/actions/workflows/ci-maven-check.yml
+
+**Hardware Arduino Compilation** (`.github/workflows/hardware-arduino.yml`):
+- **Расписание**: каждую пятницу в 10:00 UTC
+- **Проверяет**: компилируемость Arduino прошивок (dispenser.ino)
+- **Параметры**: dry-run, fqbn (arduino:avr:uno)
+- **Артефакты**: hex файлы, build logs (retention 30 дней)
+- **Ссылка**: https://github.com/InnoScripts2/Kiosk-OBD-ELM/actions/workflows/hardware-arduino.yml
+
+**TypeScript Packages CI** (`.github/workflows/packages-ci.yml`):
+- **Триггер**: push/PR в *-kit пакеты
+- **Матрица**: device-obd-kit, device-thickness-kit, report-kit, payment-mock-kit
+- **Проверяет**: npm install, npm test, npm lint
+- **Ссылка**: https://github.com/InnoScripts2/Kiosk-OBD-ELM/actions/workflows/packages-ci.yml
+
+**Kiosk Agent CI** (`.github/workflows/agent-ci.yml`):
+- **Триггер**: push/PR в android/platform/ui/web/agent
+- **Проверяет**: lint, test, build TypeScript агента
+- **Артефакты**: build artifacts, test reports, lint reports
+- **Улучшения Session 19G**: добавлены if: always() и artifact upload для всех шагов
+- **Ссылка**: https://github.com/InnoScripts2/Kiosk-OBD-ELM/actions/workflows/agent-ci.yml
+
+### Локальные проверки
+
+**Gradle tasks**:
+```bash
+# Maven accessibility
+./gradlew checkMavenAccess
+
+# Arduino compilation (dry-run)
+./gradlew compileArduino
+
+# Arduino compilation (реальная)
+./gradlew compileArduino -ParduinoDryRun=false
+
+# Kiosk agent tasks
+./gradlew :platform-ui:lintWebAgent
+./gradlew :platform-ui:testWebAgent
+./gradlew :platform-ui:buildWebAgent
+
+# Package kit tasks
+./gradlew :feature-thickness:npmInstallThicknessKit
+./gradlew :feature-thickness:testThicknessKit
+./gradlew :feature-payments:npmInstallPaymentMockKit
+./gradlew :feature-payments:testPaymentMockKit
+```
+
