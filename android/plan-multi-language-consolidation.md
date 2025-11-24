@@ -135,13 +135,15 @@
 - [ ] Обновление CI workflows для работы с новыми путями (Волна B)
 - [ ] Удаление исходных каталогов из `03-apps/` (требуется подтверждение)
 
-### 6.2 Волна B — DevOps и PowerShell (следующая задача)
-- [ ] Перенос `infra/scripts/kiosk-maintenance.ps1` → `android/scripts/powershell/maintenance/`
-- [ ] Перенос `infra/scripts/log-rotation.ps1` → `android/scripts/powershell/maintenance/`
-- [ ] Перенос `infra/scripts/check-maven-access.sh` → `android/scripts/shell/`
-- [ ] Создание Gradle-тасок для каждого скрипта
-- [ ] Обновление `.github/workflows/*` на новые пути
-- [ ] Удаление `infra/scripts/`
+### 6.2 Волна B — DevOps и PowerShell ✅ **Частично завершена 24.11.2025 (Session 17A)**
+- [x] Перенос `infra/scripts/kiosk-maintenance.ps1` → `android/scripts/powershell/maintenance/`
+- [x] Перенос `infra/scripts/log-rotation.ps1` → `android/scripts/powershell/maintenance/`
+- [x] Перенос `infra/scripts/check-maven-access.sh` → `android/scripts/shell/`
+- [x] Создание Gradle-тасок для каждого скрипта (runKioskMaintenance, runLogRotation, checkMavenAccess)
+- [x] Обновление README документации (5 файлов)
+- [x] Пометка исходных файлов как UTILIZED (infra/scripts/ARCHIVE_NOTE.md)
+- [ ] Обновление `.github/workflows/*` на новые пути (следующая сессия)
+- [ ] Удаление `infra/scripts/` (после обновления workflows)
 
 ### 6.3 Волна C — Аппаратные компоненты (частично выполнена)
 - [x] Перенос INO файлов в `android/hardware/arduino/` ✅
@@ -182,6 +184,7 @@
 
 | Дата       | Сессия | Изменения                                                                                           |
 | ---------- | ------ | --------------------------------------------------------------------------------------------------- |
+| 24.11.2025 | 17A    | ✅ Волна B частично завершена: перенос DevOps скриптов из infra/scripts/ → android/scripts/ (kiosk-maintenance.ps1, log-rotation.ps1 → powershell/maintenance/, check-maven-access.sh → shell/). Созданы 3 Gradle-таски (runKioskMaintenance, runLogRotation, checkMavenAccess). Обновлены 5 README. Пометка исходных файлов UTILIZED. Метрики: 3 скрипта (~553 строки), 8 файлов, ~6,400 символов документации. |
 | 24.11.2025 | 16A    | ✅ Волна A завершена: перенос kiosk-shell/agent → android/platform/ui/web/agent/, создание build.gradle.kts с npm тасками, создание placeholder для kiosk-agent/, валидация (26/32 тестов, lint ✅). Обновлены README в web/ и kiosk-agent/. Метрики: 478 npm пакетов, 32 теста, 0 vulnerabilities. |
 | 24.11.2025 | 15G    | Создана структура каталогов: `platform-ui/web/`, `scripts/powershell/`, `scripts/shell/`, `hardware/arduino/`. Перенесены INO файлы. Созданы README для всех модулей. Обновлены таблицы статусов. |
 | 24.11.2025 | 14G    | Обновлён `.env.example` агента с Supabase параметрами                                               |
@@ -189,4 +192,4 @@
 
 ---
 
-Документ обновляется при каждой миграции или добавлении новых языков. Следующее обновление планируется после завершения Волны A (перенос Node-агентов).
+Документ обновляется при каждой миграции или добавлении новых языков. Следующее обновление планируется после обновления CI workflows на новые пути скриптов.

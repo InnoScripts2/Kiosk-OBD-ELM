@@ -7,50 +7,70 @@
 
 ## Текущий статус миграции
 
-### Волна B — DevOps и PowerShell
+### Волна B — DevOps и PowerShell ✅ **Частично завершена (Session 17A)**
 
-**Планируется перенести**:
-- `infra/scripts/*.ps1` → `android/scripts/powershell/`
-- Каждому скрипту сопоставить Gradle-таску
-- Обновить GitHub Actions/локальные инструкции на новые пути
-
-**Текущие скрипты в `infra/scripts/`**:
-- `kiosk-maintenance.ps1` — обслуживание киосков (4 задачи)
-- `log-rotation.ps1` — ротация логов (политики хранения)
-- `check-maven-access.sh` — проверка доступности Maven репозиториев
+**Перенесено (24.11.2025)**:
+- ✅ `infra/scripts/kiosk-maintenance.ps1` → `android/scripts/powershell/maintenance/`
+- ✅ `infra/scripts/log-rotation.ps1` → `android/scripts/powershell/maintenance/`
+- ✅ `infra/scripts/check-maven-access.sh` → `android/scripts/shell/`
 
 **Уже в `android/scripts/`**:
 - `export-supabase-service-key.ps1` — экспорт Supabase ключей из Vault
 - `export-yookassa-webhook-secret.ps1` — экспорт YooKassa секретов из Vault
 - `session-05-archive-plan.ps1` — матрица миграции донорских проектов
 
-## Планируемая структура
+**Следующий этап**:
+- [ ] Обновить GitHub Actions/workflows на новые пути
+- [ ] Перенести экспортные скрипты в `powershell/vault/`
+- [ ] Удалить `infra/scripts/` после обновления workflows
+
+## Текущая структура
 
 ```
 powershell/
-├── maintenance/
-│   ├── kiosk-maintenance.ps1
-│   └── log-rotation.ps1
-├── ci/
+├── maintenance/                         ✅ Создан в Session 17A
+│   ├── kiosk-maintenance.ps1           ✅ Перенесён из infra/scripts/
+│   ├── log-rotation.ps1                ✅ Перенесён из infra/scripts/
+│   └── README.md                       ⏳ Создаётся в Session 17A
+├── ci/                                 ⏳ Планируется
 │   ├── build-apk.ps1
 │   └── run-tests.ps1
-├── vault/
+├── vault/                              ⏳ Планируется
 │   ├── export-supabase-service-key.ps1
 │   └── export-yookassa-webhook-secret.ps1
-└── README.md
+└── README.md                           ✅ Обновлён в Session 17A
 ```
 
-## Gradle интеграция (планируется)
+## Gradle интеграция
+
+Таски созданы в корневом `build.gradle.kts` (Session 17A):
 
 ```kotlin
-// android/build.gradle.kts
-tasks.register<Exec>("runMaintenance") {
-    commandLine("pwsh", "scripts/powershell/maintenance/kiosk-maintenance.ps1")
+// android/build.gradle.kts или android/scripts/build.gradle.kts
+tasks.register<Exec>("runKioskMaintenance") {
+    group = "maintenance"
+    description = "Run kiosk maintenance utility"
+    commandLine("pwsh", "-File", "scripts/powershell/maintenance/kiosk-maintenance.ps1", "-Task", "All", "-DryRun")
 }
 
-tasks.register<Exec>("rotatelogs") {
-    commandLine("pwsh", "scripts/powershell/maintenance/log-rotation.ps1")
+tasks.register<Exec>("runLogRotation") {
+    group = "maintenance"
+    description = "Rotate and archive old logs"
+    commandLine("pwsh", "-File", "scripts/powershell/maintenance/log-rotation.ps1", "-DryRun")
 }
+
+tasks.register<Exec>("checkMavenAccess") {
+    group = "verification"
+    description = "Check Maven repository accessibility"
+    commandLine("bash", "scripts/shell/check-maven-access.sh")
+}
+```
+
+**Использование**:
+```bash
+./gradlew runKioskMaintenance
+./gradlew runLogRotation
+./gradlew checkMavenAccess
 ```
 
 ## Использование в GitHub Actions
@@ -81,18 +101,19 @@ tasks.register<Exec>("rotatelogs") {
 
 ## История изменений
 
-- **24.11.2025**: Создание модуля `scripts/powershell/` (Session 15G)
-- **24.11.2025**: Создание скриптов экспорта секретов (Session 14G)
-- **23.11.2025**: Создание скриптов обслуживания в `infra/scripts/` (Session 3G)
+- **24.11.2025 (Session 17A)**: Волна B — перенос maintenance скриптов из `infra/scripts/`
+- **24.11.2025 (Session 15G)**: Создание модуля `scripts/powershell/`
+- **24.11.2025 (Session 14G)**: Создание скриптов экспорта секретов
+- **23.11.2025 (Session 3G)**: Создание скриптов обслуживания в `infra/scripts/`
 
 ## Следующие шаги
 
-1. Перенести `infra/scripts/*.ps1` в `android/scripts/powershell/`
-2. Создать подкаталоги: `maintenance/`, `ci/`, `vault/`
-3. Переместить существующие скрипты в соответствующие подкаталоги
-4. Создать Gradle-таски для каждого скрипта
-5. Обновить `.github/workflows/*` на новые пути
-6. Удалить `infra/scripts/` (оставить только `check-maven-access.sh` → `android/scripts/shell/`)
+1. ✅ Перенести maintenance скрипты → `android/scripts/powershell/maintenance/`
+2. ✅ Перенести shell скрипты → `android/scripts/shell/`
+3. ✅ Создать Gradle-таски для каждого скрипта
+4. ⏳ Обновить `.github/workflows/*` на новые пути (следующая сессия)
+5. ⏳ Перенести vault скрипты в `powershell/vault/` (следующая сессия)
+6. ⏳ Удалить `infra/scripts/` после обновления workflows
 
 ## Лицензия
 
