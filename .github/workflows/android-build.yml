@@ -19,21 +19,21 @@ on:
         description: "Команды Gradle (по умолчанию clean lint detekt test assembleDebug)"
         required: false
         default: "clean lint detekt test assembleDebug"
-    push:
-        branches:
-            - main
-            - develop
-            - "release/**"
-        paths:
-            - "android/**"
-            - ".github/workflows/android-build.yml"
-    pull_request:
-        branches:
-            - main
-            - develop
-        paths:
-            - "android/**"
-            - ".github/workflows/android-build.yml"
+  push:
+    branches:
+      - main
+      - develop
+      - "release/**"
+    paths:
+      - "android/**"
+      - ".github/workflows/android-build.yml"
+  pull_request:
+    branches:
+      - main
+      - develop
+    paths:
+      - "android/**"
+      - ".github/workflows/android-build.yml"
 
 jobs:
     assemble-debug:
@@ -102,7 +102,7 @@ jobs:
     assemble-debug-selfhosted:
         name: Gradle · self-hosted runner
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.runner_mode == 'self-hosted' }}
-      runs-on: ${{ fromJson(inputs.self_hosted_labels != '' && inputs.self_hosted_labels || '["self-hosted"]') }}
+        runs-on: ${{ fromJson(inputs.self_hosted_labels != '' && inputs.self_hosted_labels || '["self-hosted"]') }}
         timeout-minutes: 60
 
         steps:
