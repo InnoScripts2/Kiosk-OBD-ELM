@@ -7,9 +7,3 @@ plugins {
     id 'binary-compatibility-configuration'
 }
 
-allprojects {
-    repositories {
-        google()
-        mavenCentral()
-    }
-}

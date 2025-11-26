@@ -1,5 +1,6 @@
+includeBuild("build-logic/binary-compatibility")
+
 pluginManagement {
-    includeBuild("platform/bluetooth/reaktive/includedBuild/gradleConfiguration")
 
     repositories {
         // Зеркала Google Maven для обхода блокировки dl.google.com
