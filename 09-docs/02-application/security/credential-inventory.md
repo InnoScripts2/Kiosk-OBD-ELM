@@ -205,6 +205,71 @@
 | Дата | Версия | Изменение | Автор |
 |------|--------|-----------|-------|
 | 24.11.2025 | 1.0 | Создание документа, миграция Supabase сервера | BKG Agent |
+| 26.11.2025 | 1.1 | Session 4: Добавлена интеграция Supabase в Android | Copilot Agent |
+
+## Session 4 Updates (26.11.2025)
+
+### Supabase Android SDK Integration
+
+**Модуль**: `:platform-data-supabase` (platform/data/supabase)
+
+**Библиотеки**:
+- Supabase BOM 2.1.4
+- supabase-postgrest-kt
+- supabase-auth-kt (gotrue)
+- supabase-realtime-kt
+- supabase-storage-kt
+- supabase-functions-kt
+- ktor-client-android 2.3.7
+
+**Конфигурация в Android**:
+```kotlin
+// В build.gradle.kts модулей, использующих Supabase
+dependencies {
+    implementation(platform(libs.supabase.bom))
+    implementation(libs.supabase.postgrest)
+    implementation(libs.supabase.auth)
+    implementation(libs.ktor.client.android)
+}
+```
+
+**Переменные окружения** (добавить в `.env`):
+```bash
+# Supabase Android SDK
+SUPABASE_URL=https://ddaunoxyguqiejrjtwsf.supabase.co
+SUPABASE_ANON_KEY=<получить из Supabase Dashboard>
+SUPABASE_SERVICE_ROLE_KEY=<получить из Vault>
+```
+
+**BuildConfig**:
+Добавить в `app/build.gradle.kts`:
+```kotlin
+android {
+    defaultConfig {
+        buildConfigField("String", "SUPABASE_URL", "\"${System.getenv("SUPABASE_URL") ?: ""}\"")
+        buildConfigField("String", "SUPABASE_ANON_KEY", "\"${System.getenv("SUPABASE_ANON_KEY") ?: ""}\"")
+    }
+}
+```
+
+**Использование в feature-reports**:
+- Хранение метаданных отчётов в таблице `reports`
+- Очередь доставки в таблице `report_deliveries`
+- Edge-cache синхронизация для offline режима
+- Supabase Storage для резервного хранения PDF/HTML
+
+**Следующие задачи**:
+- [ ] Создать инициализацию Supabase client в core
+- [ ] Добавить DI (Hilt) модуль для Supabase
+- [ ] Реализовать DAO для отчётов через postgrest
+- [ ] Настроить realtime subscriptions для статусов доставки
+- [ ] Добавить unit-тесты для Supabase интеграции
+
+**Безопасность**:
+- `SUPABASE_SERVICE_ROLE_KEY` хранится только в Vault
+- Anon key можно коммитить (публичный, ограниченные права)
+- Service role key использовать только на бэкенде (Node-агент)
+- Android использует anon key + Row Level Security
 
 ---
 
