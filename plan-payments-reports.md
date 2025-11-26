@@ -338,5 +338,30 @@ dependencies {
 
 ---
 
-**Последнее обновление**: 23.11.2025, Session 11B start  
-**Следующее обновление**: После завершения Session 11B
+**Последнее обновление**: 26.11.2025, Session 4  
+**Следующее обновление**: После завершения Session 4
+
+## Session 4 Updates (26.11.2025)
+
+### Регистрация модулей платформы
+- ✅ **:platform-data-supabase** зарегистрирован в settings.gradle.kts
+  - Директория: `platform/data/supabase`
+  - Содержит: Supabase Kotlin SDK (BOM 2.1.4)
+  - Модули: postgrest, auth, realtime, storage, functions
+  - Ktor client: 2.3.7
+- ✅ **libs.versions.toml** обновлен:
+  - supabase = "2.1.4"
+  - ktor = "2.3.7"
+  - Добавлены библиотеки: supabase-bom, supabase-*, ktor-client-android
+
+### Следующие шаги для Supabase интеграции
+- [ ] Настроить Supabase client в feature-reports для хранения метаданных
+- [ ] Создать таблицы в Supabase для отчётов (reports, deliveries)
+- [ ] Интегрировать Supabase outbox для надёжной доставки
+- [ ] Добавить Supabase секреты в credential-inventory.md
+- [ ] Обновить .env.example с переменными SUPABASE_URL, SUPABASE_SERVICE_KEY
+
+### Документация
+- ✅ Создан `docs/infra/architecture.md` — полная архитектура модулей
+- ✅ Обновлен `plan-obd-base-integration.md` — статус Session 4
+- ✅ Обновлен `plan-payments-reports.md` — статус Supabase интеграции

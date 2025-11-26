@@ -91,7 +91,14 @@
    - Добавить Koin/Hilt модули для BlessedBleScannerAdapter
    - Интегрировать с ObdConnectionManager
    - E2E тесты для BLE сканирования
-8. Реплицировать `kiosk-frontend` в `apps/` и начать полировку UI.
+8. **[Session 4 - 26.11.2025]** Регистрация платформенных модулей:
+   - ✅ Добавлен :platform-bluetooth-kable (platform/bluetooth/kable-core)
+   - ✅ Добавлен :platform-bluetooth-reaktive (platform/bluetooth/reaktive)
+   - ✅ Созданы build.gradle.kts для kable и reaktive (минимальные Android library wrappers)
+   - ✅ Обновлен libs.versions.toml: kable 0.27.1, reaktive 1.3.0
+   - ⏳ TODO: Интеграция kable/reaktive API в feature-obd-core
+   - ⏳ TODO: Замена существующего BLE кода на unified API
+9. Реплицировать `kiosk-frontend` в `apps/` и начать полировку UI.
 
 ## Статус интеграции Thickness компонентов (Session 12B + 13B)
 
