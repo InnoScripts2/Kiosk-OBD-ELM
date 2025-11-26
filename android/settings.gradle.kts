@@ -1,4 +1,6 @@
 pluginManagement {
+    includeBuild("platform/bluetooth/reaktive/includedBuild/gradleConfiguration")
+
     repositories {
         // Зеркала Google Maven для обхода блокировки dl.google.com
         maven { url = uri("https://maven.aliyun.com/repository/google") }

@@ -12,9 +12,9 @@ on:
           - github-hosted
           - self-hosted
       self_hosted_labels:
-        description: "JSON-массив ярлыков для self-hosted раннера (например, [\"self-hosted\", \"Windows\"])"
+        description: 'JSON-массив ярлыков для self-hosted раннера (например, ["self-hosted", "Windows"])'
         required: false
-        default: "[\"self-hosted\"]"
+        default: '["self-hosted"]'
       gradle_tasks:
         description: "Команды Gradle (по умолчанию clean lint detekt test assembleDebug)"
         required: false
@@ -36,128 +36,128 @@ on:
       - ".github/workflows/android-build.yml"
 
 jobs:
-    assemble-debug:
-        name: Gradle · github-hosted
-        if: ${{ github.event_name != 'workflow_dispatch' || inputs.runner_mode == 'github-hosted' || inputs.runner_mode == '' }}
-        runs-on: ubuntu-latest
-        timeout-minutes: 45
+  assemble-debug:
+    name: Gradle · github-hosted
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.runner_mode == 'github-hosted' || inputs.runner_mode == '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
 
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v4
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-            - name: Set up Java 17
-              uses: actions/setup-java@v4
-              with:
-                  distribution: temurin
-                  java-version: "17"
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
 
-            - name: Install Android SDK components
-              uses: android-actions/setup-android@v2
-              with:
-                  api-level: 35
-                  build-tools: 35.0.0
+      - name: Install Android SDK components
+        uses: android-actions/setup-android@v2
+        with:
+          api-level: 35
+          build-tools: 35.0.0
 
-            - name: Prepare Gradle configuration cache
-              uses: gradle/actions/setup-gradle@v3
-              with:
-                  build-root-directory: android
+      - name: Prepare Gradle configuration cache
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          build-root-directory: android
 
-            - name: Ensure gradlew is executable
-              if: runner.os != 'Windows'
-              run: chmod +x gradlew
-              working-directory: android
+      - name: Ensure gradlew is executable
+        if: runner.os != 'Windows'
+        run: chmod +x gradlew
+        working-directory: android
 
-            - name: Gradle clean · lint · detekt · test · assembleDebug (Linux/macOS)
-              if: runner.os != 'Windows'
-              run: ./gradlew ${{ inputs.gradle_tasks || 'clean lint detekt test assembleDebug' }} --build-cache --stacktrace
-              working-directory: android
+      - name: Gradle clean · lint · detekt · test · assembleDebug (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: ./gradlew ${{ inputs.gradle_tasks || 'clean lint detekt test assembleDebug' }} --build-cache --stacktrace
+        working-directory: android
 
-            - name: Gradle clean · lint · detekt · test · assembleDebug (Windows)
-              if: runner.os == 'Windows'
-              shell: pwsh
-              run: |
-                  ./gradlew.bat ${{ inputs.gradle_tasks || 'clean lint detekt test assembleDebug' }} --build-cache --stacktrace
-              working-directory: android
+      - name: Gradle clean · lint · detekt · test · assembleDebug (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          ./gradlew.bat ${{ inputs.gradle_tasks || 'clean lint detekt test assembleDebug' }} --build-cache --stacktrace
+        working-directory: android
 
-            - name: Upload APK artifact
-              if: always()
-              uses: actions/upload-artifact@v4
-              with:
-                  name: app-debug-apk
-                  path: android/app/build/outputs/apk/debug/app-debug.apk
-                  if-no-files-found: warn
+      - name: Upload APK artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: warn
 
-            - name: Upload Gradle dependency cache (optional)
-              if: always()
-              uses: actions/upload-artifact@v4
-              with:
-                  name: gradle-caches
-                  path: |
-                      ~/.gradle/caches
-                      ~/.gradle/wrapper
-                  retention-days: 7
-                  if-no-files-found: warn
+      - name: Upload Gradle dependency cache (optional)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gradle-caches
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          retention-days: 7
+           if-no-files-found: warn
 
-    assemble-debug-selfhosted:
-        name: Gradle · self-hosted runner
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.runner_mode == 'self-hosted' }}
-        runs-on: ${{ fromJson(inputs.self_hosted_labels != '' && inputs.self_hosted_labels || '["self-hosted"]') }}
-        timeout-minutes: 60
+  assemble-debug-selfhosted:
+    name: Gradle · self-hosted runner
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.runner_mode == 'self-hosted' }}
+    runs-on: ${{ fromJson(inputs.self_hosted_labels != '' && inputs.self_hosted_labels || '["self-hosted"]') }}
+    timeout-minutes: 60
 
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v4
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-            - name: Set up Java 17
-              uses: actions/setup-java@v4
-              with:
-                  distribution: temurin
-                  java-version: "17"
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
 
-            - name: Install Android SDK components
-              uses: android-actions/setup-android@v2
-              with:
-                  api-level: 35
-                  build-tools: 35.0.0
+      - name: Install Android SDK components
+        uses: android-actions/setup-android@v2
+        with:
+          api-level: 35
+          build-tools: 35.0.0
 
-            - name: Prepare Gradle configuration cache
-              uses: gradle/actions/setup-gradle@v3
-              with:
-                  build-root-directory: android
+      - name: Prepare Gradle configuration cache
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          build-root-directory: android
 
-            - name: Ensure gradlew is executable
-              if: runner.os != 'Windows'
-              run: chmod +x gradlew
-              working-directory: android
+      - name: Ensure gradlew is executable
+        if: runner.os != 'Windows'
+        run: chmod +x gradlew
+        working-directory: android
 
-            - name: Gradle clean · lint · detekt · test · assembleDebug (Linux/macOS)
-              if: runner.os != 'Windows'
-              run: ./gradlew ${{ inputs.gradle_tasks || 'clean lint detekt test assembleDebug' }} --build-cache --stacktrace
-              working-directory: android
+      - name: Gradle clean · lint · detekt · test · assembleDebug (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: ./gradlew ${{ inputs.gradle_tasks || 'clean lint detekt test assembleDebug' }} --build-cache --stacktrace
+        working-directory: android
 
-            - name: Gradle clean · lint · detekt · test · assembleDebug (Windows)
-              if: runner.os == 'Windows'
-              shell: pwsh
-              run: |
-                  ./gradlew.bat ${{ inputs.gradle_tasks || 'clean lint detekt test assembleDebug' }} --build-cache --stacktrace
-              working-directory: android
+      - name: Gradle clean · lint · detekt · test · assembleDebug (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          ./gradlew.bat ${{ inputs.gradle_tasks || 'clean lint detekt test assembleDebug' }} --build-cache --stacktrace
+        working-directory: android
 
-            - name: Upload APK artifact
-              if: always()
-              uses: actions/upload-artifact@v4
-              with:
-                  name: app-debug-apk-selfhosted
-                  path: android/app/build/outputs/apk/debug/app-debug.apk
-                  if-no-files-found: warn
+      - name: Upload APK artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug-apk-selfhosted
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: warn
 
-            - name: Upload Gradle dependency cache (optional)
-              if: always()
-              uses: actions/upload-artifact@v4
-              with:
-                  name: gradle-caches-selfhosted
-                  path: |
-                      ~/.gradle/caches
-                      ~/.gradle/wrapper
-                  retention-days: 7
-                  if-no-files-found: warn
+      - name: Upload Gradle dependency cache (optional)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gradle-caches-selfhosted
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          retention-days: 7
+          if-no-files-found: warn
