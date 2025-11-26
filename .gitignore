@@ -30,3 +30,5 @@ coverage/
 
 # Environment
 .env.local
+# Local-only credential notes
+09-docs/02-application/security/local-credential-notes.local.md

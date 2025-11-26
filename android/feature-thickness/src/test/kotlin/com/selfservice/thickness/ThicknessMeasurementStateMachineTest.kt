@@ -2,7 +2,7 @@ package com.selfservice.thickness
 
 import com.selfservice.thickness.models.ThicknessZoneLayout
 import com.selfservice.thickness.models.ZoneMeasurement
-import com.selfservice.thickness.models.MeasurementStatus
+import com.selfservice.thickness.MeasurementStatus
 import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull

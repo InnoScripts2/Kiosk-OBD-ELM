@@ -116,6 +116,7 @@ object SvgIcons {
             val col = index % 4
             val x = col * cellWidth
             val y = row * cellHeight
+            val sanitizedZoneName = HtmlStyles.escapeHtml(zoneName)
             
             // Определяем цвет по значению (80-200 норма)
             val color = when {
@@ -131,7 +132,7 @@ object SvgIcons {
             <text x="${x + cellWidth / 2}" y="${y + cellHeight / 2 - 10}" 
                   font-family="${DesignTokens.Typography.Fonts.PRIMARY}" 
                   font-size="12" fill="${DesignTokens.Colors.Text.PRIMARY}" 
-                  text-anchor="middle">$zoneName</text>
+                text-anchor="middle">$sanitizedZoneName</text>
             <text x="${x + cellWidth / 2}" y="${y + cellHeight / 2 + 10}" 
                   font-family="${DesignTokens.Typography.Fonts.MONO}" 
                   font-size="14" font-weight="bold" 

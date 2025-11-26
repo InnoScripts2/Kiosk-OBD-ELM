@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Киоск офлайн</title>
+    <style>
+        :root {
+            color-scheme: dark;
+            font-family: "Roboto", "Segoe UI", system-ui, -apple-system, sans-serif;
+            background-color: #0b0f17;
+            color: #f5f7fb;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 24px;
+        }
+
+        main {
+            max-width: 560px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.4rem;
+            margin-bottom: 1rem;
+        }
+
+        p {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            margin: 0 0 1.2rem;
+        }
+
+        .status-chip {
+            display: inline-flex;
+            gap: 8px;
+            align-items: center;
+            padding: 8px 16px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.08);
+            font-size: 0.95rem;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        ul {
+            text-align: left;
+            margin: 1.6rem auto;
+            padding-left: 1.2rem;
+            max-width: 420px;
+            font-size: 1.05rem;
+        }
+
+        li {
+            margin-bottom: 0.8rem;
+        }
+
+        footer {
+            margin-top: 2rem;
+            font-size: 0.95rem;
+            color: rgba(245, 247, 251, 0.75);
+        }
+    </style>
+</head>
+
+<body>
+    <main>
+        <div class="status-chip">Режим офлайн</div>
+        <h1>Интерфейс временно недоступен</h1>
+        <p>
+            Киоск не смог подключиться к облачному интерфейсу Supabase. Устройство продолжит
+            работу в ограниченном режиме до восстановления соединения.
+        </p>
+        <ul>
+            <li>Проверьте подключение киоска к интернету.</li>
+            <li>Убедитесь, что Supabase фронтенд опубликован и доступен.</li>
+            <li>Запустите повторную загрузку из панели оператора (жест три касания).</li>
+        </ul>
+        <footer>InnoScripts Автосервис • поддержка: ops@innoscripts.dev</footer>
+    </main>
+</body>
+
+</html>

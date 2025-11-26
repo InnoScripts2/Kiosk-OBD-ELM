@@ -18,7 +18,7 @@ class PidCatalogTest {
     fun `find returns definition by mode and pid`() {
         val definition = PidCatalog.find("0x01", "0x05")
         assertNotNull(definition)
-        assertEquals("Engine coolant temperature", definition.label)
+        assertEquals("Температура охлаждающей жидкости двигателя", definition.label)
         assertEquals("degC", definition.unit)
     }
 
@@ -41,13 +41,13 @@ class PidCatalogTest {
     fun `catalog exposes oil and catalyst temperature pids`() {
         val catalyst = PidCatalog.find("0x01", "0x3C")
         assertNotNull(catalyst, "catalyst PID definition must be available")
-        assertEquals("Catalyst temperature (bank 1 sensor 1)", catalyst.label)
+        assertEquals("Катализатор Температура (Ряд 1 Датчик 1)", catalyst.label)
         assertEquals("CATALYST_TEMP_DEGC", catalyst.conversion)
         assertEquals("degC", catalyst.unit)
 
         val oil = PidCatalog.find("0x01", "0x5C")
         assertNotNull(oil, "engine oil PID definition must be available")
-        assertEquals("Engine oil temperature", oil.label)
+        assertEquals("Двигатель oil Температура", oil.label)
         assertEquals("TEMP_FROM_A", oil.conversion)
         assertEquals("degC", oil.unit)
     }

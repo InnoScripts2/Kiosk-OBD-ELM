@@ -80,14 +80,14 @@ enum class DeviceMode {
 /**
  * Ошибки подключения и измерений
  */
-sealed class ThicknessDeviceError : Exception {
+sealed class ThicknessDeviceError : RuntimeException {
     constructor(message: String) : super(message)
     constructor(message: String, cause: Throwable?) : super(message, cause)
     
     /**
      * Ошибка подключения к устройству
      */
-    class ConnectionError(message: String, cause: Throwable? = null) : 
+    open class ConnectionError(message: String, cause: Throwable? = null) : 
         ThicknessDeviceError(message, cause)
     
     /**
@@ -99,7 +99,7 @@ sealed class ThicknessDeviceError : Exception {
     /**
      * Превышен таймаут
      */
-    class TimeoutError(message: String, val timeoutMs: Long) : 
+    open class TimeoutError(message: String, val timeoutMs: Long) : 
         ThicknessDeviceError(message)
     
     /**
@@ -117,14 +117,17 @@ sealed class ThicknessDeviceError : Exception {
     /**
      * Ошибка парсинга данных от устройства
      */
-    class ParseError(message: String, val rawData: ByteArray) : 
+    open class ParseError(message: String, val rawData: ByteArray) : 
         ThicknessDeviceError(message)
     
     /**
      * Значение вне допустимого диапазона
      */
-    class OutOfRangeError(val value: Float) : 
-        ThicknessDeviceError("Measurement value $value is out of valid range")
+    open class OutOfRangeError(
+        val value: Float,
+        message: String = "Measurement value $value is out of valid range"
+    ) : 
+        ThicknessDeviceError(message)
 }
 
 /**

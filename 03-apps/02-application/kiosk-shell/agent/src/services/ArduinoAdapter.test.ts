@@ -157,7 +157,7 @@ describe('ArduinoAdapter', () => {
 
       setTimeout(() => {
         mockParser.emit('data', 'PONG');
-      }, 50);
+      }, 2050);
 
       await connectPromise;
 

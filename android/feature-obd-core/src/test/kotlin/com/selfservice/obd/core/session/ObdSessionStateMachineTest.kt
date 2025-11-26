@@ -162,15 +162,16 @@ class ObdSessionStateMachineTest {
         machine.beginDiagnostics()
         assertEquals(Phase.DIAGNOSTICS, machine.state.value.phase)
         
-        // Keep alive with heartbeats
-        advanceTimeBy(30_000L)
-        machine.recordDiagnosticsHeartbeat()
-        advanceTimeBy(30_000L)
-        machine.recordDiagnosticsHeartbeat()
-        advanceTimeBy(29_000L)
-        machine.recordDiagnosticsHeartbeat()
-        
-        // Total time: 89s, still in DIAGNOSTICS
+        // Keep alive with heartbeats (каждые 10 секунд < inactivity timeout)
+        var elapsed = 0L
+        while (elapsed < 89_000L) {
+            val step = minOf(10_000L, 89_000L - elapsed)
+            advanceTimeBy(step)
+            machine.recordDiagnosticsHeartbeat()
+            elapsed += step
+        }
+
+        // Total time: 89s, ещё в DIAGNOSTICS
         assertEquals(Phase.DIAGNOSTICS, machine.state.value.phase)
         
         // Advance past 90s timeout

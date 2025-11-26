@@ -69,7 +69,7 @@ class ThicknessConnectionException(
 class MeasurementTimeoutException(
     val zoneIndex: Int,
     val zoneName: String,
-    val timeoutMs: Long,
+    timeoutMs: Long,
     message: String = "Measurement timeout for zone $zoneName (index $zoneIndex) after ${timeoutMs}ms"
 ) : ThicknessDeviceError.TimeoutError(message, timeoutMs) {
     
@@ -108,7 +108,7 @@ class MeasurementTimeoutException(
  * @param message Описание ошибки
  */
 class ThicknessProtocolException(
-    val rawData: ByteArray,
+    rawData: ByteArray,
     val expectedFormat: String,
     message: String = "Failed to parse thickness data, expected format: $expectedFormat"
 ) : ThicknessDeviceError.ParseError(message, rawData) {
@@ -168,13 +168,13 @@ class ThicknessProtocolException(
  * @param maxValid Максимальное допустимое значение
  */
 class ThicknessValueOutOfRangeException(
-    val value: Float,
+    value: Float,
     val zoneIndex: Int,
     val zoneName: String,
     val minValid: Float,
     val maxValid: Float,
     message: String = "Value $value for zone $zoneName is out of range [$minValid, $maxValid]"
-) : ThicknessDeviceError.OutOfRangeError(value) {
+) : ThicknessDeviceError.OutOfRangeError(value, message) {
     
     /**
      * Проверить, является ли значение слишком низким
@@ -276,11 +276,18 @@ class MaxReconnectAttemptsExceededException(
 class BleStackException(
     val operation: String,
     val bleErrorCode: Int? = null,
-    message: String = "BLE stack error during operation: $operation",
+    message: String = defaultMessage(operation, bleErrorCode),
     cause: Throwable? = null
 ) : ThicknessDeviceError.ConnectionError(message, cause) {
     
     companion object {
+        private fun defaultMessage(operation: String, bleErrorCode: Int?): String {
+            return buildString {
+                append("BLE stack error during operation: $operation")
+                bleErrorCode?.let { append(" (code: $it)") }
+            }
+        }
+        
         /**
          * Создать исключение для ошибки характеристики
          */

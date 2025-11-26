@@ -2,6 +2,7 @@ package com.selfservice.thickness.ble
 
 import com.selfservice.platform.bluetooth.BlessedBleScanner
 import com.selfservice.platform.bluetooth.BleConnectionManager
+import com.selfservice.platform.bluetooth.BleScannerConfigData
 import com.selfservice.core.logging.Logger
 import com.selfservice.thickness.models.ThicknessDeviceConfig
 import com.selfservice.thickness.models.ThicknessDeviceError
@@ -11,6 +12,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.TimeoutCancellationException
 
 /**
  * Адаптер для работы с толщиномером через BLE
@@ -55,6 +58,7 @@ class ThicknessBleAdapter(
         
         return try {
             val address = deviceAddress ?: scanForDevice()
+            currentDeviceAddress = address
             
             _connectionState.value = ConnectionState.Connecting
             
@@ -65,13 +69,13 @@ class ThicknessBleAdapter(
             // Проверка наличия необходимого сервиса
             val hasService = bleConnectionManager.hasService(config.serviceUuid)
             if (!hasService) {
-                disconnect()
+                safelyDisconnect(address)
+                currentDeviceAddress = null
                 val error = ThicknessDeviceError.ServiceNotSupportedError(config.serviceUuid)
                 _connectionState.value = ConnectionState.Error(error)
                 return Result.failure(error)
             }
             
-            currentDeviceAddress = address
             reconnectAttempts = 0
             
             _connectionState.value = ConnectionState.Connected(address, "Thickness Gauge")
@@ -84,6 +88,7 @@ class ThicknessBleAdapter(
                 is ThicknessDeviceError -> e
                 else -> ThicknessDeviceError.ConnectionError("Connection failed: ${e.message}", e)
             }
+            currentDeviceAddress = null
             _connectionState.value = ConnectionState.Error(error)
             Result.failure(error)
         }
@@ -96,11 +101,7 @@ class ThicknessBleAdapter(
         logger.info(TAG, "Disconnecting from thickness gauge")
         
         currentDeviceAddress?.let { address ->
-            try {
-                bleConnectionManager.disconnect(address)
-            } catch (e: Exception) {
-                logger.error(TAG, "Error during disconnect", e)
-            }
+            safelyDisconnect(address)
         }
         
         currentDeviceAddress = null
@@ -127,6 +128,14 @@ class ThicknessBleAdapter(
         delay(delayMs)
         
         return connect(currentDeviceAddress)
+    }
+
+    private suspend fun safelyDisconnect(address: String) {
+        try {
+            bleConnectionManager.disconnect(address)
+        } catch (e: Exception) {
+            logger.error(TAG, "Error during disconnect", e)
+        }
     }
     
     /**
@@ -239,21 +248,24 @@ class ThicknessBleAdapter(
         _connectionState.value = ConnectionState.Scanning
         
         return try {
-            withTimeout(config.scanTimeout) {
-                var foundDevice: String? = null
-                
-                bleScanner.scan().collect { device ->
-                    val deviceName = device.name
-                    if (deviceName != null && deviceName.contains(config.deviceNamePattern, ignoreCase = true)) {
-                        logger.info(TAG, "Found device: $deviceName, address: ${device.address}")
-                        foundDevice = device.address
-                        return@collect
-                    }
+            bleScanner.start(
+                BleScannerConfigData(
+                    serviceUuids = listOf(config.serviceUuid),
+                    timeoutMs = config.scanTimeout
+                )
+            )
+
+            val found = withTimeout(config.scanTimeout) {
+                bleScanner.results.first { result ->
+                    val name = result.device.name
+                    !name.isNullOrBlank() &&
+                        name.contains(config.deviceNamePattern, ignoreCase = true)
                 }
-                
-                foundDevice ?: throw ThicknessDeviceError.DeviceNotFoundError()
             }
-        } catch (e: kotlinx.coroutines.TimeoutCancellationException) {
+
+            logger.info(TAG, "Found device: ${found.device.name}, address: ${found.device.address}")
+            found.device.address
+        } catch (e: TimeoutCancellationException) {
             logger.warn(TAG, "Scan timeout")
             throw ThicknessDeviceError.TimeoutError(
                 "Device scan timeout after ${config.scanTimeout}ms",
@@ -264,6 +276,8 @@ class ThicknessBleAdapter(
         } catch (e: Exception) {
             logger.error(TAG, "Scan error", e)
             throw ThicknessDeviceError.ConnectionError("Scan failed: ${e.message}", e)
+        } finally {
+            bleScanner.stop()
         }
     }
     

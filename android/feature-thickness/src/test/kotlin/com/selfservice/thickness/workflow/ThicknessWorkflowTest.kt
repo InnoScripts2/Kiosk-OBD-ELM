@@ -6,6 +6,7 @@ import com.selfservice.thickness.ThicknessMeasurement
 import com.selfservice.thickness.ThicknessMeasurementStateMachine
 import com.selfservice.thickness.ConnectionStatus
 import com.selfservice.thickness.MeasurementStatus
+import com.selfservice.thickness.models.MeasurementStatus as ZoneMeasurementStatus
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
@@ -59,10 +60,15 @@ class ThicknessWorkflowTest {
     
     // Мок логгера
     class MockLogger : Logger {
-        override fun debug(tag: String, message: String) {}
-        override fun info(tag: String, message: String) {}
-        override fun warn(tag: String, message: String) {}
-        override fun error(tag: String, message: String, throwable: Throwable?) {}
+        override fun debug(tag: String, message: String, metadata: Map<String, Any?>) {}
+        override fun info(tag: String, message: String, metadata: Map<String, Any?>) {}
+        override fun warn(tag: String, message: String, metadata: Map<String, Any?>) {}
+        override fun error(
+            tag: String,
+            message: String,
+            throwable: Throwable?,
+            metadata: Map<String, Any?>
+        ) {}
     }
     
     @Test
@@ -187,7 +193,7 @@ class ThicknessWorkflowTest {
         
         // Проверяем что все измерения валидны
         finalMeasurements.forEach { measurement ->
-            assertEquals(MeasurementStatus.VALID, measurement.status)
+            assertEquals(ZoneMeasurementStatus.VALID, measurement.status)
             assertTrue(measurement.value != null)
             assertTrue(measurement.value!! >= 100f)
         }

@@ -7,7 +7,7 @@ import com.selfservice.thickness.models.ThicknessAnalysis
 import com.selfservice.thickness.models.ThicknessReport
 import com.selfservice.thickness.models.ThicknessZoneLayout
 import com.selfservice.thickness.models.ZoneMeasurement
-import com.selfservice.thickness.models.MeasurementStatus
+import com.selfservice.thickness.models.MeasurementStatus as ZoneMeasurementStatus
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -166,7 +166,7 @@ class ThicknessWorkflow(
         val zoneMeasurement = ZoneMeasurement(
             zone = zone,
             value = measurement.value,
-            status = measurement.status,
+            status = mapMeasurementStatus(measurement.status),
             timestamp = measurement.timestamp
         )
         
@@ -272,6 +272,17 @@ class ThicknessWorkflow(
         return zoneMeasurements.entries
             .sortedBy { it.key }
             .map { it.value }
+    }
+    
+    private fun mapMeasurementStatus(
+        status: com.selfservice.thickness.MeasurementStatus
+    ): ZoneMeasurementStatus {
+        return when (status) {
+            com.selfservice.thickness.MeasurementStatus.VALID -> ZoneMeasurementStatus.VALID
+            com.selfservice.thickness.MeasurementStatus.ERROR -> ZoneMeasurementStatus.ERROR
+            com.selfservice.thickness.MeasurementStatus.TIMEOUT -> ZoneMeasurementStatus.TIMEOUT
+            com.selfservice.thickness.MeasurementStatus.OUT_OF_RANGE -> ZoneMeasurementStatus.OUT_OF_RANGE
+        }
     }
     
     companion object {

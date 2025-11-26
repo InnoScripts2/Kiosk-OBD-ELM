@@ -11,6 +11,14 @@ android {
         minSdk = 26
     }
 
+    buildFeatures {
+        compose = true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = libs.versions.composeCompiler.get()
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -23,8 +31,17 @@ android {
 
 dependencies {
     implementation(project(":core"))
-    implementation("androidx.core:core-ktx:1.13.1")
-    implementation("androidx.compose.ui:ui:1.7.2")
-    implementation("androidx.compose.material3:material3:1.3.0")
-    implementation("io.github.g0dkar:qrcode-kotlin:4.5.0")
+    implementation(libs.androidx.core.ktx)
+
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.foundation)
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.runtime)
+    implementation(libs.androidx.compose.ui.graphics)
+    implementation(libs.androidx.compose.ui.tooling.preview)
+    debugImplementation(libs.androidx.compose.ui.tooling)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
+
+    implementation("com.google.zxing:core:3.5.3")
 }

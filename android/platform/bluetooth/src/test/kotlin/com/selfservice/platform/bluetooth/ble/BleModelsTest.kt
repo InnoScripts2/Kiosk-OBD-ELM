@@ -16,19 +16,19 @@ class BleModelsTest {
         val device1 = BleDevice("00:11:22:33:44:55", "Test", rssi = -50)
         assertEquals(100, device1.signalStrength)
         
-        val device2 = BleDevice("00:11:22:33:44:55", "Test", rssi = -65)
+        val device2 = BleDevice("00:11:22:33:44:55", "Test", rssi = -55)
         assertEquals(80, device2.signalStrength)
         
-        val device3 = BleDevice("00:11:22:33:44:55", "Test", rssi = -75)
+        val device3 = BleDevice("00:11:22:33:44:55", "Test", rssi = -65)
         assertEquals(60, device3.signalStrength)
         
-        val device4 = BleDevice("00:11:22:33:44:55", "Test", rssi = -85)
+        val device4 = BleDevice("00:11:22:33:44:55", "Test", rssi = -75)
         assertEquals(40, device4.signalStrength)
         
-        val device5 = BleDevice("00:11:22:33:44:55", "Test", rssi = -95)
+        val device5 = BleDevice("00:11:22:33:44:55", "Test", rssi = -85)
         assertEquals(20, device5.signalStrength)
         
-        val device6 = BleDevice("00:11:22:33:44:55", "Test", rssi = -100)
+        val device6 = BleDevice("00:11:22:33:44:55", "Test", rssi = -95)
         assertEquals(0, device6.signalStrength)
     }
     

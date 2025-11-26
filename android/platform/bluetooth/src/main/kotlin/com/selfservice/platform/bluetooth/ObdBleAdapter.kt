@@ -40,6 +40,7 @@ class ObdBleAdapter(private val context: Context) {
         val OBD_SERVICE_UUID: UUID = UUID.fromString("0000fff0-0000-1000-8000-00805f9b34fb")
         val OBD_RX_CHARACTERISTIC: UUID = UUID.fromString("0000fff1-0000-1000-8000-00805f9b34fb")
         val OBD_TX_CHARACTERISTIC: UUID = UUID.fromString("0000fff2-0000-1000-8000-00805f9b34fb")
+        private const val CONNECTION_TIMEOUT_MS = 5_000L
     }
     
     private val peripheralCallback = object : BluetoothPeripheralCallback() {
@@ -53,7 +54,7 @@ class ObdBleAdapter(private val context: Context) {
                 // Подписаться на уведомления от адаптера
                 val txCharacteristic = obdService.getCharacteristic(OBD_TX_CHARACTERISTIC)
                 if (txCharacteristic != null) {
-                    peripheral.setNotify(txCharacteristic, true)
+                    peripheral.startNotify(txCharacteristic)
                     Timber.d("Subscribed to OBD TX notifications")
                 }
             } else {
@@ -89,7 +90,7 @@ class ObdBleAdapter(private val context: Context) {
      */
     suspend fun connect(deviceAddress: String) {
         Timber.d("Connecting to OBD adapter: $deviceAddress")
-        bleManager.connectToDevice(deviceAddress)
+        bleManager.connect(deviceAddress, CONNECTION_TIMEOUT_MS)
     }
     
     /**
@@ -151,6 +152,7 @@ class ObdBleAdapter(private val context: Context) {
         bleManager.release()
         scope.cancel()
     }
+
 }
 
 /**

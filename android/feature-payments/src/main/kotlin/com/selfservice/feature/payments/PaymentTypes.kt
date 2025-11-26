@@ -189,6 +189,14 @@ interface PaymentLogger {
     fun error(message: String, context: Map<String, Any?>? = null) = Unit
 }
 
+/**
+ * Minimal контракт для компонентов, которым достаточно читать статус Intent'а.
+ * Используется в DEV-симуляциях и unit-тестах, чтобы не тянуть полноценный PaymentModule.
+ */
+fun interface PaymentStatusProvider {
+    suspend fun getStatus(intentId: String): PaymentStatus?
+}
+
 data class PaymentModuleOptions(
     val environment: PaymentEnvironment,
     val logger: PaymentLogger? = null,

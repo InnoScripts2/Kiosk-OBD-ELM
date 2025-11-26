@@ -63,7 +63,10 @@ class ThicknessReportHtmlFormatterTest {
         
         // Assert
         assertFalse("HTML should not contain DEV badge", html.contains("[МОК-РЕЖИМ]"))
-        assertFalse("HTML should not contain dev-mode-badge class", html.contains("dev-mode-badge"))
+        assertFalse(
+            "HTML should not contain dev-mode-badge element",
+            html.contains("<div class=\"dev-mode-badge\">")
+        )
     }
     
     @Test

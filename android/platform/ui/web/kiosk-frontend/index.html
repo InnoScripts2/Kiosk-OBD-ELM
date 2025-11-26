@@ -1,0 +1,3282 @@
+<!doctype html>
+<html lang="ru">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Автосервис самообслуживания</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <meta name="theme-color" content="#0b1020" />
+  <script type="module" src="/src/bootstrap/supabase-client.js"></script>
+  <script type="module" src="./assets/supabase-init.js"></script>
+</head>
+
+<body>
+  <div id="app" class="app">
+    <!-- Screen: Attract -->
+    <section id="screen-attract" class="screen active" tabindex="0">
+      <div class="center">
+        <h1 class="brand">
+          <span class="brand-line brand-top">Автосервис</span>
+          <span class="brand-line brand-bottom">самообслуживания</span>
+        </h1>
+        <div class="cta subtle">Нажмите в любом месте</div>
+      </div>
+    </section>
+
+    <!-- Screen: Welcome & Terms -->
+    <section id="screen-welcome" class="screen">
+      <div class="center narrow">
+        <div class="eyebrow">Самообслуживание</div>
+        <h2>Быстро проверьте авто без очередей и ожиданий</h2>
+        <p class="lead">Представляем киоск, который помогает проверить автомобиль за считанные минуты. Никаких очередей,
+          звонков и лишних формальностей. Просто подходите и начинайте. Терминал сам выдаёт оборудование и показывает,
+          что делать дальше. Большие понятные подсказки ведут вас шаг за шагом. Толщинометр быстро выявит перекрасы и
+          следы ремонта. Диагностика OBD‑II покажет коды неисправностей и статусы систем. Вы видите только ясные
+          формулировки без лишнего жаргона. Каждый шаг занимает минимум времени и даёт максимум пользы. Оплата по QR —
+          привычно и безопасно.</p>
+        <p class="muted-note">После подтверждения оборудование разблокируется автоматически. Результаты появляются сразу
+          на экране. Полный отчёт приходит на телефон или email. Его удобно отправить продавцу, сохранить или показать
+          мастеру. Мы бережно относимся к данным и автоматически очищаем их после доставки отчёта. Интерфейс создан для
+          первого опыта — даже если вы никогда не делали диагностику. Поддержка Toyota и Lexus уже внутри, а список
+          моделей расширяется. Все шаги прозрачны: видно статус устройства и прогресс выполнения. Если возник вопрос,
+          подсказка всегда под рукой на каждом экране. Начните сейчас — проверка автомобиля ещё никогда не была такой
+          простой.</p>
+        <ul class="checklist">
+          <li><strong>Толщиномер ЛКП:</strong> 40–60 точек измерений — помогает увидеть перекрасы и шпаклёвку.</li>
+          <li><strong>Диагностика OBD‑II:</strong> чтение кодов DTC и статусов систем без посещения сервиса.</li>
+          <li><strong>Оплата по QR:</strong> быстро и привычно. В продакшне — через официальный провайдер.</li>
+          <li><strong>Понятные итоги:</strong> краткий вывод и полный отчёт на указанные контакты.</li>
+        </ul>
+        <div class="consent">
+          <label class="checkbox">
+            <input id="welcome-agree" type="checkbox" />
+            <span>Я принимаю <button type="button" id="open-terms-link" class="link">условия
+                обслуживания</button></span>
+          </label>
+        </div>
+        <div class="actions column">
+          <button class="primary" id="welcome-continue" disabled>Продолжить</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="screen-services" class="screen">
+      <div class="center narrow">
+        <h2>Выберите услугу</h2>
+        <p class="lead">Терминал подскажет каждый шаг и сразу подготовит отчёт. Выберите, что хотите сделать.</p>
+        <p class="muted-note">Каждая услуга занимает в среднем 8–12 минут и включает подробные рекомендации: где искать
+          разъёмы, как держать датчики и что означают статусы систем автомобиля.</p>
+        <div class="cards two" id="service-options">
+          <div class="card selectable service-card" data-service="thickness" role="button" tabindex="0"
+            aria-pressed="false">
+            <div class="card-title">Толщинометрия ЛКП</div>
+            <div class="card-desc">40–60 точек измерений по кузову</div>
+            <div class="card-price">от 350 ₽</div>
+          </div>
+          <div class="card selectable service-card" data-service="diagnostics" role="button" tabindex="0"
+            aria-pressed="false">
+            <div class="card-title">Диагностика OBD‑II</div>
+            <div class="card-desc">Чтение DTC и статусов систем</div>
+            <div class="card-price">480 ₽</div>
+          </div>
+        </div>
+        <div class="actions row">
+          <button class="secondary" data-back>Назад</button>
+          <button class="primary" id="service-continue" disabled>Продолжить</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="screen-thk-intro" class="screen">
+      <div class="center narrow">
+        <h2>Толщинометрия ЛКП</h2>
+        <p class="lead">Проверьте кузов за минуты — без сервиса и ожиданий. Мы выдаём толщиномер из терминала
+          автоматически. На экране сразу видна схема кузова и прогресс измерений. Каждый замер — это уверенность, что
+          скрытых перекрасов нет. Выберите тип автомобиля и начните — всё остальное сделает киоск.</p>
+        <p class="muted-note">Измеряем реальные слои ЛКП, чтобы выявить перекрасы, шпаклёвку и следы ремонта. Подсказки
+          подскажут, куда приложить датчик и как держать его ровно. Понятные статусы показывают готовность устройства и
+          точность замера. Все результаты фиксируются и сразу попадают в отчёт на телефон или email. Это быстрый и
+          наглядный способ оценить состояние авто перед покупкой.</p>
+        <ul class="checklist">
+          <li>40–60 точек на кузове по понятной схеме.</li>
+          <li>Подсказки на каждом шаге — без лишних вопросов.</li>
+          <li>Отчёт отправим на телефон/email сразу после завершения.</li>
+          <li>Для контроля мы сохраняем время каждого измерения и состояние устройства — можно просмотреть историю в
+            отчёте.</li>
+        </ul>
+        <div class="cards three" id="thk-types">
+          <div class="card selectable thk-type-card" data-type="sedan" data-price="350" role="button" tabindex="0"
+            aria-pressed="false">
+            <div class="card-title">Седан</div>
+            <div class="card-desc">Компакт/средний</div>
+            <div class="card-price">350 ₽</div>
+          </div>
+          <div class="card selectable thk-type-card" data-type="hatchback" data-price="350" role="button" tabindex="0"
+            aria-pressed="false">
+            <div class="card-title">Хэтчбек</div>
+            <div class="card-desc">3/5 дверей</div>
+            <div class="card-price">350 ₽</div>
+          </div>
+          <div class="card selectable thk-type-card" data-type="minivan" data-price="400" role="button" tabindex="0"
+            aria-pressed="false">
+            <div class="card-title">Минивэн</div>
+            <div class="card-desc">MPV/микроавтобус</div>
+            <div class="card-price">400 ₽</div>
+          </div>
+        </div>
+        <div id="thk-vehicle-preview" class="vehicle-preview hidden" aria-live="polite">
+          <img id="thk-vehicle-image" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=="
+            alt="" loading="lazy" />
+          <div id="thk-vehicle-caption" class="vehicle-caption"></div>
+        </div>
+        <div class="actions row">
+          <button class="secondary" data-back>Назад</button>
+          <button class="primary" id="thk-continue-1" disabled>Продолжить</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="screen-thk-contact" class="screen">
+      <div class="center narrow">
+        <h2>Куда отправить отчёт?</h2>
+        <p class="muted-note">Контакты нужны только для доставки файла. Мы не передаём данные третьим лицам и
+          автоматически стираем их после отправки отчёта.</p>
+        <div class="form">
+          <label class="field contact-field">
+            <span>Телефон или email</span>
+            <input id="thk-contact" class="contact-input" type="text" inputmode="tel" autocomplete="tel"
+              aria-describedby="thk-contact-hint" placeholder="+7 (9XX) XXX-XX-XX или email" />
+          </label>
+          <div id="thk-contact-hint" class="field-hint">Укажите номер телефона, чтобы получить отчёт по SMS. Формат
+            заполняется автоматически. Можно указать email, если удобнее получить письмо.</div>
+          <div id="thk-contact-error" class="field-error" role="alert" aria-live="polite"></div>
+        </div>
+        <div class="contact-instructions">
+          <h3>Как это работает</h3>
+          <ul class="steps">
+            <li>Введите номер в формате +7 (9XX) XXX-XX-XX или укажите email.</li>
+            <li>Сразу после завершения измерений пришлём ссылку на отчёт.</li>
+            <li>Контакты используются только для доставки — удаляются автоматически.</li>
+          </ul>
+          <div class="contact-illustrations" role="img" aria-label="Иллюстрации: телефон, письмо, защита данных">
+            <div class="tile">
+              <img src="./assets/icons/phone.svg" alt="Телефон" loading="lazy" />
+              <div class="caption">SMS с ссылкой</div>
+            </div>
+            <div class="tile">
+              <img src="./assets/icons/mail.svg" alt="Email" loading="lazy" />
+              <div class="caption">Письмо с PDF</div>
+            </div>
+            <div class="tile">
+              <img src="./assets/icons/lock.svg" alt="Защита данных" loading="lazy" />
+              <div class="caption">Удаляем после отправки</div>
+            </div>
+          </div>
+        </div>
+        <div class="actions row">
+          <button class="secondary" data-back>Назад</button>
+          <button class="primary" id="thk-continue-2" disabled>Продолжить</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="screen-thk-payment" class="screen">
+      <div class="center narrow">
+        <h2>Оплата по QR</h2>
+        <div class="hero-icon" aria-hidden="true">
+          <img src="./assets/icons/credit-card.svg" alt="" loading="lazy" />
+        </div>
+        <p class="lead">Отсканируйте QR-код для оплаты. В этой сборке оплата временно недоступна (провайдер ещё не
+          подключён).</p>
+        <p class="muted-note">Мы показываем сумму и назначение платежа до подтверждения. После оплаты терминал
+          автоматически проверит поступление средств и откроет следующий шаг.</p>
+        <div id="thk-amount" class="amount" aria-live="polite"></div>
+        <div class="qr-placeholder" aria-label="QR placeholder"></div>
+        <div class="actions column">
+          <button class="secondary" data-back>Назад</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="screen-thk-prep" class="screen">
+      <div class="center narrow">
+        <h2>Подготовка оборудования</h2>
+        <p class="muted-note">Перед выдачей мы проверяем заряд устройства и корректность калибровки. Следуйте шагам ниже
+          — так замеры будут точными даже на сложных участках кузова.</p>
+        <ul class="benefits">
+          <li>Мы выдадим толщиномер из отсека терминала.</li>
+          <li>Протрите поверхность, держите датчик перпендикулярно.</li>
+          <li>Следуйте подсказкам на экране.</li>
+        </ul>
+        <div class="actions row">
+          <button class="secondary" data-back>Назад</button>
+          <button class="primary" id="thk-continue-3">Далее</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="screen-thk-measure" class="screen">
+      <div class="center narrow">
+        <h2>Измерения</h2>
+        <p class="lead">Требуется подключённый поддерживаемый толщиномер. Без устройства измерения недоступны.</p>
+        <ul class="benefits">
+          <li>Сначала выполните контрольный замер на эталонной пластине — приложение подтвердит готовность.</li>
+          <li>Каждую точку фиксируем автоматически: отображается значение, допустимое отклонение и краткий совет.</li>
+          <li>Если нужно сделать паузу — просто положите датчик в держатель, сессия сохранится.</li>
+        </ul>
+        <div class="status-line"><span id="thk-status" class="badge badge-danger" aria-live="polite">Толщиномер: нет
+            соединения</span></div>
+        <button class="primary" id="thk-start" disabled>Начать измерения</button>
+        <div id="thk-session" class="card hidden" aria-live="polite">
+          <div class="card-title">Прогресс измерений</div>
+          <div id="thk-progress" class="meta">—</div>
+          <div id="thk-points-grid" class="thk-points-grid"></div>
+          <div class="actions row">
+            <button class="ghost" type="button" id="thk-dev-mark" style="display:none">Отметить точку (DEV)</button>
+            <button class="primary" type="button" id="thk-finish" disabled>Завершить</button>
+          </div>
+        </div>
+        <div class="muted-note">Нет симуляции измерений в PROD. В DEV используйте «Пропустить» для навигации.</div>
+        <div class="actions">
+          <button class="secondary" data-back>Назад</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="screen-thk-done" class="screen">
+      <div class="center narrow">
+        <h2>Готово</h2>
+        <p class="lead">Отчёт сформирован. Посмотрите предпросмотр и решите — отправить по SMS/email или сохранить
+          локально.</p>
+        <p class="muted-note">В файле вы увидите таблицу с точками измерений, текстовые комментарии и рекомендации по
+          повторной проверке. Если что-то пошло не так, можно сразу начать новую сессию.</p>
+        <div id="report-status-thk" class="report-status" aria-live="polite"></div>
+        <div id="credits-thk" class="credits"></div>
+        <div class="actions row">
+          <button class="ghost" id="thk-preview">Предпросмотр</button>
+          <button class="primary" id="back-to-home-1">На главный экран</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Flow: Diagnostics (OBD-II) -->
+    <section id="screen-obd-intro" class="screen">
+      <div class="center narrow">
+        <h2>Диагностика OBD‑II</h2>
+        <p class="lead">Подключаемся к адаптеру ELM327 и считываем коды неисправностей (DTC), статусы систем и ключевые
+          параметры в стандартизированном режиме. Всё прозрачно и без лишних терминов.</p>
+        <p class="muted-note">Система автоматически распознаёт марку автомобиля и подбирает оптимальный сценарий опроса.
+          В отчёте будут коды DTC, описание неисправностей и рекомендации по дальнейшим действиям.</p>
+        <ul class="checklist">
+          <li>Быстрый обзор систем или детальный стандарт OBD‑II — на ваш выбор.</li>
+          <li>Покажем актуальные коды/статусы и кратко объясним, что это значит.</li>
+          <li>Платёж — после готовности отчёта. Сразу после оплаты откроем результаты.</li>
+          <li>Дополнительно соберём live-данные (напряжение, температура, обороты), чтобы оценить текущие параметры
+            мотора.</li>
+        </ul>
+        <div class="cards two" id="obd-modes">
+          <div class="card selectable obd-mode-card" data-mode="general" role="button" tabindex="0"
+            aria-pressed="false">
+            <div class="card-title">Общая</div>
+            <div class="card-desc">Краткая проверка основных систем</div>
+          </div>
+          <div class="card selectable obd-mode-card" data-mode="obd2" role="button" tabindex="0" aria-pressed="false">
+            <div class="card-title">OBD‑II</div>
+            <div class="card-desc">Стандартизированный режим OBD‑II</div>
+          </div>
+        </div>
+        <div class="actions row">
+          <button class="secondary" data-back>Назад</button>
+          <button class="primary" id="obd-continue-1" disabled>Продолжить</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="screen-obd-contact" class="screen">
+      <div class="center narrow">
+        <h2>Куда отправить отчёт?</h2>
+        <p class="muted-note">Мы направим результаты моментально после завершения диагностики. Контакты нужны, чтобы
+          получать обновления о статусе сканирования и итоговый PDF.</p>
+        <div class="form">
+          <label class="field contact-field">
+            <span>Телефон или email</span>
+            <input id="obd-contact" class="contact-input" type="text" inputmode="tel" autocomplete="tel"
+              aria-describedby="obd-contact-hint" placeholder="+7 (9XX) XXX-XX-XX или email" />
+          </label>
+          <div id="obd-contact-hint" class="field-hint">Введите телефон с кодом России — мы пришлём результаты
+            диагностики сразу после завершения. Допустим и email, если предпочитаете письмо.</div>
+          <div id="obd-contact-error" class="field-error" role="alert" aria-live="polite"></div>
+        </div>
+        <div class="contact-instructions">
+          <h3>Как это работает</h3>
+          <ul class="steps">
+            <li>Укажите телефон или email — мы проверим формат автоматически.</li>
+            <li>По готовности диагностики отправим ссылку и файл отчёта.</li>
+            <li>Контакты нужны только для доставки — мы их удаляем.</li>
+          </ul>
+          <div class="contact-illustrations" role="img" aria-label="Иллюстрации: телефон, письмо, защита данных">
+            <div class="tile">
+              <img src="./assets/icons/phone.svg" alt="Телефон" loading="lazy" />
+              <div class="caption">SMS с ссылкой</div>
+            </div>
+            <div class="tile">
+              <img src="./assets/icons/mail.svg" alt="Email" loading="lazy" />
+              <div class="caption">Письмо с PDF</div>
+            </div>
+            <div class="tile">
+              <img src="./assets/icons/lock.svg" alt="Защита данных" loading="lazy" />
+              <div class="caption">Удаляем после отправки</div>
+            </div>
+          </div>
+        </div>
+        <div class="actions row">
+          <button class="secondary" data-back>Назад</button>
+          <button class="primary" id="obd-continue-2" disabled>Продолжить</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="screen-obd-vehicle" class="screen">
+      <div class="center narrow">
+        <h2>Выбор автомобиля</h2>
+        <p class="lead">Выберите марку — мы подготовим подсказки подключения и учтём особенности системы.</p>
+        <div class="cards two" id="obd-makes">
+          <div class="card selectable obd-make-card" data-make="Toyota" role="button" tabindex="0" aria-pressed="false">
+            <div class="card-title">Toyota</div>
+            <div class="card-desc">Популярные платформы TNGA, надёжная электроника, быстрое подключение.</div>
+          </div>
+          <div class="card selectable obd-make-card" data-make="Lexus" role="button" tabindex="0" aria-pressed="false">
+            <div class="card-title">Lexus</div>
+            <div class="card-desc">Премиум-модели с расширенной электроникой и гибридными системами.</div>
+          </div>
+        </div>
+        <div id="obd-vehicle-preview" class="vehicle-preview hidden" aria-live="polite">
+          <img id="obd-vehicle-image" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=="
+            alt="" loading="lazy" />
+          <div id="obd-vehicle-caption" class="vehicle-caption"></div>
+        </div>
+        <p class="muted-note">Логотип помогает понять, что сценарий подобран именно под выбранную марку: мы используем
+          официальные схемы расположения разъёма и стандарты CAN/LIN протоколов.</p>
+        <div class="hint">Логотип и краткие подсказки появятся после выбора. Список марок будем расширять.</div>
+        <div class="actions row">
+          <button class="secondary" data-back>Назад</button>
+          <button class="primary" id="obd-continue-3" disabled>Далее</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="screen-obd-prep" class="screen">
+      <div class="center narrow">
+        <h2>Подготовка оборудования</h2>
+        <p class="muted-note">Чтобы сканирование прошло корректно, убедитесь что аккумулятор не разряжен, а адаптер
+          ELM327 установлен до щелчка. Если автомобиль гибридный, дождитесь сообщения на приборной панели о готовности
+          систем.</p>
+        <ul class="benefits">
+          <li>Вставьте адаптер ELM327 в разъём OBD‑II автомобиля.</li>
+          <li>Включите зажигание (без запуска двигателя).</li>
+          <li>Следуйте подсказкам на экране.</li>
+        </ul>
+        <div class="actions row">
+          <button class="secondary" data-back>Назад</button>
+          <button class="primary" id="obd-continue-4">Далее</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="screen-obd-scan" class="screen">
+      <div class="center narrow">
+        <h2>Сканирование</h2>
+        <p class="lead">Требуется подключённый адаптер ELM327. Без устройства сканирование недоступно.</p>
+        <ul class="benefits">
+          <li>После подключения мы выполняем автоматическую самопроверку адаптера и фиксируем уровень напряжения
+            бортсети.</li>
+          <li>Можно наблюдать прогресс: сначала считываются коды, затем статусы систем и live-данные.</li>
+          <li>Если связь прервётся — приложение предложит восстановить сессию без повторного ввода данных.</li>
+        </ul>
+        <div class="status-line"><span id="obd-status" class="badge badge-danger" aria-live="polite">OBD‑адаптер: нет
+            соединения</span></div>
+        <div id="obd-connection-meta" class="obd-connection-meta" data-obd-connection-meta aria-live="polite"></div>
+        <button class="primary" id="obd-start" disabled>Начать сканирование</button>
+        <div class="muted-note">Нет симуляции данных в PROD. В DEV используйте «Пропустить».</div>
+        <div class="actions">
+          <div class="form">
+            <label class="field">
+              <span>COM-порт адаптера</span>
+              <select id="obd-port">
+                <option value="">Выберите порт…</option>
+              </select>
+            </label>
+            <div class="form-row">
+              <button class="ghost small" type="button" id="obd-refresh">Обновить список</button>
+              <div class="port-status-wrapper">
+                <div id="obd-port-status" class="hint">Подключите адаптер и обновите список.</div>
+                <div id="obd-port-last-refresh" class="meta"></div>
+              </div>
+            </div>
+          </div>
+          <button class="secondary" data-back>Назад</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="screen-obd-paywall" class="screen">
+      <div class="center narrow">
+        <h2>Показ результатов после оплаты</h2>
+        <div class="hero-icon hero-icon--indigo" aria-hidden="true">
+          <img src="./assets/icons/shield-check.svg" alt="" loading="lazy" />
+        </div>
+        <p class="lead" id="obd-paywall-lead">Стоимость зависит от выбранного режима диагностики.</p>
+        <p class="muted-note">До оплаты вы видите сводную информацию о найденных ошибках и длительности сканирования.
+          После подтверждения откроется полный отчёт с расшифровкой и рекомендациями.</p>
+        <div id="obd-paywall-amount" class="amount" aria-live="polite"></div>
+        <div class="qr-placeholder" aria-label="QR placeholder"></div>
+        <div id="obd-payment-info" class="payment-info"></div>
+        <div id="obd-self-check" class="self-check-box" aria-live="polite"></div>
+        <div class="obd-connection-meta" data-obd-connection-meta aria-live="polite"></div>
+        <div class="actions column">
+          <button class="secondary" data-back>Назад</button>
+          <button class="ghost" type="button" id="obd-self-check-rerun">Повторить самопроверку</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="screen-obd-results" class="screen">
+      <div class="center narrow">
+        <h2>Результаты диагностики</h2>
+        <p class="lead" id="obd-results-lead">Здесь будут коды DTC и статусы при подключённом устройстве.</p>
+        <p class="muted-note">Каждый код сопровождается пояснением уровня серьёзности. Вы можете обновить live-данные,
+          чтобы сравнить показатели до и после сброса, или сохранить сессию для отправки на email.</p>
+        <div id="obd-results-wrapper" class="card">
+          <div id="obd-results-title" class="card-title">Коды неисправностей</div>
+          <div id="obd-status-summary" class="obd-summary" aria-live="polite"></div>
+          <div id="obd-live-data" class="obd-live" aria-live="polite"></div>
+          <div id="obd-summary-grid" class="obd-summary-grid hidden" aria-live="polite"></div>
+          <div id="obd-results-list" class="card-desc">Отсутствуют данные без устройства.</div>
+          <div id="obd-self-check-results" class="self-check-box self-check-box--inline" aria-live="polite"></div>
+          <div class="obd-connection-meta" data-obd-connection-meta aria-live="polite"></div>
+        </div>
+        <!-- Internal AI automation is not exposed to clients -->
+        <div class="actions row">
+          <button class="secondary" id="obd-clear" disabled>Сбросить ошибки (Clear DTC)</button>
+          <button class="ghost" id="obd-live-refresh">Обновить параметры</button>
+          <!-- AI button removed from client UI by policy -->
+          <button class="primary" id="obd-finish">Завершить</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="screen-obd-done" class="screen">
+      <div class="center narrow">
+        <h2>Готово</h2>
+        <p class="lead">Отчёт сформирован. Посмотрите предпросмотр и решите — отправить по SMS/email или сохранить
+          локально.</p>
+        <p class="muted-note">В отчёте указаны коды ошибок, статус MIL, результаты самопроверки адаптера и, при
+          необходимости, отметка о выполнении сброса DTC. Вы всегда можете вернуться к терминалу для повторной проверки.
+        </p>
+        <div id="report-status-obd" class="report-status" aria-live="polite"></div>
+        <div id="credits-obd" class="credits"></div>
+        <div class="actions row">
+          <button class="ghost" id="obd-preview">Предпросмотр</button>
+          <button class="primary" id="back-to-home-2">На главный экран</button>
+        </div>
+      </div>
+    </section>
+
+
+  </div>
+
+  <!-- Modal: Terms -->
+  <div id="terms-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="terms-title">
+    <div class="modal" role="document">
+      <div class="modal-header">
+        <div class="modal-title" id="terms-title">Условия обслуживания</div>
+        <button type="button" id="terms-close" class="close">Закрыть</button>
+      </div>
+      <div class="modal-body">
+        <div id="terms-content" class="terms-content" aria-live="polite">Загрузка…</div>
+      </div>
+      <div class="modal-actions">
+        <a class="ghost" href="../../docs/legal/terms.md" target="_blank">Открыть в новой вкладке</a>
+        <button type="button" id="terms-ok" class="primary">Понятно</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Report Preview -->
+  <div id="report-preview-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true"
+    aria-labelledby="report-preview-title">
+    <div class="modal modal--wide" role="document">
+      <div class="modal-header">
+        <div class="modal-title" id="report-preview-title">Предпросмотр отчёта</div>
+        <button type="button" id="report-preview-close" class="close">Закрыть</button>
+      </div>
+      <div class="modal-body">
+        <iframe id="report-preview-frame" title="Предпросмотр отчёта"
+          style="width:100%;height:60vh;border:1px solid #E5E7EB;border-radius:8px;"></iframe>
+      </div>
+      <div class="modal-actions">
+        <button type="button" id="report-send-sms" class="primary">Отправить по SMS</button>
+        <button type="button" id="report-send-email" class="ghost">Отправить на Email</button>
+        <button type="button" id="report-skip-send" class="secondary">Не отправлять</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Button (fixed position) -->
+  <button type="button" id="settings-button" class="settings-button" aria-label="Открыть настройки источника данных"
+    title="Настройки" style="display:none;">
+    ⚙️
+  </button>
+
+  <!-- Modal: Settings -->
+  <div id="settings-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true"
+    aria-labelledby="settings-title">
+    <div class="modal" role="document">
+      <div class="modal-header">
+        <div class="modal-title" id="settings-title">Настройки источника данных</div>
+        <button type="button" id="settings-close" class="close">Закрыть</button>
+      </div>
+      <div class="modal-body">
+        <div class="form">
+          <label class="field">
+            <span>Источник данных</span>
+            <select id="settings-source">
+              <option value="agent">Локальный агент (по умолчанию)</option>
+              <option value="supabase">Supabase (облачно, read-only)</option>
+            </select>
+          </label>
+
+          <div id="settings-supabase-fields" style="display:none;">
+            <label class="field">
+              <span>Supabase URL</span>
+              <input type="url" id="settings-supabase-url" placeholder="https://your-project.supabase.co" />
+            </label>
+            <label class="field">
+              <span>Supabase Anon Key</span>
+              <input type="password" id="settings-supabase-anon-key" placeholder="eyJhbGciOi..." />
+            </label>
+            <div class="hint">
+              <strong>Важно:</strong> используйте только ANON KEY (публичный ключ).
+              Данный режим поддерживает только чтение публичных VIEW.
+              Управление устройствами недоступно.
+            </div>
+          </div>
+
+          <div id="settings-status" class="hint"></div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" id="settings-save" class="primary">Сохранить</button>
+        <button type="button" id="settings-reset" class="secondary">Сбросить</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const qs = new URLSearchParams(window.location.search);
+      const isDev = qs.get('dev') === '1';
+
+      // Settings and data source management
+      const SETTINGS_KEY = 'kiosk-settings';
+      let dataSource = 'agent'; // 'agent' or 'supabase'
+      let supabaseClient = null;
+
+      // Load settings from localStorage
+      function loadSettings() {
+        try {
+          const saved = localStorage.getItem(SETTINGS_KEY);
+          if (saved) {
+            const settings = JSON.parse(saved);
+            dataSource = settings.source || 'agent';
+
+            if (dataSource === 'supabase' && settings.supabaseUrl && settings.supabaseAnonKey) {
+              // Initialize Supabase client
+              // Note: @supabase/supabase-js would need to be loaded via CDN
+              // For now, we'll just store the config
+              console.log('[Settings] Supabase mode configured');
+            }
+
+            return settings;
+          }
+        } catch (e) {
+          console.error('[Settings] Failed to load settings:', e);
+        }
+        return { source: 'agent' };
+      }
+
+      function saveSettings(settings) {
+        try {
+          localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+          console.log('[Settings] Settings saved:', settings.source);
+        } catch (e) {
+          console.error('[Settings] Failed to save settings:', e);
+        }
+      }
+
+      // Settings UI management
+      const settingsButton = document.getElementById('settings-button');
+      const settingsModal = document.getElementById('settings-modal');
+      const settingsClose = document.getElementById('settings-close');
+      const settingsSource = document.getElementById('settings-source');
+      const settingsSupabaseFields = document.getElementById('settings-supabase-fields');
+      const settingsSupabaseUrl = document.getElementById('settings-supabase-url');
+      const settingsSupabaseAnonKey = document.getElementById('settings-supabase-anon-key');
+      const settingsSave = document.getElementById('settings-save');
+      const settingsReset = document.getElementById('settings-reset');
+      const settingsStatus = document.getElementById('settings-status');
+
+      // Show settings button only in DEV or with special key combo (Ctrl+Shift+S)
+      if (isDev) {
+        settingsButton.style.display = 'block';
+      }
+
+      document.addEventListener('keydown', (e) => {
+        if (e.ctrlKey && e.shiftKey && e.key === 'S') {
+          e.preventDefault();
+          settingsButton.style.display = 'block';
+          settingsButton.click();
+        }
+      });
+
+      settingsButton?.addEventListener('click', () => {
+        const currentSettings = loadSettings();
+        settingsSource.value = currentSettings.source || 'agent';
+        settingsSupabaseUrl.value = currentSettings.supabaseUrl || '';
+        settingsSupabaseAnonKey.value = currentSettings.supabaseAnonKey || '';
+        settingsSupabaseFields.style.display = currentSettings.source === 'supabase' ? 'block' : 'none';
+        settingsModal?.classList.remove('hidden');
+        settingsStatus.textContent = '';
+      });
+
+      settingsClose?.addEventListener('click', () => {
+        settingsModal?.classList.add('hidden');
+      });
+
+      settingsSource?.addEventListener('change', () => {
+        settingsSupabaseFields.style.display = settingsSource.value === 'supabase' ? 'block' : 'none';
+      });
+
+      settingsSave?.addEventListener('click', () => {
+        const source = settingsSource.value;
+        const settings = { source };
+
+        if (source === 'supabase') {
+          const url = settingsSupabaseUrl.value.trim();
+          const key = settingsSupabaseAnonKey.value.trim();
+
+          if (!url || !key) {
+            settingsStatus.textContent = '❌ Заполните URL и Anon Key для Supabase';
+            settingsStatus.style.color = '#ef4444';
+            return;
+          }
+
+          settings.supabaseUrl = url;
+          settings.supabaseAnonKey = key;
+        }
+
+        saveSettings(settings);
+        dataSource = source;
+
+        settingsStatus.textContent = `✅ Настройки сохранены. Источник: ${source === 'agent' ? 'Локальный агент' : 'Supabase (read-only)'}`;
+        settingsStatus.style.color = '#10b981';
+
+        // Disable device-related buttons in Supabase mode
+        updateUIForDataSource();
+
+        setTimeout(() => {
+          settingsModal?.classList.add('hidden');
+        }, 1500);
+      });
+
+      settingsReset?.addEventListener('click', () => {
+        localStorage.removeItem(SETTINGS_KEY);
+        dataSource = 'agent';
+        settingsSource.value = 'agent';
+        settingsSupabaseUrl.value = '';
+        settingsSupabaseAnonKey.value = '';
+        settingsSupabaseFields.style.display = 'none';
+        settingsStatus.textContent = '✅ Настройки сброшены на значения по умолчанию';
+        settingsStatus.style.color = '#10b981';
+        updateUIForDataSource();
+      });
+
+      function updateUIForDataSource() {
+        // Disable device-related actions in Supabase mode
+        const deviceButtons = document.querySelectorAll('[data-requires-agent]');
+        deviceButtons.forEach(btn => {
+          if (dataSource === 'supabase') {
+            btn.disabled = true;
+            btn.title = 'Недоступно в режиме Supabase (только чтение)';
+            btn.style.opacity = '0.5';
+          } else {
+            btn.disabled = false;
+            btn.title = '';
+            btn.style.opacity = '1';
+          }
+        });
+
+        // Show/hide mode indicator
+        let modeIndicator = document.getElementById('mode-indicator');
+        if (!modeIndicator) {
+          modeIndicator = document.createElement('div');
+          modeIndicator.id = 'mode-indicator';
+          modeIndicator.style.cssText = 'position:fixed;top:10px;right:10px;padding:8px 12px;background:#f3f4f6;border:1px solid #d1d5db;border-radius:6px;font-size:12px;z-index:999;';
+          document.body.appendChild(modeIndicator);
+        }
+
+        if (dataSource === 'supabase') {
+          modeIndicator.textContent = '☁️ Supabase (read-only)';
+          modeIndicator.style.background = '#dbeafe';
+          modeIndicator.style.borderColor = '#3b82f6';
+        } else {
+          modeIndicator.textContent = '🖥️ Локальный агент';
+          modeIndicator.style.background = '#f3f4f6';
+          modeIndicator.style.borderColor = '#d1d5db';
+        }
+      }
+
+      // Load initial settings
+      const initialSettings = loadSettings();
+      dataSource = initialSettings.source || 'agent';
+      updateUIForDataSource();
+
+      // End of settings management
+
+      const screens = [
+        'screen-attract', 'screen-welcome', 'screen-services',
+        // Thickness
+        'screen-thk-intro', 'screen-thk-contact', 'screen-thk-payment', 'screen-thk-prep', 'screen-thk-measure', 'screen-thk-done',
+        // OBD
+        'screen-obd-intro', 'screen-obd-contact', 'screen-obd-vehicle', 'screen-obd-prep', 'screen-obd-scan', 'screen-obd-paywall', 'screen-obd-results', 'screen-obd-done'
+      ];
+      let idx = 0;
+      let hasExitedAttract = false;
+      let activeScreenId = 'screen-attract';
+      let attractArmTimer = null;
+      let attractInteractionArmed = false;
+      const THICKNESS_POLL_INTERVAL_MS = 3000;
+      const OBD_POLL_INTERVAL_MS = 3000;
+      let thicknessPollTimer = null;
+      let obdPollTimer = null;
+      let thicknessPollPending = false;
+      let obdPollPending = false;
+
+      const $ = (id) => document.getElementById(id);
+      const scheduleAttractArming = () => {
+        attractInteractionArmed = false;
+        if (attractArmTimer) {
+          clearTimeout(attractArmTimer);
+        }
+        attractArmTimer = setTimeout(() => {
+          attractInteractionArmed = true;
+        }, 600);
+      };
+
+      const show = (id) => {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        const target = document.getElementById(id);
+        if (target) {
+          target.classList.add('active');
+        }
+        activeScreenId = id;
+        handleScreenActivated(id);
+        if (id === 'screen-attract') {
+          hasExitedAttract = false;
+          scheduleAttractArming();
+          $('screen-attract')?.focus({ preventScroll: true });
+        }
+      };
+
+      // Attract → любое действие
+      const screenAttract = $('screen-attract');
+      scheduleAttractArming();
+      const exitAttract = () => {
+        if (hasExitedAttract || !attractInteractionArmed) return;
+        hasExitedAttract = true;
+        idx = 1;
+        show(screens[idx]);
+      };
+      const bindAttractInteraction = (target, type, options) => {
+        target?.addEventListener(type, () => {
+          if (document.getElementById('screen-attract')?.classList.contains('active')) {
+            exitAttract();
+          }
+        }, options);
+      };
+
+      // Реагируем на любые действия на экране привлечения
+      ['click', 'pointerdown', 'touchstart', 'keydown'].forEach(eventName => {
+        const options = eventName === 'keydown' ? undefined : { passive: true };
+        bindAttractInteraction(document, eventName, options);
+      });
+      // В движении мыши часто приходят системные события при загрузке, поэтому игнорируем их для выхода.
+
+      // Экран приветствия и согласие с условиями
+      const welcomeAgree = document.getElementById('welcome-agree');
+      const welcomeContinue = document.getElementById('welcome-continue');
+      const serviceCards = document.querySelectorAll('.service-card');
+      const serviceContinue = $('service-continue');
+      let selectedService = '';
+      const sessionState = {
+        contact: {
+          thickness: null,
+          diagnostics: null
+        },
+        session: {
+          thicknessId: null,
+          obdId: null
+        },
+        reportSent: {
+          thickness: false,
+          diagnostics: false
+        }
+      };
+      window.__kioskSessionState = sessionState;
+      const syncGlobalSessionIds = () => {
+        if (typeof window === 'undefined') {
+          return;
+        }
+        window.THICKNESS_SESSION_ID = sessionState.session.thicknessId;
+        window.OBD_SESSION_ID = sessionState.session.obdId;
+        window.SESSION_ID = sessionState.session.obdId || sessionState.session.thicknessId || null;
+      };
+      syncGlobalSessionIds();
+
+      // Payments/Agent API helpers (DEV simulation supported by agent)
+      // База выбирается из query (?agent=proto://host:port), либо из localStorage, либо по умолчанию host:apiPort
+      const __q = (typeof window !== 'undefined') ? new URLSearchParams(window.location.search) : null;
+      const API_HOST = (typeof window !== 'undefined' && window.location && window.location.hostname)
+        ? window.location.hostname
+        : 'localhost';
+      const API_PROTOCOL = (typeof window !== 'undefined' && window.location && window.location.protocol === 'https:') ? 'https' : 'http';
+      const API_PORT = (__q && __q.get('apiPort')) || '7070';
+      const AGENT_QS = (__q && __q.get('agent')) || null; // полная база, например http://192.168.1.10:7070
+      if (__q && __q.has('agent') && typeof localStorage !== 'undefined') {
+        try { localStorage.setItem('AGENT_API_BASE', AGENT_QS || ''); } catch { }
+      }
+      if (__q && __q.has('clearAgent') && typeof localStorage !== 'undefined') {
+        try { localStorage.removeItem('AGENT_API_BASE'); } catch { }
+      }
+      const AGENT_LS = (typeof localStorage !== 'undefined') ? (localStorage.getItem('AGENT_API_BASE') || null) : null;
+      const AGENT_API_BASE = (AGENT_QS && AGENT_QS.trim()) || (AGENT_LS && AGENT_LS.trim()) || `${API_PROTOCOL}://${API_HOST}:${API_PORT}`;
+      const api = (path) => `${AGENT_API_BASE}${path.startsWith('/') ? path : ('/' + path)}`;
+      async function postJson(url, body) {
+        const resp = await fetch(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body || {}) });
+        const data = await resp.json().catch(() => ({}));
+        if (!resp.ok) throw Object.assign(new Error(data?.message || data?.error || 'request_failed'), { data });
+        return data;
+      }
+      async function getJson(url) {
+        const resp = await fetch(url);
+        const data = await resp.json().catch(() => ({}));
+        if (!resp.ok) throw Object.assign(new Error(data?.message || data?.error || 'request_failed'), { data });
+        return data;
+      }
+      async function paymentsCreateIntent(amount, meta) {
+        return postJson(api('/payments/intent'), { amount, currency: 'RUB', meta });
+      }
+      async function paymentsGetStatus(intentId) {
+        return getJson(api(`/payments/${encodeURIComponent(intentId)}/status`));
+      }
+      async function paymentsConfirmDev(intentId) {
+        return postJson(api('/payments/confirm-dev'), { id: intentId });
+      }
+      function startPaymentPolling(intentId, onUpdate, intervalMs = 1200) {
+        let stopped = false;
+        async function tick() {
+          if (stopped) return;
+          try {
+            const st = await paymentsGetStatus(intentId);
+            if (typeof onUpdate === 'function') onUpdate(st);
+            if (st && (st.status === 'succeeded' || st.status === 'canceled' || st.status === 'failed')) {
+              stopped = true; return;
+            }
+          } catch (err) { console.warn('payment status poll failed', err); }
+          setTimeout(tick, intervalMs);
+        }
+        tick();
+        return () => { stopped = true; };
+      }
+
+      const updateWelcomeState = () => {
+        if (welcomeContinue) {
+          welcomeContinue.disabled = !welcomeAgree?.checked;
+        }
+      };
+
+      const resetServiceSelection = () => {
+        selectedService = '';
+        serviceCards.forEach(card => {
+          card.classList.remove('selected');
+          card.setAttribute('aria-pressed', 'false');
+        });
+        if (serviceContinue) serviceContinue.disabled = true;
+      };
+
+      welcomeAgree?.addEventListener('change', updateWelcomeState);
+      welcomeContinue?.addEventListener('click', () => {
+        idx = screens.indexOf('screen-services');
+        show('screen-services');
+        resetServiceSelection();
+      });
+      updateWelcomeState();
+
+      serviceCards.forEach(card => {
+        card.addEventListener('click', () => {
+          serviceCards.forEach(other => {
+            const isCurrent = other === card;
+            other.classList.toggle('selected', isCurrent);
+            other.setAttribute('aria-pressed', isCurrent ? 'true' : 'false');
+          });
+          selectedService = card.getAttribute('data-service') || '';
+          if (serviceContinue) serviceContinue.disabled = !selectedService;
+        });
+        card.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            card.click();
+          }
+        });
+      });
+
+      serviceContinue?.addEventListener('click', () => {
+        if (selectedService === 'thickness') {
+          idx = screens.indexOf('screen-thk-intro');
+          resetThkSelection();
+          show('screen-thk-intro');
+        } else if (selectedService === 'diagnostics') {
+          idx = screens.indexOf('screen-obd-intro');
+          resetObdVehicleSelection();
+          show('screen-obd-intro');
+        }
+      });
+
+      // Толщиномер и диагностика: подготовительные элементы
+      const thkTypeCards = document.querySelectorAll('.thk-type-card');
+      const thkVehiclePreview = $('thk-vehicle-preview');
+      const thkVehicleImage = $('thk-vehicle-image');
+      const thkVehicleCaption = $('thk-vehicle-caption');
+
+      const THK_VEHICLE_MEDIA = {
+        sedan: {
+          src: './assets/images/thk-sedan.png',
+          alt: 'Седан — пример кузова для измерений толщиномером.',
+          caption: 'Седан: классический кузов с четырьмя дверями. На схеме отображаем 40–60 точек.'
+        },
+        hatchback: {
+          src: './assets/images/thk-hatchback.webp',
+          alt: 'Хэтчбек — компактный кузов с пятой дверью для измерений.',
+          caption: 'Хэтчбек: короткий кузов и удобный доступ к каждой зоне измерений.'
+        },
+        minivan: {
+          src: './assets/images/thk-minivan.png',
+          alt: 'Минивэн — увеличенный кузов для измерений толщиномером.',
+          caption: 'Минивэн: больше объём кузова и дополнительные точки для MPV и микроавтобусов.'
+        }
+      };
+
+      function applyThkVehiclePreview(type) {
+        if (!thkVehiclePreview || !thkVehicleImage || !thkVehicleCaption) {
+          return;
+        }
+        const media = type ? THK_VEHICLE_MEDIA[type] : null;
+        if (!media) {
+          thkVehiclePreview.classList.add('hidden');
+          thkVehicleImage.src = '';
+          thkVehicleImage.alt = '';
+          thkVehicleCaption.textContent = '';
+          return;
+        }
+        thkVehicleImage.src = media.src;
+        thkVehicleImage.alt = media.alt;
+        thkVehicleCaption.textContent = media.caption;
+        thkVehiclePreview.classList.remove('hidden');
+      }
+
+      const obdMakeCards = document.querySelectorAll('.obd-make-card');
+      const obdVehiclePreview = $('obd-vehicle-preview');
+      const obdVehicleImage = $('obd-vehicle-image');
+      const obdVehicleCaption = $('obd-vehicle-caption');
+
+      const OBD_VEHICLE_MEDIA = {
+        Toyota: {
+          src: './assets/images/logo-toyota.jpg',
+          alt: 'Логотип Toyota для диагностики.',
+          caption: 'Toyota: актуальные платы и шины CAN. Показываем, где искать разъём OBD‑II и какие системы доступны.'
+        },
+        Lexus: {
+          src: './assets/images/Lexus-Logo-1280x720.png',
+          alt: 'Логотип Lexus для диагностики.',
+          caption: 'Lexus: премиальная электроника и гибридные комплексы. Подскажем, какие блоки доступны для чтения и как безопасно работать с гибридными модулями.'
+        }
+      };
+
+      function applyObdVehiclePreview(make) {
+        if (!obdVehiclePreview || !obdVehicleImage || !obdVehicleCaption) {
+          return;
+        }
+        const media = make ? OBD_VEHICLE_MEDIA[make] : null;
+        if (!media) {
+          obdVehiclePreview.classList.add('hidden');
+          obdVehicleImage.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==';
+          obdVehicleImage.alt = '';
+          obdVehicleCaption.textContent = '';
+          return;
+        }
+        obdVehicleImage.src = media.src;
+        obdVehicleImage.alt = media.alt;
+        obdVehicleCaption.textContent = media.caption;
+        obdVehiclePreview.classList.remove('hidden');
+      }
+
+      let obdMake = '';
+      let obdMode = 'general';
+      let obdSelectedPort = '';
+      let obdSerialPorts = [];
+      let obdScanResults = [];
+      let obdPaymentIntent = null;
+      let obdPaymentBreakdown = null;
+      let obdSessionOpen = false;
+      let obdStatusSummary = null;
+      let obdLiveData = null;
+      let obdSelfCheckReport = null;
+      let obdSelfCheckOk = false;
+      let obdSelfCheckTimestamp = null;
+      let obdSelfCheckRunning = false;
+      let obdSelfCheckError = '';
+      let obdLastSnapshot = null;
+      let obdSessionState = null;
+
+      function handleScreenActivated(id) {
+        const thicknessActive = id === 'screen-thk-measure';
+        enableThicknessPolling(thicknessActive);
+        const shouldPollObd = id === 'screen-obd-scan' || (obdSessionOpen && (id === 'screen-obd-paywall' || id === 'screen-obd-results'));
+        enableObdPolling(shouldPollObd);
+        if (id === 'screen-obd-scan') {
+          loadObdPorts(true);
+        }
+        if (id === 'screen-thk-intro') {
+          ensureThicknessSessionId();
+        }
+        if (id === 'screen-obd-intro') {
+          ensureObdSessionId();
+        }
+        if (id === 'screen-thk-done') {
+          maybeSendReport('thickness');
+        }
+        if (id === 'screen-obd-done') {
+          maybeSendReport('diagnostics');
+        }
+        // AI UI hidden: no exposure in client
+      }
+
+      function enableThicknessPolling(shouldEnable) {
+        if (shouldEnable) {
+          if (thicknessPollTimer) return;
+          pollThickness();
+          thicknessPollTimer = setInterval(() => { pollThickness(); }, THICKNESS_POLL_INTERVAL_MS);
+        } else if (thicknessPollTimer) {
+          clearInterval(thicknessPollTimer);
+          thicknessPollTimer = null;
+        }
+      }
+
+      function enableObdPolling(shouldEnable) {
+        if (shouldEnable) {
+          if (obdPollTimer) return;
+          pollObd();
+          obdPollTimer = setInterval(() => { pollObd(); }, OBD_POLL_INTERVAL_MS);
+        } else if (obdPollTimer) {
+          clearInterval(obdPollTimer);
+          obdPollTimer = null;
+        }
+      }
+
+      const obdModeCards = document.querySelectorAll('.obd-mode-card');
+      const obdContactInput = $('obd-contact');
+      const obdContactError = $('obd-contact-error');
+      const obdC1 = $('obd-continue-1');
+      const obdC2 = $('obd-continue-2');
+      const obdC3 = $('obd-continue-3');
+      const obdC4 = $('obd-continue-4');
+      const obdFinish = $('obd-finish');
+      const obdAiBtn = null; // AI UI removed (internal-only)
+      const obdAiBox = $('obd-ai-box');
+      const obdAiSummary = $('obd-ai-summary');
+      const obdAiRecos = $('obd-ai-recos');
+      const obdAiDisclaimer = $('obd-ai-disclaimer');
+      const obdPortSelect = $('obd-port');
+      const obdRefreshBtn = $('obd-refresh');
+      const obdRefreshLabelBase = obdRefreshBtn?.textContent || 'Обновить список';
+      const obdPortStatus = $('obd-port-status');
+      const obdLastPortRefresh = $('obd-port-last-refresh');
+      let obdPortLoadPending = false;
+
+      function setObdMode(mode) {
+        if (!mode || !OBD_MODE_CONFIGS[mode]) return;
+        obdMode = mode;
+        obdModeCards.forEach(card => {
+          const isCurrent = card.getAttribute('data-mode') === mode;
+          card.classList.toggle('selected', isCurrent);
+          card.setAttribute('aria-pressed', isCurrent ? 'true' : 'false');
+        });
+        if (obdC1) obdC1.disabled = false;
+        applyObdModeUi();
+      }
+
+      obdModeCards.forEach(card => {
+        card.addEventListener('click', () => {
+          const mode = card.getAttribute('data-mode');
+          setObdMode(mode);
+        });
+        card.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            card.click();
+          }
+        });
+      });
+      obdC1?.addEventListener('click', () => {
+        idx = screens.indexOf('screen-obd-contact');
+        show('screen-obd-contact');
+        prefillContact('diagnostics');
+      });
+
+      obdC2?.addEventListener('click', () => {
+        idx = screens.indexOf('screen-obd-vehicle');
+        show('screen-obd-vehicle');
+        applyObdVehiclePreview(obdMake);
+        if (obdC3) obdC3.disabled = !obdMake;
+      });
+
+      obdC3?.addEventListener('click', () => {
+        idx = screens.indexOf('screen-obd-prep');
+        show('screen-obd-prep');
+      });
+
+      obdC4?.addEventListener('click', () => {
+        idx = screens.indexOf('screen-obd-scan');
+        show('screen-obd-scan');
+      });
+
+      // AI click handler removed (internal-only automation)
+
+      obdRefreshBtn?.addEventListener('click', () => {
+        loadObdPorts(true);
+      });
+
+      obdPortSelect?.addEventListener('change', () => {
+        const value = obdPortSelect.value;
+        obdSelectedPort = value;
+        if (value) {
+          setObdPortStatus(`Выбран порт ${value}.`, 'info');
+        } else {
+          setObdPortStatus('Выберите порт для подключения.', 'warn');
+        }
+        pollObd();
+      });
+      const thkContactInput = $('thk-contact');
+      const thkContactError = $('thk-contact-error');
+      const thkC1 = $('thk-continue-1');
+      const thkC2 = $('thk-continue-2');
+      const thkC3 = $('thk-continue-3');
+      const thkAmountEl = $('thk-amount');
+      let thkType = '';
+      let thkPrice = 0;
+
+      function resetThkSelection() {
+        thkType = '';
+        thkPrice = 0;
+        thkTypeCards.forEach(card => {
+          card.classList.remove('selected');
+          card.setAttribute('aria-pressed', 'false');
+        });
+        if (thkC1) thkC1.disabled = true;
+        applyThkVehiclePreview('');
+      }
+
+      function resetObdVehicleSelection() {
+        obdMake = '';
+        obdMakeCards.forEach(card => {
+          card.classList.remove('selected');
+          card.setAttribute('aria-pressed', 'false');
+        });
+        if (obdC3) obdC3.disabled = true;
+        applyObdVehiclePreview('');
+      }
+
+      const contactControllers = {
+        thickness: {
+          key: 'thickness',
+          input: thkContactInput,
+          continueBtn: thkC2,
+          error: thkContactError
+        },
+        diagnostics: {
+          key: 'diagnostics',
+          input: obdContactInput,
+          continueBtn: obdC2,
+          error: obdContactError
+        }
+      };
+
+      function preparePhoneDigits(rawValue) {
+        const digits = (rawValue || '').replace(/\D/g, '');
+        if (!digits) return '';
+        let normalized = digits;
+        if (normalized.startsWith('8')) {
+          normalized = `7${normalized.slice(1)}`;
+        } else if (normalized.startsWith('9') && normalized.length <= 10) {
+          normalized = `7${normalized}`;
+        } else if (!normalized.startsWith('7')) {
+          normalized = `7${normalized}`;
+        }
+        return normalized.slice(0, 11);
+      }
+
+      function formatPhoneDigits(normalizedDigits) {
+        if (!normalizedDigits) return '';
+        let formatted = '+7';
+        const zone = normalizedDigits.slice(1, Math.min(4, normalizedDigits.length));
+        if (zone) {
+          formatted += ` (${zone}`;
+          if (zone.length === 3) {
+            formatted += ')';
+          }
+        }
+        const block2 = normalizedDigits.slice(4, Math.min(7, normalizedDigits.length));
+        if (block2) {
+          formatted += ` ${block2}`;
+        }
+        const block3 = normalizedDigits.slice(7, Math.min(9, normalizedDigits.length));
+        if (block3) {
+          formatted += `-${block3}`;
+        }
+        const block4 = normalizedDigits.slice(9, Math.min(11, normalizedDigits.length));
+        if (block4) {
+          formatted += `-${block4}`;
+        }
+        return formatted;
+      }
+
+      function autoFormatContactInput(inputEl) {
+        if (!inputEl) return;
+        const raw = inputEl.value;
+        if (!raw) {
+          return;
+        }
+        if (/[a-zа-яё]/i.test(raw) || raw.includes('@')) {
+          return;
+        }
+        const digits = preparePhoneDigits(raw);
+        if (!digits) {
+          inputEl.value = '';
+          return;
+        }
+        const formatted = formatPhoneDigits(digits);
+        if (formatted !== raw) {
+          inputEl.value = formatted;
+          requestAnimationFrame(() => {
+            const len = inputEl.value.length;
+            inputEl.setSelectionRange(len, len);
+          });
+        }
+      }
+
+      function validateContactValue(rawValue) {
+        const trimmed = (rawValue || '').trim();
+        if (!trimmed) {
+          return { valid: false, message: 'Введите телефон или email.' };
+        }
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
+        if (emailPattern.test(trimmed)) {
+          return {
+            valid: true,
+            type: 'email',
+            normalized: trimmed.toLowerCase()
+          };
+        }
+        const preparedDigits = preparePhoneDigits(trimmed);
+        if (preparedDigits.length < 11) {
+          return {
+            valid: false,
+            message: 'Укажите телефон из 11 цифр, например +7 (900) 123-45-67.'
+          };
+        }
+        const normalizedDigits = preparedDigits.slice(0, 11);
+        const formatted = formatPhoneDigits(normalizedDigits);
+        return {
+          valid: true,
+          type: 'phone',
+          normalized: `+${normalizedDigits}`,
+          formatted
+        };
+      }
+
+      function updateContactState(key) {
+        const controller = contactControllers[key];
+        if (!controller) return { valid: false };
+        const { input, continueBtn, error } = controller;
+        if (!input || !continueBtn) return { valid: false };
+        const raw = input.value || '';
+        const result = validateContactValue(raw);
+        if (result.valid) {
+          continueBtn.disabled = false;
+          input.setAttribute('data-valid', '1');
+          input.removeAttribute('data-invalid');
+          input.setAttribute('aria-invalid', 'false');
+          if (error) {
+            error.textContent = '';
+            error.classList.remove('visible');
+          }
+          sessionState.contact[key] = {
+            raw: raw.trim(),
+            normalized: result.normalized,
+            type: result.type
+          };
+        } else {
+          continueBtn.disabled = true;
+          sessionState.contact[key] = null;
+          input.removeAttribute('data-valid');
+          if (raw.trim()) {
+            input.setAttribute('data-invalid', '1');
+            input.setAttribute('aria-invalid', 'true');
+            if (error && result.message) {
+              error.textContent = result.message;
+              error.classList.add('visible');
+            }
+          } else {
+            input.removeAttribute('data-invalid');
+            input.setAttribute('aria-invalid', 'false');
+            if (error) {
+              error.textContent = '';
+              error.classList.remove('visible');
+            }
+          }
+          if (!raw.trim() && error) {
+            error.textContent = '';
+            error.classList.remove('visible');
+          }
+        }
+        return result;
+      }
+
+      function prefillContact(key) {
+        const controller = contactControllers[key];
+        if (!controller || !controller.input) return;
+        const stored = sessionState.contact[key];
+        if (stored?.raw) {
+          controller.input.value = stored.raw;
+          autoFormatContactInput(controller.input);
+        }
+        updateContactState(key);
+      }
+
+      function commitContactFormatting(key) {
+        const controller = contactControllers[key];
+        if (!controller || !controller.input) return;
+        autoFormatContactInput(controller.input);
+        const result = validateContactValue(controller.input.value);
+        if (result.valid && result.type === 'phone' && result.formatted) {
+          controller.input.value = result.formatted;
+        }
+        updateContactState(key);
+      }
+
+      function attachContactHandlers(key) {
+        const controller = contactControllers[key];
+        if (!controller || !controller.input) return;
+        controller.input.addEventListener('input', () => {
+          autoFormatContactInput(controller.input);
+          const state = updateContactState(key);
+          if (state.valid) {
+            controller.input.setAttribute('data-valid', '1');
+          } else if (!controller.input.value.trim()) {
+            controller.input.removeAttribute('data-valid');
+          }
+        });
+        controller.input.addEventListener('blur', () => {
+          commitContactFormatting(key);
+        });
+        updateContactState(key);
+      }
+
+      attachContactHandlers('thickness');
+      attachContactHandlers('diagnostics');
+
+      function clearContact(key) {
+        const controller = contactControllers[key];
+        if (!controller) return;
+        sessionState.contact[key] = null;
+        const { input, continueBtn, error } = controller;
+        if (input) {
+          input.value = '';
+          input.removeAttribute('data-valid');
+          input.removeAttribute('data-invalid');
+          input.setAttribute('aria-invalid', 'false');
+        }
+        if (error) {
+          error.textContent = '';
+          error.classList.remove('visible');
+        }
+        if (continueBtn) {
+          continueBtn.disabled = true;
+        }
+        updateContactState(key);
+      }
+
+      thkTypeCards.forEach((el) => {
+        el.addEventListener('click', () => {
+          thkTypeCards.forEach(card => {
+            const selected = card === el;
+            card.classList.toggle('selected', selected);
+            card.setAttribute('aria-pressed', selected ? 'true' : 'false');
+          });
+          thkType = el.getAttribute('data-type') || '';
+          thkPrice = Number(el.getAttribute('data-price') || '0');
+          applyThkVehiclePreview(thkType);
+          if (thkC1) thkC1.disabled = false;
+        });
+        el.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            el.click();
+          }
+        });
+      });
+
+      obdMakeCards.forEach(card => {
+        card.addEventListener('click', () => {
+          obdMakeCards.forEach(other => {
+            const selected = other === card;
+            other.classList.toggle('selected', selected);
+            other.setAttribute('aria-pressed', selected ? 'true' : 'false');
+          });
+          obdMake = card.getAttribute('data-make') || '';
+          applyObdVehiclePreview(obdMake);
+          if (obdC3) obdC3.disabled = !obdMake;
+        });
+        card.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            card.click();
+          }
+        });
+      });
+
+      thkC1?.addEventListener('click', () => {
+        idx = screens.indexOf('screen-thk-contact');
+        show('screen-thk-contact');
+        prefillContact('thickness');
+      });
+      thkC2?.addEventListener('click', async () => {
+        idx = screens.indexOf('screen-thk-payment');
+        if (thkAmountEl) thkAmountEl.textContent = thkPrice ? `К оплате: ${thkPrice} ₽` : '';
+        show('screen-thk-payment');
+        setupThicknessPaymentUI();
+      });
+      thkC3.addEventListener('click', async () => {
+        idx = screens.indexOf('screen-thk-measure');
+        show('screen-thk-measure');
+        // Try to open thickness device using selected type (BLE hints optional)
+        try {
+          const payload = { type: thkType || 'sedan' };
+          const resp = await fetch(`${API_BASE}/api/thk/open`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payload) });
+          const data = await resp.json().catch(() => ({}));
+          if (resp.ok && data?.ok) {
+            if (thkStatus) { thkStatus.className = 'badge badge-ok'; thkStatus.textContent = 'Толщиномер: подключён'; }
+            if (thkStart) { thkStart.disabled = false; }
+          }
+        } catch { }
+      });
+      const thkStart = $('thk-start');
+      const thkStatus = document.getElementById('thk-status');
+      let thkSessionActive = false;
+      let thkLastSession = null;
+      const thkSessionBox = document.getElementById('thk-session');
+      const thkProgressEl = document.getElementById('thk-progress');
+      const thkPointsGrid = document.getElementById('thk-points-grid');
+      const thkDevMarkBtn = document.getElementById('thk-dev-mark');
+      const thkFinishBtn = document.getElementById('thk-finish');
+
+      function setThkSessionVisible(visible) {
+        if (!thkSessionBox) return;
+        thkSessionBox.classList.toggle('hidden', !visible);
+      }
+
+      function renderThkSession(session) {
+        thkLastSession = session || null;
+        if (!session) {
+          if (thkProgressEl) thkProgressEl.textContent = '—';
+          if (thkPointsGrid) thkPointsGrid.innerHTML = '';
+          if (thkFinishBtn) thkFinishBtn.disabled = true;
+          return;
+        }
+        // progress
+        const m = Number(session.measuredCount || 0);
+        const s = Number(session.skippedCount || 0);
+        const p = Number(session.pendingCount || 0);
+        if (thkProgressEl) {
+          thkProgressEl.textContent = `Выполнено: ${m} • Пропущено: ${s} • Осталось: ${p}`;
+        }
+        // grid
+        if (thkPointsGrid && Array.isArray(session.points)) {
+          thkPointsGrid.innerHTML = session.points.map(pt => {
+            const st = pt.status || 'pending';
+            const label = escapeHtml(pt.label || pt.id);
+            const cls = st === 'measured' ? 'thk-point thk-point--ok' : st === 'skipped' ? 'thk-point thk-point--skip' : 'thk-point thk-point--pending';
+            return `<div class="${cls}" title="${label}"><span class="thk-point-label">${label}</span></div>`;
+          }).join('');
+        }
+        if (thkFinishBtn) thkFinishBtn.disabled = !session.active;
+      }
+
+      async function fetchThkSession() {
+        try {
+          const resp = await fetch(`${API_BASE}/api/thk/session`, { cache: 'no-store' });
+          const json = await resp.json().catch(() => ({}));
+          if (resp.ok) {
+            return json?.session || (json?.active !== undefined ? json : null);
+          }
+        } catch { }
+        return null;
+      }
+
+      thkStart?.addEventListener('click', async () => {
+        if (!thkType) { alert('Сначала выберите тип автомобиля.'); return; }
+        thkStart.disabled = true;
+        thkStart.dataset.locked = '1';
+        try {
+          // гарантируем наличие sessionId и передаём его агенту
+          ensureThicknessSessionId();
+          const resp = await fetch(`${API_BASE}/api/thk/start`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ type: thkType, sessionId: sessionState.session.thicknessId }) });
+          const data = await resp.json().catch(() => ({}));
+          if (resp.ok && (data?.ok || data?.active)) {
+            // Keep on measure screen and render session grid
+            thkSessionActive = true;
+            setThkSessionVisible(true);
+            const session = data?.session || (data.active !== undefined ? data : null);
+            renderThkSession(session);
+            // если агент вернул sessionId (например, переопределил), синхронизируем его локально
+            if (data?.sessionId) {
+              sessionState.session.thicknessId = data.sessionId;
+              syncGlobalSessionIds();
+            }
+            // Show DEV helper
+            if (thkDevMarkBtn) { thkDevMarkBtn.style.display = isDev ? '' : 'none'; }
+          } else {
+            const message = data?.message || data?.error || 'Не удалось начать сессию измерений.';
+            alert(String(message));
+            thkStart.disabled = false;
+            delete thkStart.dataset.locked;
+          }
+        } catch (e) {
+          alert('Агент недоступен. Проверьте подключение.');
+          thkStart.disabled = false;
+          delete thkStart.dataset.locked;
+        }
+      });
+
+      // DEV: mark next point as skipped
+      thkDevMarkBtn?.addEventListener('click', async () => {
+        if (!isDev || !thkSessionActive) return;
+        try {
+          ensureThicknessSessionId();
+          const resp = await fetch(`${API_BASE}/api/thk/mark-point`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ sessionId: sessionState.session.thicknessId }) });
+          const data = await resp.json().catch(() => ({}));
+          if (resp.ok && data?.ok && data?.session) {
+            renderThkSession(data.session);
+          }
+        } catch { }
+      });
+
+      // Finish session
+      thkFinishBtn?.addEventListener('click', async () => {
+        try {
+          ensureThicknessSessionId();
+          await fetch(`${API_BASE}/api/thk/stop`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ sessionId: sessionState.session.thicknessId }) });
+        } catch { }
+        thkSessionActive = false;
+        setThkSessionVisible(false);
+        idx = screens.indexOf('screen-thk-done');
+        show('screen-thk-done');
+      });
+
+      function resetThicknessFlow() {
+        clearContact('thickness');
+        thkType = '';
+        thkPrice = 0;
+        sessionState.session.thicknessId = null;
+        syncGlobalSessionIds();
+        sessionState.reportSent.thickness = false;
+        enableThicknessPolling(false);
+        thicknessPollPending = false;
+        thkTypeCards.forEach(card => {
+          card.classList.remove('selected');
+          card.setAttribute('aria-pressed', 'false');
+        });
+        if (thkC1) thkC1.disabled = true;
+        if (thkC2) thkC2.disabled = true;
+        applyThkVehiclePreview('');
+        if (typeof window !== 'undefined') { window.__thk_intent = null; }
+        if (thkAmountEl) thkAmountEl.textContent = '';
+        if (thkStart) {
+          thkStart.disabled = true;
+          thkStart.dataset.locked = '';
+          thkStart.textContent = 'Начать измерения';
+        }
+        if (thkStatus) {
+          thkStatus.className = 'badge badge-danger';
+          thkStatus.textContent = 'Толщиномер: нет соединения';
+        }
+      }
+      async function pollThickness() {
+        if (thicknessPollPending) return;
+        thicknessPollPending = true;
+        try {
+          const r = await fetch(api('/devices/status'));
+          const d = await r.json();
+          if (d?.status?.thickness === 'connected') {
+            thkStart.disabled = false;
+            if (thkStatus) { thkStatus.className = 'badge badge-ok'; thkStatus.textContent = 'Толщиномер: подключён'; }
+          } else {
+            thkStart.disabled = true;
+            if (thkStatus) { thkStatus.className = 'badge badge-danger'; thkStatus.textContent = 'Толщиномер: нет соединения'; }
+          }
+          // Also poll the thickness session if we're on the measure screen
+          if (activeScreenId === 'screen-thk-measure') {
+            const session = await fetchThkSession();
+            if (session && session.active) {
+              thkSessionActive = true;
+              setThkSessionVisible(true);
+              renderThkSession(session);
+              if (thkDevMarkBtn) { thkDevMarkBtn.style.display = isDev ? '' : 'none'; }
+            }
+          }
+        } catch { }
+        finally {
+          thicknessPollPending = false;
+        }
+      }
+      $('back-to-home-1')?.addEventListener('click', async () => {
+        await resetAllSessionState();
+        idx = screens.indexOf('screen-attract');
+        show('screen-attract');
+      });
+
+      // OBD flow
+      const obdPaymentInfo = $('obd-payment-info');
+      const obdPaywallLead = $('obd-paywall-lead');
+      const obdPaywallAmount = $('obd-paywall-amount');
+      const obdResultsTitle = $('obd-results-title');
+      const obdResultsLead = $('obd-results-lead');
+      const obdResultsList = $('obd-results-list');
+      const obdResultsWrapper = $('obd-results-wrapper');
+      const obdStatusSummaryEl = $('obd-status-summary');
+      const obdLiveDataEl = $('obd-live-data');
+      const obdSummaryGrid = $('obd-summary-grid');
+      const obdClear = $('obd-clear');
+      const obdLiveRefresh = $('obd-live-refresh');
+      const obdSelfCheckBox = $('obd-self-check');
+      const obdSelfCheckRerun = $('obd-self-check-rerun');
+      const obdSelfCheckResultsBox = $('obd-self-check-results');
+      const obdSelfCheckBoxBaseClass = obdSelfCheckBox?.className || '';
+      const obdSelfCheckResultsBoxBaseClass = obdSelfCheckResultsBox?.className || '';
+      const obdSummaryGridBaseClass = obdSummaryGrid?.className || '';
+      if (obdLiveRefresh) obdLiveRefresh.disabled = true;
+      if (obdSelfCheckRerun) {
+        obdSelfCheckRerun.disabled = true;
+        obdSelfCheckRerun.addEventListener('click', runObdSelfCheck);
+      }
+
+      const OBD_MODE_CONFIGS = {
+        general: {
+          id: 'general',
+          label: 'Экспресс-проверка',
+          price: 320,
+          paywallLead: 'Экспресс-диагностика основных систем. Оплата только после готовности отчёта.',
+          resultsLead: 'Сводка по ключевым системам автомобиля. При необходимости доступны детали.',
+          resultsTitle: 'Общий обзор систем',
+          showOverview: true,
+          showDetailedList: true,
+        },
+        obd2: {
+          id: 'obd2',
+          label: 'OBD-II',
+          price: 480,
+          paywallLead: 'Полная диагностика OBD-II со всеми кодами неисправностей и статусами.',
+          resultsLead: 'Подробная расшифровка кодов OBD-II и статусов мониторинга.',
+          resultsTitle: 'Коды неисправностей',
+          showOverview: false,
+          showDetailedList: true,
+        }
+      };
+
+      function getObdModeConfig() {
+        return OBD_MODE_CONFIGS[obdMode] || OBD_MODE_CONFIGS.general;
+      }
+
+      function applyObdModeUi() {
+        const config = getObdModeConfig();
+        if (obdPaywallLead) obdPaywallLead.textContent = config.paywallLead;
+        if (obdResultsLead) obdResultsLead.textContent = config.resultsLead;
+        if (obdResultsTitle) obdResultsTitle.textContent = config.resultsTitle;
+        if (obdPaywallAmount) obdPaywallAmount.textContent = `К оплате: ${formatCurrency(config.price)}`;
+      }
+
+      setObdMode(obdMode);
+
+      function renderObdResults() {
+        if (!obdResultsList) return;
+        if (obdResultsWrapper) {
+          obdResultsWrapper.querySelectorAll('.obd-note').forEach(n => n.remove());
+        }
+        const config = getObdModeConfig();
+        applyObdModeUi();
+        renderObdStatusSummary();
+        renderObdLiveData();
+        renderObdSummaryView(config);
+
+        if (config.showDetailedList === false) {
+          obdResultsList.innerHTML = '<div class="muted-note">Детализированные коды скрыты для этого режима. Переключитесь на режим OBD-II для просмотра полного списка.</div>';
+          renderObdSelfCheckBoxes();
+          return;
+        }
+
+        if (!obdScanResults || !obdScanResults.length) {
+          obdResultsList.textContent = 'Кодов неисправностей не обнаружено. MIL погашен.';
+          renderObdSelfCheckBoxes();
+          return;
+        }
+        const list = document.createElement('ul');
+        list.className = 'obd-results-list';
+        obdScanResults.forEach(item => {
+          const li = document.createElement('li');
+          li.className = 'obd-result-item';
+          const header = document.createElement('div');
+          header.className = 'obd-result-code';
+          header.textContent = item.code;
+          const severity = item.severity || 'info';
+          const badge = document.createElement('span');
+          badge.className = `obd-result-severity ${severityClass(severity)}`;
+          badge.textContent = severityLabel(severity);
+          header.appendChild(badge);
+          li.appendChild(header);
+          const desc = document.createElement('div');
+          desc.className = 'obd-result-desc';
+          desc.textContent = item.description || 'Описание будет добавлено в отчёт.';
+          li.appendChild(desc);
+          if (item.status) {
+            const status = document.createElement('div');
+            status.className = 'obd-note';
+            status.textContent = item.status === 'current' ? 'Активный код' : 'Сохранённый код';
+            li.appendChild(status);
+          }
+          list.appendChild(li);
+        });
+        obdResultsList.innerHTML = '';
+        obdResultsList.appendChild(list);
+        renderObdSelfCheckBoxes();
+      }
+      const obdStart = $('obd-start');
+      const obdStatus = document.getElementById('obd-status');
+      const obdConnectionMetaTargets = Array.from(document.querySelectorAll('[data-obd-connection-meta]'));
+
+      function resetDiagnosticsFlow() {
+        clearContact('diagnostics');
+        resetObdVehicleSelection();
+        sessionState.session.obdId = null;
+        syncGlobalSessionIds();
+        sessionState.reportSent.diagnostics = false;
+        obdSelectedPort = '';
+        obdSerialPorts = [];
+        obdPortLoadPending = false;
+        obdScanResults = [];
+        obdPaymentIntent = null;
+        obdPaymentBreakdown = null;
+        enableObdPolling(false);
+        obdPollPending = false;
+        obdStatusSummary = null;
+        obdLiveData = null;
+        obdSelfCheckReport = null;
+        obdSelfCheckOk = false;
+        obdSelfCheckTimestamp = null;
+        obdSelfCheckRunning = false;
+        obdSelfCheckError = '';
+        if (obdPortSelect) {
+          obdPortSelect.innerHTML = '<option value="">Выберите порт…</option>';
+        }
+        if (obdPortStatus) {
+          setObdPortStatus('Подключите адаптер и обновите список.', 'warn');
+        }
+        if (obdLastPortRefresh) {
+          obdLastPortRefresh.textContent = '';
+        }
+        if (obdRefreshBtn) {
+          obdRefreshBtn.disabled = false;
+          obdRefreshBtn.textContent = obdRefreshLabelBase;
+        }
+
+        if (obdClear) obdClear.disabled = true;
+        if (obdLiveRefresh) obdLiveRefresh.disabled = true;
+        if (obdStart) {
+          obdStart.disabled = true;
+          obdStart.dataset.locked = '';
+          obdStart.textContent = 'Начать сканирование';
+        }
+        setObdMode('general');
+        if (obdStatus) {
+          obdStatus.className = 'badge badge-danger';
+          obdStatus.textContent = 'OBD‑адаптер: нет соединения';
+        }
+        renderObdResults();
+        renderObdPaymentInfo();
+        obdSummaryGrid?.className && (obdSummaryGrid.className = obdSummaryGridBaseClass);
+        renderObdConnectionMeta(null, null);
+        renderObdSelfCheckBoxes();
+        obdLastSnapshot = null;
+        obdSessionState = null;
+      }
+
+      async function fetchObdSnapshot() {
+        const endpoints = [
+          { url: api('/api/obd/snapshot'), pick: data => data?.snapshot ?? null },
+          { url: api('/devices/status'), pick: data => data?.snapshot ?? null, legacy: data => data?.status?.obd }
+        ];
+        for (const endpoint of endpoints) {
+          try {
+            const resp = await fetch(endpoint.url, { cache: 'no-store' });
+            const json = await resp.json().catch(() => null);
+            if (!resp.ok) continue;
+            const snapshot = endpoint.pick(json);
+            if (snapshot) {
+              return snapshot;
+            }
+            if (endpoint.legacy) {
+              const legacyState = endpoint.legacy(json);
+              if (legacyState) {
+                return { state: normalizeLegacyObdState(legacyState), reconnectAttempts: 0 };
+              }
+            }
+          } catch (error) {
+            console.warn('fetchObdSnapshot error', endpoint.url, error);
+          }
+        }
+        return null;
+      }
+
+      function normalizeLegacyObdState(state) {
+        if (state === 'connected' || state === 'connecting') return state;
+        return 'disconnected';
+      }
+
+      async function fetchObdSession() {
+        try {
+          const resp = await fetch(api('/api/obd/session'), { cache: 'no-store' });
+          if (!resp.ok) return null;
+          const json = await resp.json().catch(() => null);
+          return json?.session ?? null;
+        } catch (error) {
+          console.warn('fetchObdSession error', error);
+          return null;
+        }
+      }
+
+      function renderObdConnectionMeta(snapshot, session, errorMessage) {
+        if (!obdConnectionMetaTargets.length) return;
+        let html = '<strong>Состояние адаптера</strong>';
+
+        if (!snapshot) {
+          const baseMessage = obdSessionOpen
+            ? 'Нет данных о соединении адаптера.'
+            : 'Подключите адаптер и обновите список.';
+          const message = errorMessage ? `${baseMessage} ${errorMessage}`.trim() : baseMessage;
+          const blockClass = errorMessage ? 'meta-block error' : 'meta-block';
+          html += `<div class="${blockClass}">${escapeHtml(message)}</div>`;
+        } else {
+          const state = snapshot.state ?? 'disconnected';
+          const stateLabel = state === 'connected' ? 'подключён' : state === 'connecting' ? 'подключение…' : 'нет соединения';
+          const lines = [`Состояние: ${stateLabel}`];
+
+          if (snapshot.transport === 'serial') {
+            let label = 'Транспорт: Serial';
+            if (snapshot.portPath) label += ` • ${snapshot.portPath}`;
+            if (typeof snapshot.baudRate === 'number') label += ` • ${snapshot.baudRate} бод`;
+            lines.push(label);
+          } else if (snapshot.transport === 'bluetooth') {
+            const btParts = [];
+            if (snapshot.bluetoothName) btParts.push(snapshot.bluetoothName);
+            if (snapshot.bluetoothAddress) btParts.push(snapshot.bluetoothAddress);
+            if (typeof snapshot.bluetoothChannel === 'number') btParts.push(`канал ${snapshot.bluetoothChannel}`);
+            const label = btParts.length ? `Транспорт: Bluetooth • ${btParts.join(' • ')}` : 'Транспорт: Bluetooth';
+            lines.push(label);
+          }
+
+          if (snapshot.identity) {
+            lines.push(`Адаптер: ${snapshot.identity}`);
+          }
+          if (snapshot.lastConnectedAt) {
+            const connectedAt = formatSelfCheckTimestamp(snapshot.lastConnectedAt);
+            if (connectedAt) {
+              lines.push(`Последнее подключение: ${connectedAt}`);
+            }
+          }
+          if (snapshot.lastFailureAt) {
+            const failureAt = formatSelfCheckTimestamp(snapshot.lastFailureAt);
+            if (failureAt) {
+              lines.push(`Последний сбой: ${failureAt}`);
+            }
+          }
+          if (typeof snapshot.reconnectAttempts === 'number' && snapshot.reconnectAttempts > 0) {
+            lines.push(`Попытки переподключения: ${snapshot.reconnectAttempts}`);
+          }
+          if (snapshot.lastError) {
+            lines.push(`Последняя ошибка: ${snapshot.lastError}`);
+          }
+
+          const metrics = snapshot.metrics || null;
+          const metricsItems = [];
+          if (metrics) {
+            metricsItems.push(`Команд: ${metrics.totalCommands} (успешно: ${metrics.successfulCommands}, ошибки: ${metrics.failedCommands}, таймауты: ${metrics.timeouts})`);
+            if (Number.isFinite(metrics.averageLatencyMs)) {
+              metricsItems.push(`Средняя задержка: ${Math.round(metrics.averageLatencyMs)} мс`);
+            }
+            if (metrics.lastCommand) {
+              const duration = Number.isFinite(metrics.lastDurationMs) ? ` • ${Math.round(metrics.lastDurationMs)} мс` : '';
+              metricsItems.push(`Последняя команда: ${metrics.lastCommand}${duration}`);
+            }
+            if (metrics.lastError) {
+              metricsItems.push(`Ошибка: ${metrics.lastError}`);
+            }
+          }
+
+          if (lines.length) {
+            html += `<ul>${lines.map(line => `<li>${escapeHtml(line)}</li>`).join('')}</ul>`;
+          }
+          if (session) {
+            const sessionLines = buildSessionLines(session);
+            if (sessionLines.length) {
+              html += `<div class="meta-block"><div>Состояние диагностики</div><ul>${sessionLines.map(item => `<li>${escapeHtml(item)}</li>`).join('')}</ul></div>`;
+            }
+          }
+          if (metricsItems.length) {
+            html += `<div class="meta-block"><div>Метрики</div><ul>${metricsItems.map(item => `<li>${escapeHtml(item)}</li>`).join('')}</ul></div>`;
+          }
+          if (errorMessage) {
+            html += `<div class="meta-block error">${escapeHtml(errorMessage)}</div>`;
+          }
+        }
+
+        obdConnectionMetaTargets.forEach(target => {
+          target.innerHTML = html;
+        });
+
+        function buildSessionLines(sessionSnapshot) {
+          if (!sessionSnapshot) return [];
+          const sessionState = sessionSnapshot.state || 'disconnected';
+          const stateMap = {
+            disconnected: 'нет сессии',
+            connecting: 'устанавливаем соединение',
+            authenticating: 'проходит аутентификация',
+            ready: 'готов к операциям',
+            reading: 'идёт запрос данных',
+            clearing: 'очистка кодов',
+            error: 'ошибка диагностики',
+          };
+          const lines = [`Диагностика: ${stateMap[sessionState] || sessionState}`];
+          if (sessionSnapshot.activeOperation) {
+            const active = sessionSnapshot.activeOperation;
+            const labelMap = {
+              read_dtc: 'Чтение кодов',
+              live_data: 'Получение live-данных',
+              status: 'Статус систем',
+              self_check: 'Самопроверка адаптера',
+              clear_dtc: 'Очистка кодов',
+            };
+            const opLabel = labelMap[active.name] || active.name;
+            lines.push(`${opLabel}: попытка ${active.attempt}/${active.maxAttempts}`);
+          }
+          if (sessionSnapshot.lastError) {
+            const lastErr = sessionSnapshot.lastError;
+            const op = lastErr.operation ? ` (${lastErr.operation})` : '';
+            lines.push(`Последняя ошибка${op}: ${lastErr.message}`);
+          }
+          if (Array.isArray(sessionSnapshot.history) && sessionSnapshot.history.length) {
+            const recent = sessionSnapshot.history.slice(-3).map(entry => {
+              return `${entry.state}${entry.reason ? ` • ${entry.reason}` : ''}`;
+            });
+            lines.push(`История: ${recent.join(' → ')}`);
+          }
+          return lines;
+        }
+      }
+      async function pollObd() {
+        if (obdPollPending) return;
+        obdPollPending = true;
+        try {
+          const [snapshot, session] = await Promise.all([fetchObdSnapshot(), fetchObdSession()]);
+          if (snapshot) {
+            obdLastSnapshot = snapshot;
+          }
+          if (session) {
+            obdSessionState = session;
+          }
+          const effectiveSnapshot = snapshot || obdLastSnapshot;
+          if (effectiveSnapshot) {
+            const message = snapshot ? undefined : 'Агент не отвечает';
+            renderObdConnectionMeta(effectiveSnapshot, obdSessionState, message);
+          } else {
+            renderObdConnectionMeta(null, obdSessionState, 'Агент не отвечает');
+          }
+          const state = (snapshot || obdLastSnapshot)?.state || 'disconnected';
+          const connected = state === 'connected';
+          const connecting = state === 'connecting';
+          if (obdStart && !obdStart.dataset.locked) {
+            const allowStart = connected && !!obdSelectedPort;
+            obdStart.disabled = !allowStart;
+          }
+          if (obdStatus) {
+            if (connected) {
+              const identity = effectiveSnapshot?.identity ? ` (${effectiveSnapshot.identity})` : '';
+              obdStatus.className = 'badge badge-ok';
+              obdStatus.textContent = `OBD‑адаптер: подключён${identity}`;
+            } else if (connecting) {
+              obdStatus.className = 'badge badge-warn';
+              obdStatus.textContent = 'OBD‑адаптер: подключаемся…';
+            } else {
+              const lastError = snapshot?.lastError;
+              obdStatus.className = 'badge badge-danger';
+              obdStatus.textContent = lastError ? `OBD‑адаптер: нет соединения (${lastError})` : 'OBD‑адаптер: нет соединения';
+            }
+          }
+        } catch (error) {
+          console.warn('pollObd error', error);
+          renderObdConnectionMeta(obdLastSnapshot, obdSessionState, 'Не удалось обновить статус. Проверьте соединение.');
+        }
+        finally {
+          obdPollPending = false;
+        }
+      }
+      obdStart?.addEventListener('click', startObdScan);
+      obdClear?.addEventListener('click', clearObdCodes);
+      obdLiveRefresh?.addEventListener('click', () => { loadObdLiveData(true); });
+      obdFinish?.addEventListener('click', async () => {
+        await closeObdSession();
+        idx = screens.indexOf('screen-obd-done');
+        show('screen-obd-done');
+      });
+      $('back-to-home-2')?.addEventListener('click', async () => {
+        await resetAllSessionState();
+        idx = screens.indexOf('screen-attract');
+        show('screen-attract');
+      });
+
+      async function resetAllSessionState() {
+        resetServiceSelection();
+        if (welcomeAgree) {
+          welcomeAgree.checked = false;
+        }
+        updateWelcomeState();
+        resetThicknessFlow();
+        await closeObdSession();
+        resetDiagnosticsFlow();
+      }
+
+      // Generic back buttons
+      document.querySelectorAll('[data-back]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const current = document.querySelector('.screen.active')?.id || 'screen-services';
+          const flowRoots = ['screen-thk-intro', 'screen-obd-intro'];
+          if (flowRoots.includes(current)) {
+            if (current === 'screen-thk-intro') {
+              resetThicknessFlow();
+            }
+            if (current === 'screen-obd-intro') {
+              await closeObdSession();
+              resetDiagnosticsFlow();
+            }
+            idx = screens.indexOf('screen-services');
+            show('screen-services');
+          } else if (current.startsWith('screen-thk')) {
+            resetThicknessFlow();
+            idx = screens.indexOf('screen-thk-intro');
+            show('screen-thk-intro');
+          } else if (current.startsWith('screen-obd')) {
+            await closeObdSession();
+            resetDiagnosticsFlow();
+            idx = screens.indexOf('screen-obd-intro');
+            show('screen-obd-intro');
+          } else {
+            idx = Math.max(0, idx - 1);
+            show(screens[idx]);
+          }
+        });
+      });
+
+      // Dev-only skip
+      // DEV skip удалён
+
+      // Prevent text selection, context menu for kiosk-like feel
+      document.addEventListener('contextmenu', (e) => e.preventDefault());
+      document.addEventListener('selectstart', (e) => e.preventDefault());
+
+      // Idle timeout
+      let idleTimer; const idleMs = 90_000; // 90s prototype
+      const resetIdle = () => {
+        clearTimeout(idleTimer);
+        idleTimer = setTimeout(async () => {
+          await resetAllSessionState();
+          idx = 0;
+          show(screens[idx]);
+        }, idleMs);
+      };
+      ['click', 'keydown', 'pointerdown', 'touchstart'].forEach(ev => document.addEventListener(ev, resetIdle));
+      resetIdle();
+
+      // Terms modal controls
+      const openTermsLink = document.getElementById('open-terms-link');
+      const termsModal = document.getElementById('terms-modal');
+      const termsClose = document.getElementById('terms-close');
+      const termsOk = document.getElementById('terms-ok');
+      const termsContent = document.getElementById('terms-content');
+      function showTerms() { if (termsModal) { termsModal.classList.remove('hidden'); } loadTerms(); }
+      function hideTerms() { if (termsModal) { termsModal.classList.add('hidden'); } }
+      async function loadTerms() {
+        if (!termsContent) return;
+        try { termsContent.textContent = 'Загрузка…'; const resp = await fetch('../../docs/legal/terms.md'); const txt = await resp.text(); termsContent.textContent = txt; }
+        catch { termsContent.textContent = 'Не удалось загрузить условия.'; }
+      }
+      openTermsLink?.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); showTerms(); });
+      termsClose?.addEventListener('click', hideTerms);
+      termsOk?.addEventListener('click', hideTerms);
+      termsModal?.addEventListener('click', (e) => { if (e.target === termsModal) hideTerms(); });
+
+      async function loadObdPorts(forceReload) {
+        if (!obdPortSelect) return;
+        if (obdPortLoadPending) return;
+        if (!forceReload && obdSerialPorts.length) {
+          setObdPortStatus(`Найдено портов: ${obdSerialPorts.length}.`, 'info');
+          updateObdPortLastRefresh();
+          return;
+        }
+        setObdPortStatus('Поиск доступных портов…', 'info');
+        obdPortLoadPending = true;
+        if (obdRefreshBtn) {
+          obdRefreshBtn.disabled = true;
+          obdRefreshBtn.textContent = 'Обновляем…';
+        }
+        try {
+          const resp = await fetch(api('/api/serialports'));
+          const data = await resp.json();
+          const list = Array.isArray(data) ? data : Array.isArray(data?.ports) ? data.ports : [];
+          obdSerialPorts = list;
+          const prev = obdSelectedPort;
+          obdPortSelect.innerHTML = '<option value="">Выберите порт…</option>';
+          list.forEach((p) => {
+            const opt = document.createElement('option');
+            opt.value = p.path;
+            const labelParts = [p.path];
+            if (p.friendlyName) labelParts.push(p.friendlyName);
+            else if (p.manufacturer) labelParts.push(p.manufacturer);
+            opt.textContent = labelParts.join(' — ');
+            if (prev && prev === p.path) opt.selected = true;
+            obdPortSelect.appendChild(opt);
+          });
+          if (list.length) {
+            setObdPortStatus(`Найдено портов: ${list.length}.`, 'info');
+            updateObdPortLastRefresh();
+            if (prev && list.some(p => p.path === prev)) {
+              obdSelectedPort = prev;
+              if (obdC4) obdC4.disabled = false;
+            } else if (list.length === 1) {
+              obdSelectedPort = list[0].path;
+              obdPortSelect.value = obdSelectedPort;
+              if (obdC4) obdC4.disabled = false;
+              setObdPortStatus(`Автоматически выбран порт ${obdSelectedPort}.`, 'info');
+            } else {
+              obdSelectedPort = '';
+              if (obdC4) obdC4.disabled = true;
+            }
+          } else {
+            obdSelectedPort = '';
+            if (obdC4) obdC4.disabled = true;
+            setObdPortStatus('Подключённых адаптеров не найдено. Подключите устройство и обновите список.', 'warn');
+          }
+          pollObd();
+        } catch (e) {
+          console.warn('loadObdPorts error', e);
+          obdSerialPorts = [];
+          obdSelectedPort = '';
+          if (obdC4) obdC4.disabled = true;
+          setObdPortStatus('Не удалось получить список портов. Проверьте, что агент запущен.', 'error');
+          updateObdPortLastRefresh(true);
+        } finally {
+          obdPortLoadPending = false;
+          if (obdRefreshBtn) {
+            obdRefreshBtn.disabled = false;
+            obdRefreshBtn.textContent = obdRefreshLabelBase;
+          }
+        }
+      }
+
+      function setObdPortStatus(message, tone) {
+        if (!obdPortStatus) return;
+        obdPortStatus.textContent = message;
+        if (tone === 'warn') {
+          obdPortStatus.style.color = '#B45309';
+        } else if (tone === 'error') {
+          obdPortStatus.style.color = '#991B1B';
+        } else {
+          obdPortStatus.style.color = '';
+        }
+      }
+
+      function updateObdPortLastRefresh(isError) {
+        if (!obdLastPortRefresh) return;
+        if (isError) {
+          obdLastPortRefresh.textContent = 'Обновление не удалось';
+          obdLastPortRefresh.style.color = '#991B1B';
+          return;
+        }
+        const ts = formatRelativeTimestamp(new Date());
+        obdLastPortRefresh.textContent = `Обновлено ${ts}`;
+        obdLastPortRefresh.style.color = '#1F2937';
+      }
+
+      function escapeHtml(value) {
+        if (value === undefined || value === null) return '';
+        return String(value)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      function formatSelfCheckTimestamp(isoString) {
+        if (!isoString) return null;
+        const dt = new Date(isoString);
+        if (Number.isNaN(dt.getTime())) return null;
+        const relative = formatRelativeTimestamp(dt);
+        const timePart = dt.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+        const datePart = dt.toLocaleDateString('ru-RU');
+        return `${timePart} • ${datePart} (${relative})`;
+      }
+
+      function formatRelativeTimestamp(date) {
+        const now = Date.now();
+        const diffMs = now - date.getTime();
+        const minute = 60_000;
+        const hour = 3_600_000;
+        const day = 86_400_000;
+        let relative = 'давно';
+        const abs = Math.abs(diffMs);
+        if (abs < minute) {
+          relative = 'менее минуты назад';
+        } else if (abs < hour) {
+          const mins = Math.round(abs / minute);
+          relative = `${mins} мин назад`;
+        } else if (abs < day) {
+          const hours = Math.round(abs / hour);
+          relative = `${hours} ч назад`;
+        } else {
+          const days = Math.round(abs / day);
+          relative = `${days} дн назад`;
+        }
+        return relative;
+      }
+
+      function formatCurrency(amount) {
+        if (typeof amount !== 'number' || !Number.isFinite(amount)) return '—';
+        return new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB', maximumFractionDigits: 0 }).format(amount);
+      }
+
+      async function startObdScan() {
+        if (!obdSelectedPort) {
+          setObdPortStatus('Выберите COM-порт перед сканированием.', 'warn');
+          return;
+        }
+        if (!obdStart) return;
+        const originalLabel = obdStart.textContent;
+        obdStart.dataset.locked = '1';
+        obdStart.disabled = true;
+        obdStart.textContent = 'Сканирование…';
+        obdPaymentIntent = null;
+        obdPaymentBreakdown = null;
+        renderObdPaymentInfo('Подготавливаем оплату…');
+        if (obdStatus) {
+          obdStatus.className = 'badge badge-warn';
+          obdStatus.textContent = 'Подключаем адаптер…';
+        }
+        try {
+          const openResp = await fetch(api('/api/obd/open'), {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ transport: 'serial', portPath: obdSelectedPort, portHints: [obdSelectedPort] })
+          });
+          const openJson = await openResp.json();
+          if (!openResp.ok || openJson?.ok === false) {
+            throw new Error(openJson?.error || 'Не удалось открыть порт');
+          }
+          obdSessionOpen = true;
+          if (openJson?.snapshot) {
+            obdLastSnapshot = openJson.snapshot;
+            renderObdConnectionMeta(openJson.snapshot, obdSessionState);
+          }
+          const sessionState = await fetchObdSession();
+          if (sessionState) {
+            obdSessionState = sessionState;
+            renderObdConnectionMeta(obdLastSnapshot, obdSessionState);
+          }
+          obdSelfCheckError = '';
+          renderObdSelfCheckBoxes();
+          const readResp = await fetch(api('/api/obd/read-dtc'), { method: 'POST' });
+          const readJson = await readResp.json();
+          if (!readResp.ok || readJson?.ok === false) {
+            throw new Error(readJson?.error || 'Ошибка чтения кодов DTC');
+          }
+          obdScanResults = Array.isArray(readJson.data) ? readJson.data : [];
+          await refreshObdStatus();
+          if (obdStatus) {
+            obdStatus.className = 'badge badge-ok';
+            obdStatus.textContent = `OBD‑адаптер: подключён (${obdScanResults.length ? 'найдены коды' : 'ошибок не найдено'})`;
+          }
+          await prepareObdPaymentIntent();
+          idx = screens.indexOf('screen-obd-paywall');
+          show('screen-obd-paywall');
+          renderObdSelfCheckBoxes();
+          loadLatestObdSelfCheck();
+        } catch (e) {
+          console.warn('OBD scan failed', e);
+          await closeObdSession();
+          if (obdStatus) {
+            obdStatus.className = 'badge badge-danger';
+            obdStatus.textContent = `Ошибка подключения: ${e?.message || e}`;
+          }
+          setObdPortStatus('Не удалось выполнить сканирование. Проверьте адаптер и попробуйте снова.', 'error');
+          renderObdPaymentInfo('Сканирование не завершено. Повторите попытку.');
+          obdStatusSummary = null;
+          renderObdStatusSummary();
+          obdLiveData = null;
+          renderObdLiveData();
+        } finally {
+          obdStart.dataset.locked = '';
+          obdStart.textContent = originalLabel;
+          if (obdSessionOpen) {
+            obdStart.disabled = false;
+          }
+        }
+      }
+
+      function updateObdPaywallDetails() {
+        const config = getObdModeConfig();
+        if (obdPaywallAmount) {
+          obdPaywallAmount.textContent = `К оплате: ${formatCurrency(config.price)}`;
+        }
+      }
+
+      async function prepareObdPaymentIntent() {
+        const config = getObdModeConfig();
+        updateObdPaywallDetails();
+        try {
+          const created = await paymentsCreateIntent(config.price, { service: 'obd', mode: config.id, sessionId: sessionState.session.obdId });
+          const intent = created.intent || created?.data?.intent || null;
+          const breakdown = created.breakdown || created?.data?.breakdown || null;
+          if (!intent || !intent.id) {
+            renderObdPaymentInfo('Не удалось создать платёж. Повторите попытку.');
+            return;
+          }
+          obdPaymentIntent = intent;
+          obdPaymentBreakdown = breakdown;
+          // Render QR / info
+          const qrBox = document.querySelector('#screen-obd-paywall .qr-placeholder');
+          if (qrBox) { qrBox.textContent = intent.qrText || `Отсканируйте QR и оплатите (ID: ${intent.id})`; }
+          renderObdPaymentInfo();
+          // DEV confirm button attach
+          attachObdDevConfirmButton();
+          // Poll status
+          startPaymentPolling(intent.id, (st) => {
+            renderObdPaymentInfo();
+            if (st?.status === 'succeeded') {
+              show('screen-obd-results');
+            }
+          });
+        } catch (e) {
+          console.warn('prepareObdPaymentIntent error', e);
+          renderObdPaymentInfo('Ошибка подготовки оплаты. Попробуйте снова.');
+        }
+      }
+
+      function attachObdDevConfirmButton() {
+        const actionsBox = document.querySelector('#screen-obd-paywall .actions');
+        if (!actionsBox) return;
+        let btn = document.getElementById('obd-dev-confirm');
+        if (!btn) {
+          btn = document.createElement('button');
+          btn.id = 'obd-dev-confirm';
+          btn.className = 'ghost';
+          btn.type = 'button';
+          btn.textContent = 'Подтвердить оплату (DEV)';
+          actionsBox.appendChild(btn);
+        }
+        btn.style.display = isDev ? '' : 'none';
+        btn.onclick = async () => {
+          if (!obdPaymentIntent?.id) return;
+          try { await paymentsConfirmDev(obdPaymentIntent.id); } catch (e) { console.warn('confirm-dev failed', e); }
+        };
+      }
+
+      function setupThicknessPaymentUI() {
+        const screen = document.getElementById('screen-thk-payment');
+        if (!screen) return;
+        // Ensure dynamic elements exist
+        let statusEl = screen.querySelector('#thk-payment-status');
+        if (!statusEl) {
+          statusEl = document.createElement('div');
+          statusEl.id = 'thk-payment-status';
+          statusEl.className = 'payment-status';
+          screen.querySelector('.center')?.insertBefore(statusEl, screen.querySelector('.qr-placeholder'));
+        }
+        let detailsEl = screen.querySelector('#thk-payment-details');
+        if (!detailsEl) {
+          detailsEl = document.createElement('div');
+          detailsEl.id = 'thk-payment-details';
+          detailsEl.className = 'payment-info';
+          screen.querySelector('.center')?.insertBefore(detailsEl, screen.querySelector('.actions'));
+        }
+        let startBtn = screen.querySelector('#thk-payment-start');
+        if (!startBtn) {
+          startBtn = document.createElement('button');
+          startBtn.id = 'thk-payment-start';
+          startBtn.className = 'ghost';
+          startBtn.type = 'button';
+          startBtn.textContent = 'Показать QR и начать оплату';
+          const actions = screen.querySelector('.actions');
+          actions?.insertBefore(startBtn, actions.firstChild);
+        }
+        let devBtn = screen.querySelector('#thk-payment-confirm-dev');
+        if (!devBtn) {
+          devBtn = document.createElement('button');
+          devBtn.id = 'thk-payment-confirm-dev';
+          devBtn.className = 'ghost';
+          devBtn.type = 'button';
+          devBtn.textContent = 'Подтвердить оплату (DEV)';
+          screen.querySelector('.actions')?.appendChild(devBtn);
+        }
+        devBtn.style.display = isDev ? '' : 'none';
+        const qrBox = screen.querySelector('.qr-placeholder');
+        let currentIntentId = null;
+        let stopPoll = null;
+        function renderDetails() {
+          detailsEl.textContent = thkPrice ? `К оплате: ${formatCurrency(thkPrice)}` : '';
+        }
+        renderDetails();
+        function renderStatus(text) { statusEl.textContent = text || ''; }
+        startBtn.onclick = async () => {
+          try {
+            renderStatus('Готовим платёж…');
+            const created = await paymentsCreateIntent(thkPrice || 350, { service: 'thickness', type: thkType || 'sedan', sessionId: sessionState.session.thicknessId });
+            const intent = created.intent || created?.data?.intent || null;
+            if (!intent || !intent.id) { renderStatus('Не удалось создать платёж.'); return; }
+            currentIntentId = intent.id;
+            if (qrBox) { qrBox.textContent = intent.qrText || `Отсканируйте QR (ID: ${intent.id})`; }
+            renderStatus('Ожидание оплаты…');
+            if (stopPoll) stopPoll();
+            stopPoll = startPaymentPolling(currentIntentId, async (st) => {
+              if (st?.status === 'succeeded') {
+                renderStatus('Оплата подтверждена. Продолжаем…');
+                // переход к подготовке оборудования
+                idx = screens.indexOf('screen-thk-prep');
+                show('screen-thk-prep');
+              } else if (st?.status) {
+                renderStatus(`Статус оплаты: ${st.status}`);
+              }
+            });
+          } catch (e) { renderStatus('Ошибка подготовки оплаты.'); }
+        };
+        devBtn.onclick = async () => {
+          if (!currentIntentId) return;
+          try { await paymentsConfirmDev(currentIntentId); } catch (e) { console.warn('thk confirm-dev failed', e); }
+        };
+      }
+
+      function renderObdPaymentInfo(message) {
+        if (!obdPaymentInfo) return;
+        if (message) {
+          obdPaymentInfo.innerHTML = `<div class="obd-note">${message}</div>`;
+          return;
+        }
+        if (!obdPaymentIntent) {
+          obdPaymentInfo.innerHTML = '<div class="obd-note">Подготовка данных для оплаты…</div>';
+          return;
+        }
+        const config = getObdModeConfig();
+        const gross = obdPaymentBreakdown?.gross ?? config.price;
+        const net = obdPaymentBreakdown?.net ?? gross;
+        const partner = obdPaymentBreakdown?.partner;
+        const partnerPercent = partner ? Math.round(partner.sharePercent * 1000) / 10 : null;
+        const parts = [
+          `<li>Кодов неисправностей: ${obdScanResults.length ? obdScanResults.length : 'нет'}</li>`,
+          `<li>К списанию: ${formatCurrency(gross)}</li>`
+        ];
+        if (partner) {
+          parts.push(`<li>Доля партнёров (${partnerPercent ?? 0}%): ${formatCurrency(partner.shareAmount)}</li>`);
+        }
+        parts.push(`<li>Нетто после выплаты партнёрам: ${formatCurrency(net)}</li>`);
+        obdPaymentInfo.innerHTML = `<strong>Итог перед оплатой</strong><ul>${parts.join('')}</ul>`;
+      }
+
+      function renderObdSelfCheckBoxes() {
+        renderObdSelfCheckTarget(obdSelfCheckBox, obdSelfCheckBoxBaseClass, 'paywall');
+        renderObdSelfCheckTarget(obdSelfCheckResultsBox, obdSelfCheckResultsBoxBaseClass, 'results');
+        if (obdSelfCheckRerun) {
+          const canRun = obdSessionOpen && !obdSelfCheckRunning;
+          obdSelfCheckRerun.disabled = !canRun;
+          obdSelfCheckRerun.textContent = obdSelfCheckRunning ? 'Выполняем самопроверку…' : 'Повторить самопроверку';
+        }
+      }
+
+      function renderObdSelfCheckTarget(target, baseClass, context) {
+        if (!target) return;
+        const classes = baseClass ? baseClass.split(/\s+/).filter(Boolean) : [];
+        if (obdSelfCheckRunning) {
+          classes.push('self-check-box--loading');
+        } else if (obdSelfCheckReport) {
+          classes.push(obdSelfCheckOk ? 'self-check-box--ok' : (obdSelfCheckReport.passes === 0 ? 'self-check-box--error' : 'self-check-box--warn'));
+        } else if (obdSelfCheckError) {
+          classes.push('self-check-box--error');
+        }
+        target.className = classes.join(' ');
+
+        if (obdSelfCheckRunning) {
+          target.innerHTML = '<strong>Самопроверка выполняется…</strong><div class="meta">Это займёт до 10 секунд.</div>';
+          return;
+        }
+
+        if (obdSelfCheckError) {
+          let html = `<strong>Самопроверка не выполнена</strong><div>${escapeHtml(obdSelfCheckError)}</div>`;
+          if (obdSessionOpen) {
+            html += '<div class="meta">Попробуйте повторить проверку.</div>';
+          }
+          target.innerHTML = html;
+          return;
+        }
+
+        if (!obdSelfCheckReport) {
+          let html = '<strong>Самопроверка адаптера</strong><div class="meta">Выполните проверку, чтобы убедиться в стабильности адаптера.</div>';
+          if (context === 'paywall') {
+            html += '<div>Рекомендуем запустить самопроверку перед оплатой.</div>';
+          }
+          target.innerHTML = html;
+          return;
+        }
+
+        const report = obdSelfCheckReport;
+        const items = [];
+        if (typeof report.attemptsPerformed === 'number') {
+          const baseLine = `Попыток: ${report.attemptsPerformed}, успешных: ${report.passes}`;
+          items.push(report.fails ? `${baseLine}, с ошибками: ${report.fails}` : baseLine);
+        }
+        items.push(`Согласованность чтений: ${report.consistent ? 'да' : 'нет'}`);
+        if (report.metrics?.rpm) {
+          items.push(`Обороты: ${report.metrics.rpm.min}–${report.metrics.rpm.max} об/мин`);
+        }
+        if (report.metrics?.coolantTempC) {
+          items.push(`Температура ОЖ: ${report.metrics.coolantTempC.min}–${report.metrics.coolantTempC.max} °C`);
+        }
+        if (report.metrics?.vehicleSpeedKmh) {
+          items.push(`Скорость: ${report.metrics.vehicleSpeedKmh.min}–${report.metrics.vehicleSpeedKmh.max} км/ч`);
+        }
+
+        let html = '<strong>Самопроверка адаптера</strong>';
+        if (report.summary) {
+          html += `<div>${escapeHtml(report.summary)}</div>`;
+        }
+        if (items.length) {
+          html += `<ul>${items.map(item => `<li>${escapeHtml(item)}</li>`).join('')}</ul>`;
+        }
+        const tsLabel = formatSelfCheckTimestamp(obdSelfCheckTimestamp);
+        if (tsLabel) {
+          html += `<div class="meta">Последний запуск: ${escapeHtml(tsLabel)}</div>`;
+        }
+
+        if (context === 'results' && Array.isArray(report.steps)) {
+          const failing = report.steps.filter(step => Array.isArray(step.errors) && step.errors.length);
+          if (failing.length) {
+            const entries = failing.slice(0, 3).map(step => {
+              const primary = step.errors[0] || 'Ошибка без деталей';
+              return `<li>Попытка ${escapeHtml(step.attempt)}: ${escapeHtml(primary)}</li>`;
+            }).join('');
+            html += `<div>Ошибки последних запусков:</div><ul>${entries}</ul>`;
+            if (failing.length > 3) {
+              html += `<div class="meta">Показаны первые 3 из ${escapeHtml(failing.length)} ошибок.</div>`;
+            }
+          }
+        }
+
+        target.innerHTML = html;
+      }
+
+      async function loadLatestObdSelfCheck() {
+        try {
+          const resp = await fetch(api('/api/obd/self-check/latest'), { cache: 'no-store' });
+          if (resp.status === 404) {
+            obdSelfCheckReport = null;
+            obdSelfCheckOk = false;
+            obdSelfCheckTimestamp = null;
+            if (!obdSelfCheckRunning) {
+              obdSelfCheckError = '';
+            }
+          } else {
+            const data = await resp.json();
+            if (resp.ok && data?.report) {
+              obdSelfCheckReport = data.report;
+              obdSelfCheckOk = !!data.ok;
+              obdSelfCheckTimestamp = data.timestamp || null;
+              obdSelfCheckError = '';
+            } else {
+              obdSelfCheckReport = null;
+              obdSelfCheckOk = false;
+              obdSelfCheckTimestamp = null;
+              const message = data?.error ? String(data.error) : 'Самопроверка недоступна.';
+              obdSelfCheckError = message;
+            }
+          }
+        } catch (e) {
+          console.warn('loadLatestObdSelfCheck error', e);
+          if (obdSessionOpen) {
+            obdSelfCheckError = 'Не удалось получить статус самопроверки.';
+          }
+        }
+        renderObdSelfCheckBoxes();
+      }
+
+      async function runObdSelfCheck() {
+        if (obdSelfCheckRunning) return;
+        if (!obdSessionOpen) {
+          obdSelfCheckError = 'Самопроверка доступна после подключения адаптера.';
+          renderObdSelfCheckBoxes();
+          return;
+        }
+        obdSelfCheckRunning = true;
+        obdSelfCheckError = '';
+        renderObdSelfCheckBoxes();
+
+        let shouldRefresh = false;
+        try {
+          const resp = await fetch(api('/api/obd/self-check'), {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ attempts: 3, delayMs: 400 })
+          });
+          const data = await resp.json().catch(() => ({}));
+          if (resp.ok && data?.report) {
+            obdSelfCheckReport = data.report;
+            obdSelfCheckOk = !!data.ok;
+            obdSelfCheckTimestamp = new Date().toISOString();
+            obdSelfCheckError = '';
+            shouldRefresh = true;
+          } else {
+            obdSelfCheckReport = null;
+            obdSelfCheckOk = false;
+            obdSelfCheckTimestamp = null;
+            const message = data?.error ? String(data.error) : 'Самопроверка не выполнена.';
+            obdSelfCheckError = message;
+          }
+        } catch (e) {
+          console.warn('runObdSelfCheck error', e);
+          obdSelfCheckReport = null;
+          obdSelfCheckOk = false;
+          obdSelfCheckTimestamp = null;
+          obdSelfCheckError = 'Ошибка выполнения самопроверки. Проверьте адаптер.';
+        } finally {
+          obdSelfCheckRunning = false;
+          if (shouldRefresh) {
+            await loadLatestObdSelfCheck();
+          } else {
+            renderObdSelfCheckBoxes();
+          }
+        }
+      }
+
+      function severityLabel(severity) {
+        switch (severity) {
+          case 'critical': return 'Критично';
+          case 'warning': return 'Предупреждение';
+          default: return 'Инфо';
+        }
+      }
+
+      function severityClass(severity) {
+        if (severity === 'critical') return 'obd-severity-critical';
+        if (severity === 'warning') return 'obd-severity-warning';
+        return 'obd-severity-info';
+      }
+      function appendObdResultsNote(message) {
+        if (!obdResultsWrapper) return;
+        let note = obdResultsWrapper.querySelector('.obd-note');
+        if (!note) {
+          note = document.createElement('div');
+          note.className = 'obd-note';
+          obdResultsWrapper.appendChild(note);
+        }
+        note.textContent = message;
+      }
+
+      async function clearObdCodes() {
+        if (!obdSessionOpen) return;
+        if (obdClear) obdClear.disabled = true;
+        try {
+          const resp = await fetch(api('/api/obd/clear-dtc'), { method: 'POST' });
+          const data = await resp.json();
+          if (resp.ok && data?.ok) {
+            obdScanResults = [];
+            await refreshObdStatus();
+            await loadObdLiveData(true);
+            renderObdResults();
+            appendObdResultsNote('Коды очищены. Для проверки запустите сканирование повторно.');
+          } else {
+            appendObdResultsNote('Не удалось очистить коды. Проверьте адаптер.');
+          }
+        } catch (e) {
+          console.warn('clearObdCodes error', e);
+          appendObdResultsNote('Ошибка очистки кодов. Подробности в консоли.');
+        } finally {
+          if (obdClear) obdClear.disabled = !obdSessionOpen;
+        }
+      }
+
+      async function closeObdSession() {
+        if (!obdSessionOpen) return;
+        try {
+          await fetch(api('/api/obd/close'), { method: 'POST' });
+        } catch { }
+        obdSessionOpen = false;
+        enableObdPolling(false);
+        obdPollPending = false;
+        if (obdClear) obdClear.disabled = true;
+        if (obdLiveRefresh) obdLiveRefresh.disabled = true;
+        obdStatusSummary = null;
+        renderObdStatusSummary();
+        obdLiveData = null;
+        renderObdLiveData();
+        obdSelfCheckReport = null;
+        obdSelfCheckOk = false;
+        obdSelfCheckTimestamp = null;
+        obdSelfCheckRunning = false;
+        obdSelfCheckError = '';
+        renderObdSelfCheckBoxes();
+        obdLastSnapshot = null;
+        obdSessionState = null;
+        renderObdConnectionMeta(null, null);
+      }
+
+      async function refreshObdStatus() {
+        if (!obdSessionOpen) return;
+        try {
+          const resp = await fetch(api('/api/obd/status'));
+          const data = await resp.json();
+          if (resp.ok && data?.ok) {
+            obdStatusSummary = data.data;
+          } else {
+            obdStatusSummary = null;
+          }
+        } catch (e) {
+          console.warn('refreshObdStatus error', e);
+          obdStatusSummary = null;
+        }
+        renderObdStatusSummary();
+      }
+
+      async function loadObdLiveData(force) {
+        if (!obdSessionOpen) return;
+        if (!force && obdLiveData) {
+          renderObdLiveData();
+          return;
+        }
+        if (obdLiveRefresh) obdLiveRefresh.disabled = true;
+        try {
+          const resp = await fetch(api('/api/obd/live-basic'));
+          const data = await resp.json();
+          if (resp.ok && data?.ok) {
+            obdLiveData = data.data;
+          } else {
+            obdLiveData = null;
+          }
+        } catch (e) {
+          console.warn('loadObdLiveData error', e);
+          obdLiveData = null;
+        } finally {
+          renderObdLiveData();
+          if (obdLiveRefresh) obdLiveRefresh.disabled = !obdSessionOpen;
+        }
+      }
+
+      function renderObdLiveData() {
+        if (!obdLiveDataEl) return;
+        if (!obdSessionOpen) {
+          obdLiveDataEl.innerHTML = '';
+          return;
+        }
+        if (!obdLiveData) {
+          obdLiveDataEl.innerHTML = '<div class="muted-note">Нет оперативных данных. Повторите попытку.</div>';
+          return;
+        }
+        const rows = [];
+        if (isFiniteNumber(obdLiveData.rpm)) rows.push(renderLiveRow('Обороты двигателя', `${Math.round(obdLiveData.rpm)} об/мин`));
+        if (isFiniteNumber(obdLiveData.vehicleSpeedKmh)) rows.push(renderLiveRow('Скорость', `${Math.round(obdLiveData.vehicleSpeedKmh)} км/ч`));
+        if (isFiniteNumber(obdLiveData.coolantTempC)) rows.push(renderLiveRow('Температура ОЖ', `${Math.round(obdLiveData.coolantTempC)} °C`));
+        if (isFiniteNumber(obdLiveData.intakeTempC)) rows.push(renderLiveRow('Температура впуска', `${Math.round(obdLiveData.intakeTempC)} °C`));
+        if (isFiniteNumber(obdLiveData.batteryVoltageV)) rows.push(renderLiveRow('Напряжение блока управления', `${obdLiveData.batteryVoltageV.toFixed(2)} В`));
+        if (isFiniteNumber(obdLiveData.throttlePosPercent)) rows.push(renderLiveRow('Положение дросселя', `${obdLiveData.throttlePosPercent.toFixed(1)} %`));
+        obdLiveDataEl.innerHTML = rows.length ? rows.join('') : '<div class="muted-note">Информация недоступна для данного авто.</div>';
+      }
+
+      function renderLiveRow(label, value) {
+        return `<div class="obd-live-row"><strong>${label}</strong><span>${value}</span></div>`;
+      }
+
+      function isFiniteNumber(value) {
+        return typeof value === 'number' && Number.isFinite(value);
+      }
+
+      function renderObdStatusSummary() {
+        if (!obdStatusSummaryEl) return;
+        if (!obdStatusSummary) {
+          obdStatusSummaryEl.innerHTML = '';
+          return;
+        }
+        const { milOn, dtcCount, readiness } = obdStatusSummary;
+        const entries = Object.entries(readiness || {});
+        const readyCount = entries.filter(([, ready]) => ready).length;
+        const notReady = entries.filter(([, ready]) => !ready).map(([key]) => monitorLabel(key));
+        const total = entries.length;
+        const readinessSummary = total ? `${readyCount}/${total}` : '—';
+        const statusDotClass = milOn ? 'alert' : (dtcCount > 0 ? 'warn' : '');
+        const statusText = milOn ? 'MIL горит' : (dtcCount > 0 ? 'DTC активны' : 'MIL погашен');
+        const listMarkup = notReady.length ? `<ul>${notReady.map(item => `<li>• ${item}</li>`).join('')}</ul>` : '<div>Все обязательные мониторы завершены.</div>';
+        obdStatusSummaryEl.innerHTML = `
+            <div><span class="dot${statusDotClass ? ' ' + statusDotClass : ''}"></span> ${statusText}. Найдено кодов: ${dtcCount}.</div>
+            <div>Готовность мониторинга: ${readinessSummary}</div>
+            ${listMarkup}
+          `;
+      }
+
+      let thirdPartyCredits = null;
+
+      function monitorLabel(key) {
+        const map = {
+          misfire: 'Монитор пропусков зажигания',
+          fuelSystem: 'Топливная система',
+          components: 'Ключевые компоненты',
+          catalyst: 'Катализатор',
+          heatedCatalyst: 'Подогреваемый катализатор',
+          evapSystem: 'Система EVAP',
+          secondaryAirSystem: 'Вторичный воздух',
+          oxygenSensor: 'Датчики кислорода',
+          oxygenSensorHeater: 'Подогрев датчиков O2',
+          egrSystem: 'Рециркуляция выхлопа (EGR)',
+        };
+        return map[key] || `Монитор ${key}`;
+      }
+
+      function renderObdSummaryView(config) {
+        if (!obdSummaryGrid) return;
+        const classes = obdSummaryGridBaseClass ? obdSummaryGridBaseClass.split(/\s+/).filter(Boolean) : [];
+        if (!config.showOverview) {
+          if (!classes.includes('hidden')) classes.push('hidden');
+          obdSummaryGrid.className = classes.join(' ');
+          obdSummaryGrid.innerHTML = '';
+          return;
+        }
+        const overview = buildObdGeneralOverview();
+        if (!overview.length) {
+          if (!classes.includes('hidden')) classes.push('hidden');
+          obdSummaryGrid.className = classes.join(' ');
+          obdSummaryGrid.innerHTML = '';
+          return;
+        }
+        const visibleClasses = classes.filter(cls => cls !== 'hidden');
+        obdSummaryGrid.className = visibleClasses.join(' ');
+        const cards = overview.map(item => {
+          const details = item.details?.length ? `<ul>${item.details.map(line => `<li>${escapeHtml(line)}</li>`).join('')}</ul>` : '';
+          const meta = item.meta ? `<div class="meta">${escapeHtml(item.meta)}</div>` : '';
+          return `
+              <div class="obd-summary-card">
+                <h3>${escapeHtml(item.title)}</h3>
+                <div class="obd-summary-status ${item.tone}">${escapeHtml(item.statusText)}</div>
+                ${details}
+                ${meta}
+              </div>
+            `;
+        }).join('');
+        obdSummaryGrid.innerHTML = cards;
+      }
+
+      function buildObdGeneralOverview() {
+        const status = obdStatusSummary || {};
+        const readiness = status.readiness || {};
+        const codes = Array.isArray(obdScanResults) ? obdScanResults : [];
+
+        const engineCodes = codes.filter(code => typeof code?.code === 'string' && /^P/.test(code.code));
+        const safetyCodes = codes.filter(code => typeof code?.code === 'string' && /^[BC]/.test(code.code));
+        const emissionCodes = codes.filter(code => typeof code?.code === 'string' && /^P0(4|5|6|7|8)/.test(code.code));
+
+        const buckets = [
+          buildOverviewBucket('Силовой агрегат', engineCodes, ['misfire', 'fuelSystem', 'components'], status.milOn),
+          buildOverviewBucket('Системы кузова и безопасности', safetyCodes, ['secondaryAirSystem'], false),
+          buildOverviewBucket('Экология и выхлоп', emissionCodes, ['catalyst', 'heatedCatalyst', 'evapSystem', 'oxygenSensor', 'oxygenSensorHeater', 'egrSystem'], false),
+        ];
+
+        return buckets.filter(Boolean);
+
+        function buildOverviewBucket(title, bucketCodes, monitorKeys, forceWarn) {
+          const severity = determineBucketSeverity(bucketCodes, monitorKeys, forceWarn);
+          const tone = severityToTone(severity);
+          const statusText = severityToStatusText(severity);
+          const details = [];
+          if (bucketCodes.length) {
+            const primary = bucketCodes.slice(0, 2).map(code => {
+              const label = code.description ? `${code.code}: ${code.description}` : code.code;
+              return label;
+            }).join('; ');
+            details.push(primary);
+            if (bucketCodes.length > 2) {
+              details.push(`Ещё ${bucketCodes.length - 2} код(а) в этой категории.`);
+            }
+          } else if (!monitorKeys || monitorKeys.every(key => readiness[key] !== false)) {
+            details.push('Проблем не зафиксировано.');
+          }
+
+          const pending = (monitorKeys || []).filter(key => readiness[key] === false);
+          let meta = '';
+          if (pending.length) {
+            meta = `Не завершены мониторы: ${pending.map(monitorLabel).join(', ')}`;
+          }
+
+          return {
+            title,
+            tone,
+            statusText,
+            details,
+            meta,
+          };
+        }
+
+        function determineBucketSeverity(bucketCodes, monitorKeys, forceWarn) {
+          let level = 0;
+          if (forceWarn && bucketCodes.length === 0) {
+            level = Math.max(level, 1);
+          }
+          bucketCodes.forEach(code => {
+            level = Math.max(level, severityWeightFromCode(code));
+          });
+          const pending = (monitorKeys || []).some(key => readiness[key] === false);
+          if (pending) {
+            level = Math.max(level, 1);
+          }
+          return level;
+        }
+
+        function severityToTone(level) {
+          if (level >= 3) return 'alert';
+          if (level >= 1) return 'warn';
+          return 'ok';
+        }
+
+        function severityToStatusText(level) {
+          if (level >= 3) return 'Требуется внимание';
+          if (level >= 1) return 'Есть предупреждения';
+          return 'Всё стабильно';
+        }
+
+        function severityWeightFromCode(code) {
+          const severity = typeof code?.severity === 'string' ? code.severity.toLowerCase() : '';
+          if (severity === 'critical') return 3;
+          if (severity === 'warning') return 2;
+          if (severity === 'info') return 1;
+          if (code?.status === 'current') return 2;
+          return 1;
+        }
+      }
+
+      async function loadCredits() {
+        if (thirdPartyCredits !== null) return thirdPartyCredits;
+        try {
+          const resp = await fetch('../../docs/legal/third-party-credits.json');
+          if (resp.ok) {
+            const data = await resp.json();
+            if (Array.isArray(data?.items)) {
+              thirdPartyCredits = data.items;
+            } else if (Array.isArray(data)) {
+              thirdPartyCredits = data;
+            } else {
+              thirdPartyCredits = [];
+            }
+          } else {
+            thirdPartyCredits = [];
+          }
+        } catch (e) {
+          console.warn('loadCredits error', e);
+          thirdPartyCredits = [];
+        }
+        return thirdPartyCredits;
+      }
+
+      function renderCredits(hostId, filterFn) {
+        const host = document.getElementById(hostId);
+        if (!host) return;
+        const credits = Array.isArray(thirdPartyCredits) ? thirdPartyCredits : [];
+        const filtered = typeof filterFn === 'function' ? credits.filter(filterFn) : credits;
+        if (!filtered.length) {
+          host.innerHTML = '';
+          return;
+        }
+        host.innerHTML = '';
+        const wrap = document.createElement('div');
+        wrap.className = 'credits-grid';
+        filtered.forEach(p => {
+          const card = document.createElement('div');
+          card.className = 'credits-card';
+          const name = document.createElement('div');
+          name.className = 'credits-name';
+          name.textContent = p.displayName || p.product || 'Партнёр';
+          const roles = document.createElement('div');
+          roles.className = 'credits-roles';
+          const rolesText = Array.isArray(p.roles) ? p.roles.join(' • ') : '';
+          roles.textContent = rolesText;
+          const devs = document.createElement('ul');
+          devs.className = 'credits-devs';
+          (p.developers || []).forEach(d => {
+            const li = document.createElement('li');
+            li.textContent = d;
+            devs.appendChild(li);
+          });
+          card.appendChild(name);
+          if (rolesText) card.appendChild(roles);
+          if (devs.childElementCount) card.appendChild(devs);
+          wrap.appendChild(card);
+        });
+        host.appendChild(wrap);
+      }
+
+      renderObdSelfCheckBoxes();
+
+      // Подгрузим кредиты один раз на старте
+      loadCredits();
+      // Рендер при входе на финальные экраны
+      const observer = new MutationObserver(() => {
+        if (document.getElementById('screen-thk-done')?.classList.contains('active')) {
+          renderCredits('credits-thk', p => (p.product || '').toLowerCase().includes('rdevice'));
+        }
+        if (document.getElementById('screen-obd-done')?.classList.contains('active')) {
+          renderCredits('credits-obd', p => (p.product || '').toLowerCase().includes('diagzone'));
+        }
+        if (document.getElementById('screen-obd-paywall')?.classList.contains('active')) {
+          loadLatestObdSelfCheck();
+        }
+        if (document.getElementById('screen-obd-results')?.classList.contains('active')) {
+          loadLatestObdSelfCheck();
+        }
+      });
+      observer.observe(document.body, { attributes: true, subtree: true, attributeFilter: ['class'] });
+
+      // ===== Reports: generate & send (DEV-only endpoints on agent) =====
+      function ensureThicknessSessionId() {
+        if (!sessionState.session.thicknessId) {
+          sessionState.session.thicknessId = `T-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
+          syncGlobalSessionIds();
+        }
+      }
+      function ensureObdSessionId() {
+        if (!sessionState.session.obdId) {
+          sessionState.session.obdId = `O-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
+          syncGlobalSessionIds();
+        }
+      }
+
+      function getContactPayload(kind) {
+        const info = kind === 'thickness' ? sessionState.contact.thickness : sessionState.contact.diagnostics;
+        if (!info) return null;
+        if (info.type === 'phone') return { phone: info.normalized };
+        if (info.type === 'email') return { email: info.normalized };
+        // fallback if type is missing
+        const raw = (info.normalized || info.raw || '').toLowerCase();
+        return raw.includes('@') ? { email: raw } : { phone: raw };
+      }
+
+      function setReportStatus(kind, message, tone) {
+        const id = kind === 'thickness' ? 'report-status-thk' : 'report-status-obd';
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.textContent = message || '';
+        el.style.color = tone === 'error' ? '#B91C1C' : tone === 'ok' ? '#166534' : '';
+      }
+
+      async function maybeSendReport(kind) {
+        // Новая логика: сначала всегда формируем отчёт (если не было), показываем предпросмотр; отправляем по выбору
+        const already = kind === 'thickness' ? sessionState.reportSent.thickness : sessionState.reportSent.diagnostics;
+        if (already) return;
+        const contact = getContactPayload(kind);
+        if (!contact) {
+          setReportStatus(kind, 'Контакт не указан — отчёт будет сохранён локально.', 'error');
+          return;
+        }
+        try {
+          setReportStatus(kind, 'Готовим отчёт…');
+          const payload = buildReportPayload(kind, contact);
+          if (!payload) {
+            setReportStatus(kind, 'Недостаточно данных для формирования отчёта.', 'error');
+            return;
+          }
+          const resp = await fetch(api('/reports/generate'), {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ data: payload })
+          });
+          const data = await resp.json().catch(() => ({}));
+          if (resp.ok && data?.ok) {
+            if (kind === 'thickness') sessionState.reportSent.thickness = true;
+            if (kind === 'diagnostics') sessionState.reportSent.diagnostics = true;
+            setReportStatus(kind, `Отчёт сформирован (ID: ${data.id}).`, 'ok');
+            // Открываем предпросмотр
+            openReportPreview({ id: data.id, email: payload.contact?.email, phone: payload.contact?.phone });
+          } else {
+            const message = data?.message || data?.error || 'Ошибка формирования отчёта.';
+            setReportStatus(kind, String(message), 'error');
+          }
+        } catch (e) {
+          setReportStatus(kind, 'Не удалось связаться с агентом для генерации отчёта.', 'error');
+        }
+      }
+
+      // Предпросмотр отчёта: модалка + кнопки отправки
+      const reportPreviewModal = document.getElementById('report-preview-modal');
+      const reportPreviewFrame = document.getElementById('report-preview-frame');
+      const reportPreviewClose = document.getElementById('report-preview-close');
+      const reportSendSmsBtn = document.getElementById('report-send-sms');
+      const reportSendEmailBtn = document.getElementById('report-send-email');
+      const reportSkipSendBtn = document.getElementById('report-skip-send');
+      let lastPreview = null;
+
+      function openReportPreview(info) {
+        lastPreview = info || null;
+        if (!lastPreview) return;
+        const url = api(`/reports/view/${encodeURIComponent(info.id)}`);
+        if (reportPreviewFrame) reportPreviewFrame.src = url;
+        reportPreviewModal?.classList.remove('hidden');
+      }
+      function closeReportPreview() {
+        reportPreviewModal?.classList.add('hidden');
+        if (reportPreviewFrame) reportPreviewFrame.src = 'about:blank';
+      }
+      reportPreviewClose?.addEventListener('click', closeReportPreview);
+      reportSkipSendBtn?.addEventListener('click', () => {
+        closeReportPreview();
+      });
+      reportSendSmsBtn?.addEventListener('click', async () => {
+        if (!lastPreview) return;
+        if (!lastPreview.phone) {
+          alert('Телефон не указан. Укажите телефон на шаге контактов.');
+          return;
+        }
+        try {
+          const kind = activeScreenId.startsWith('screen-thk') ? 'thickness' : 'diagnostics';
+          const payload = buildReportPayload(kind, { phone: lastPreview.phone, email: lastPreview.email });
+          const resp = await fetch(api('/reports/send-sms'), {
+            method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ data: payload, phone: lastPreview.phone })
+          });
+          const data = await resp.json().catch(() => ({}));
+          if (resp.ok && data?.ok) {
+            setReportStatus(kind, `Ссылка на отчёт отправлена по SMS. (ID: ${data.id})`, 'ok');
+            closeReportPreview();
+          } else {
+            const message = data?.message || data?.error || 'Ошибка отправки SMS.';
+            alert(String(message));
+          }
+        } catch (e) { alert('Не удалось связаться с агентом.'); }
+      });
+      reportSendEmailBtn?.addEventListener('click', async () => {
+        if (!lastPreview) return;
+        if (!lastPreview.email) {
+          alert('Email не указан. Укажите email на шаге контактов.');
+          return;
+        }
+        try {
+          const kind = activeScreenId.startsWith('screen-thk') ? 'thickness' : 'diagnostics';
+          const payload = buildReportPayload(kind, { phone: lastPreview.phone, email: lastPreview.email });
+          const resp = await fetch(api('/reports/send'), {
+            method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ data: payload })
+          });
+          const data = await resp.json().catch(() => ({}));
+          if (resp.ok && data?.ok) {
+            setReportStatus(kind, `Отчёт отправлен на ${lastPreview.email}. (ID: ${data.id})`, 'ok');
+            closeReportPreview();
+          } else {
+            const message = data?.message || data?.error || 'Ошибка отправки email.';
+            alert(String(message));
+          }
+        } catch (e) { alert('Не удалось связаться с агентом.'); }
+      });
+
+      // Кнопки «Предпросмотр» на финальных экранах
+      document.getElementById('thk-preview')?.addEventListener('click', () => {
+        const idText = document.getElementById('report-status-thk')?.textContent || '';
+        const match = idText.match(/ID:\s*([\w.-]+)/);
+        if (match) {
+          const contact = getContactPayload('thickness') || {};
+          openReportPreview({ id: match[1], ...contact });
+        } else {
+          alert('Отчёт ещё не сформирован.');
+        }
+      });
+      document.getElementById('obd-preview')?.addEventListener('click', () => {
+        const idText = document.getElementById('report-status-obd')?.textContent || '';
+        const match = idText.match(/ID:\s*([\w.-]+)/);
+        if (match) {
+          const contact = getContactPayload('diagnostics') || {};
+          openReportPreview({ id: match[1], ...contact });
+        } else {
+          alert('Отчёт ещё не сформирован.');
+        }
+      });
+
+      function buildReportPayload(kind, contact) {
+        if (kind === 'thickness') {
+          ensureThicknessSessionId();
+          const sessionId = sessionState.session.thicknessId || `T-${Date.now()}`;
+          // Собираем краткие данные по сессии для отчёта (без фейковых значений)
+          const s = thkLastSession;
+          const points = Array.isArray(s?.points)
+            ? s.points.map(pt => ({ id: pt.id, label: pt.label, status: pt.status, valueMicrons: pt.valueMicrons }))
+            : [];
+          const summary = thkType ? `Измерения для типа: ${thkType}. Выполнено: ${s?.measuredCount ?? 0}. Пропущено: ${s?.skippedCount ?? 0}. Осталось: ${s?.pendingCount ?? 0}.` : '';
+          return { sessionId, contact, points, summary };
+        } else {
+          ensureObdSessionId();
+          const sessionId = sessionState.session.obdId || `O-${Date.now()}`;
+          const dtc = Array.isArray(obdScanResults) ? obdScanResults.map(r => ({ code: String(r.code || '').toUpperCase(), description: r.description || '' })) : [];
+          const mil = !!(obdStatusSummary && obdStatusSummary.milOn);
+          return { sessionId, contact, dtc, mil };
+        }
+      }
+    })();
+  </script>
+</body>
+<script type="module" src="/src/features/report-monitor/thickness-report-monitor.js"></script>
+<script>
+  // PWA: register service worker in supported browsers
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./service-worker.js').catch(() => { });
+    });
+  }
+</script>
+
+</html>

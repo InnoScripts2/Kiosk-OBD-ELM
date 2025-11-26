@@ -11,8 +11,11 @@ import com.selfservice.platform.data.diagnostics.profile.DiagnosticsRecommendati
 import com.selfservice.platform.data.diagnostics.profile.DiagnosticsRecommendationSeverity
 import com.selfservice.platform.data.diagnostics.profile.DiagnosticsRecommendationThreshold
 import com.selfservice.platform.data.diagnostics.profile.DiagnosticsRecommendationThresholdType
+import java.io.File
 import java.time.ZoneId
 import java.util.Locale
+import kotlin.io.path.createTempDirectory
+import kotlin.text.Charsets
 
 internal fun createReportMapper(): DiagnosticsReportViewModelMapper {
     return DiagnosticsReportViewModelMapper(
@@ -84,6 +87,62 @@ internal fun sampleReportInput(): DiagnosticsReportInput {
             email = "owner@example.com"
         )
     )
+}
+
+internal data class StorageTestContext(
+    val rootDir: File,
+    val reportsDir: File,
+    val metadataDir: File,
+    val issuesDir: File,
+    val storageManager: ReportStorageManager
+) {
+    fun cleanup() {
+        rootDir.deleteRecursively()
+    }
+}
+
+internal fun createStorageTestContext(prefix: String = "report-test"): StorageTestContext {
+    val root = createTempDirectory(prefix).toFile()
+    val reportsDir = File(root, "reports").apply { mkdirs() }
+    val metadataDir = File(root, "metadata").apply { mkdirs() }
+    val issuesDir = File(root, "issues").apply { mkdirs() }
+
+    val manager = ReportStorageManager(
+        ReportStorageConfig(
+            baseDir = reportsDir,
+            metadataDir = metadataDir,
+            issuesDir = issuesDir
+        )
+    )
+
+    return StorageTestContext(
+        rootDir = root,
+        reportsDir = reportsDir,
+        metadataDir = metadataDir,
+        issuesDir = issuesDir,
+        storageManager = manager
+    )
+}
+
+internal class FakePdfGenerator : PdfGenerator() {
+    var capturedHtml: String? = null
+    var capturedReportType: ReportType? = null
+
+    override fun generateFromHtml(html: String, reportType: ReportType): ByteArray {
+        capturedHtml = html
+        capturedReportType = reportType
+        return RENDERED_PDF
+    }
+
+    override fun generatePlainText(title: String, content: String, reportType: ReportType): ByteArray {
+        capturedHtml = "$title\n$content"
+        capturedReportType = reportType
+        return RENDERED_PDF
+    }
+
+    companion object {
+        val RENDERED_PDF: ByteArray = "%PDF-TEST".toByteArray(Charsets.UTF_8)
+    }
 }
 
 private fun insight(

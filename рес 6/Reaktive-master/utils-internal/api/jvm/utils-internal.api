@@ -1,0 +1,3 @@
+public abstract interface annotation class com/badoo/reaktive/utils/InternalReaktiveApi : java/lang/annotation/Annotation {
+}
+

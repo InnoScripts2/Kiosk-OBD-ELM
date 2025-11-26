@@ -2,7 +2,6 @@ package com.selfservice.platform.bluetooth.scanner
 
 import android.bluetooth.le.ScanResult
 import android.content.Context
-import android.os.ParcelUuid
 import com.selfservice.platform.bluetooth.ble.BleDevice
 import com.selfservice.platform.bluetooth.ble.BleScanConfig
 import com.selfservice.platform.bluetooth.ble.BleScanResult
@@ -20,6 +19,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.UUID
@@ -127,8 +127,7 @@ class BlessedBleScanner(
         
         // Запуск сканирования с фильтрами
         if (config.serviceUuids.isNotEmpty()) {
-            val uuids = config.serviceUuids.map { ParcelUuid(it) }.toTypedArray()
-            central.scanForPeripheralsWithServices(uuids)
+            central.scanForPeripheralsWithServices(config.serviceUuids.toSet())
         } else {
             central.scanForPeripherals()
         }
@@ -172,7 +171,7 @@ class BlessedBleScannerAdapter(
 ) : com.selfservice.obd.core.connection.BleScanner {
     
     override val results: Flow<com.selfservice.obd.core.connection.BleScanResult>
-        get() = kotlinx.coroutines.flow.map(scanner.scanResults) { result ->
+        get() = scanner.scanResults.map { result ->
             com.selfservice.obd.core.connection.BleScanResult(
                 device = com.selfservice.obd.core.connection.BleDevice(
                     address = result.device.address,

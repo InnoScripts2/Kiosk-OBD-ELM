@@ -101,7 +101,7 @@ class BlePlatformConfigTest {
         assertFalse(config.autoReconnect)
         assertEquals(5, config.maxReconnectAttempts)
         assertEquals(3000L, config.reconnectDelay)
-        assertEquals(BleScanMode.BALANCED, config.scanMode)
+        assertEquals(BleScanMode.BALANCED, config.defaultScanMode)
         assertEquals(15000L, config.defaultScanDuration)
         assertEquals(-85, config.minRssi)
         assertEquals(512, config.preferredMtu)

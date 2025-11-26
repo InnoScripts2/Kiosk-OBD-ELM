@@ -1,7 +1,9 @@
 <resources>
     <string name="app_name">Автосервис самообслуживания</string>
-    <string name="kiosk_url">https://innoscripts2.github.io/my-own-service/</string>
-    <string name="kiosk_url_fallback">http://31.31.197.40/</string>
+    <string name="kiosk_url">file:///android_asset/kiosk-ui/index.html</string>
+    <string name="kiosk_url_remote">
+        https://ddaunoxyguqiejrjtwsf.supabase.co/storage/v1/object/public/kiosk-ui/index.html</string>
+    <string name="kiosk_url_fallback">file:///android_asset/html/offline.html</string>
     <string name="kiosk_url_dev">http://10.0.2.2:8080/</string>
     <string name="kiosk_url_dialog_title">Настройка URL</string>
     <string name="kiosk_url_dialog_message">Введите новый адрес для загрузки интерфейса</string>

@@ -195,7 +195,7 @@ class PaymentViewModel(
         currentPoller?.stopPolling()
         
         val poller = PaymentStatusPoller(
-            paymentModule = paymentModule,
+            statusProvider = paymentModule,
             intentId = intentId,
             scope = viewModelScope
         )

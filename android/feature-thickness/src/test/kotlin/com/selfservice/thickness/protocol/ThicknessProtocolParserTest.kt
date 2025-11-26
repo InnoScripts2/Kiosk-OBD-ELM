@@ -101,7 +101,7 @@ class ThicknessProtocolParserTest {
         val parser = ThicknessProtocolParser(config)
         
         // 123.45f в little-endian байтах
-        val data = byteArrayOf(0x19.toByte(), 0x04.toByte(), 0xF7.toByte(), 0x42.toByte())
+        val data = byteArrayOf(0x66, 0xE6.toByte(), 0xF6.toByte(), 0x42.toByte())
         val value = parser.parse(data)
         
         assertEquals(123.45f, value, 0.01f)

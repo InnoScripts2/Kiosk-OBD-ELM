@@ -1,5 +1,6 @@
 package com.selfservice.feature.payments
 
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -25,7 +26,7 @@ import java.time.Instant
  * @property timeoutMs Timeout in milliseconds (default 10 minutes)
  */
 class PaymentStatusPoller(
-    private val paymentModule: PaymentModule,
+    private val statusProvider: PaymentStatusProvider,
     private val intentId: String,
     private val scope: CoroutineScope,
     private val clock: Clock = Clock.systemUTC(),
@@ -68,7 +69,7 @@ class PaymentStatusPoller(
                     }
                     
                     // Poll status
-                    val status = paymentModule.getStatus(intentId)
+                    val status = statusProvider.getStatus(intentId)
                     _currentStatus.value = status
                     
                     // Check if terminal state reached
@@ -84,6 +85,11 @@ class PaymentStatusPoller(
                     
                     // Wait before next poll
                     delay(pollIntervalMs)
+                } catch (cancellation: CancellationException) {
+                    if (_pollingState.value is PollingState.Polling) {
+                        _pollingState.value = PollingState.Stopped
+                    }
+                    break
                 } catch (e: Exception) {
                     _pollingState.value = PollingState.Error(e.message ?: "Unknown error")
                     break

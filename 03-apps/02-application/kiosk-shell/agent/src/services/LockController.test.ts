@@ -4,9 +4,10 @@ import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals
 describe('LockController', () => {
   let controller: LockController;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     // Всегда используем mock mode в тестах
     controller = new LockController({ mockMode: true });
+    await controller.initialize();
   });
 
   afterEach(async () => {
@@ -56,8 +57,7 @@ describe('LockController', () => {
       await controller.openSlot('thickness');
       
       expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining('[LOCK]'),
-        expect.stringContaining('Opening slot for thickness')
+        expect.stringContaining('[LOCK] Opening slot for thickness')
       );
       
       consoleSpy.mockRestore();

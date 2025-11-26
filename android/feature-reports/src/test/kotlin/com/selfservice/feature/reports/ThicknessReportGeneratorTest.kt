@@ -1,12 +1,11 @@
 package com.selfservice.feature.reports
 
 import kotlinx.coroutines.test.runTest
-import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
-import kotlin.test.assertFalse
 
 /**
  * Unit тесты для ThicknessReportGenerator.
@@ -33,72 +32,68 @@ class ThicknessReportGeneratorTest {
             )
         )
         
-        val tempDir = File.createTempFile("test", "").parentFile
-        val storageManager = ReportStorageManager(
-            config = ReportStorageConfig(baseDir = tempDir)
-        )
-        
-        val htmlFormatter = ThicknessReportHtmlFormatter()
-        val pdfGenerator = PdfGenerator()
-        
+        val storage = createStorageTestContext(prefix = "thickness-report-valid")
+        val pdfGenerator = FakePdfGenerator()
         val generator = ThicknessReportGenerator(
-            htmlFormatter = htmlFormatter,
+            htmlFormatter = ThicknessReportHtmlFormatter(),
             pdfGenerator = pdfGenerator,
-            storageManager = storageManager,
+            storageManager = storage.storageManager,
             devMode = true
         )
         
-        // Act
-        val result = generator.generate(
-            input = input,
-            formats = listOf(ReportFormat.HTML, ReportFormat.PDF)
-        )
-        
-        // Assert
-        assertTrue(result.success, "Report generation should succeed")
-        assertNotNull(result.metadata, "Metadata should be generated")
-        assertNotNull(result.html, "HTML should be generated")
-        assertNotNull(result.pdfBytes, "PDF bytes should be generated")
-        
-        // Verify HTML content
-        val html = result.html!!
-        assertTrue(html.contains("Отчёт толщиномера"), "HTML should contain report title")
-        assertTrue(html.contains("test-session-001"), "HTML should contain session ID")
-        assertTrue(html.contains("Капот центр"), "HTML should contain measurement zones")
-        assertTrue(html.contains("125"), "HTML should contain measurement values")
-        assertTrue(html.contains("[МОК-РЕЖИМ]"), "HTML should contain DEV badge in dev mode")
-        
-        // Verify PDF
-        val pdfBytes = result.pdfBytes!!
-        assertTrue(pdfBytes.isNotEmpty(), "PDF should not be empty")
-        assertTrue(pdfBytes.size > 100, "PDF should have meaningful size")
-        
-        // Verify metadata
-        val metadata = result.metadata!!
-        assertEquals("test-session-001", metadata.sessionId)
-        assertEquals(ReportType.THICKNESS, metadata.reportType)
-        assertEquals(ReportStatus.GENERATED, metadata.status)
-        assertTrue(metadata.formats.contains(ReportFormat.HTML))
-        assertTrue(metadata.formats.contains(ReportFormat.PDF))
-        assertNotNull(metadata.htmlHash, "HTML hash should be calculated")
-        assertNotNull(metadata.pdfHash, "PDF hash should be calculated")
-        assertNotNull(metadata.htmlSizeBytes, "HTML size should be recorded")
-        assertNotNull(metadata.pdfSizeBytes, "PDF size should be recorded")
-        
-        // Verify files saved
-        val sessionDir = tempDir.resolve("reports").resolve("test-session-001")
-        assertTrue(sessionDir.exists(), "Session directory should be created")
-        
-        val htmlFile = sessionDir.resolve("report.html")
-        assertTrue(htmlFile.exists(), "HTML file should be saved")
-        assertTrue(htmlFile.length() > 0, "HTML file should not be empty")
-        
-        val pdfFile = sessionDir.resolve("report.pdf")
-        assertTrue(pdfFile.exists(), "PDF file should be saved")
-        assertTrue(pdfFile.length() > 0, "PDF file should not be empty")
-        
-        // Cleanup
-        sessionDir.deleteRecursively()
+        try {
+            // Act
+            val result = generator.generate(
+                input = input,
+                formats = listOf(ReportFormat.HTML, ReportFormat.PDF)
+            )
+            
+            // Assert
+            assertTrue(result.success, "Report generation should succeed")
+            assertNotNull(result.metadata, "Metadata should be generated")
+            assertNotNull(result.html, "HTML should be generated")
+            assertNotNull(result.pdfBytes, "PDF bytes should be generated")
+            
+            // Verify HTML content
+            val html = result.html!!
+            assertTrue(html.contains("Отчёт толщиномера"), "HTML should contain report title")
+            assertTrue(html.contains("test-session-001"), "HTML should contain session ID")
+            assertTrue(html.contains("Капот центр"), "HTML should contain measurement zones")
+            assertTrue(html.contains("125"), "HTML should contain measurement values")
+            assertTrue(html.contains("[МОК-РЕЖИМ]"), "HTML should contain DEV badge in dev mode")
+            
+            // Verify PDF
+            val pdfBytes = result.pdfBytes!!
+            assertEquals(FakePdfGenerator.RENDERED_PDF.size, pdfBytes.size)
+            assertEquals(FakePdfGenerator.RENDERED_PDF.toList(), pdfBytes.toList())
+            assertEquals(ReportType.THICKNESS, pdfGenerator.capturedReportType)
+            
+            // Verify metadata
+            val metadata = result.metadata!!
+            assertEquals("test-session-001", metadata.sessionId)
+            assertEquals(ReportType.THICKNESS, metadata.reportType)
+            assertEquals(ReportStatus.GENERATED, metadata.status)
+            assertTrue(metadata.formats.contains(ReportFormat.HTML))
+            assertTrue(metadata.formats.contains(ReportFormat.PDF))
+            assertNotNull(metadata.htmlHash, "HTML hash should be calculated")
+            assertNotNull(metadata.pdfHash, "PDF hash should be calculated")
+            assertNotNull(metadata.htmlSizeBytes, "HTML size should be recorded")
+            assertNotNull(metadata.pdfSizeBytes, "PDF size should be recorded")
+            
+            // Verify files saved
+            val sessionDir = storage.reportsDir.resolve("test-session-001")
+            assertTrue(sessionDir.exists(), "Session directory should be created")
+            
+            val htmlFile = sessionDir.resolve("report.html")
+            assertTrue(htmlFile.exists(), "HTML file should be saved")
+            assertTrue(htmlFile.length() > 0, "HTML file should not be empty")
+            
+            val pdfFile = sessionDir.resolve("report.pdf")
+            assertTrue(pdfFile.exists(), "PDF file should be saved")
+            assertTrue(pdfFile.length() > 0, "PDF file should not be empty")
+        } finally {
+            storage.cleanup()
+        }
     }
     
     @Test
@@ -111,37 +106,33 @@ class ThicknessReportGeneratorTest {
             )
         )
         
-        val tempDir = File.createTempFile("test", "").parentFile
-        val storageManager = ReportStorageManager(
-            config = ReportStorageConfig(baseDir = tempDir)
-        )
-        
+        val storage = createStorageTestContext(prefix = "thickness-report-html-only")
         val generator = ThicknessReportGenerator(
             htmlFormatter = ThicknessReportHtmlFormatter(),
-            pdfGenerator = PdfGenerator(),
-            storageManager = storageManager,
+            pdfGenerator = FakePdfGenerator(),
+            storageManager = storage.storageManager,
             devMode = false
         )
         
-        // Act
-        val result = generator.generate(
-            input = input,
-            formats = listOf(ReportFormat.HTML)
-        )
-        
-        // Assert
-        assertTrue(result.success)
-        assertNotNull(result.html)
-        assertEquals(null, result.pdfBytes, "PDF should not be generated when not requested")
-        
-        val metadata = result.metadata!!
-        assertEquals(1, metadata.formats.size)
-        assertTrue(metadata.formats.contains(ReportFormat.HTML))
-        assertFalse(metadata.formats.contains(ReportFormat.PDF))
-        
-        // Cleanup
-        val sessionDir = tempDir.resolve("reports").resolve("test-session-002")
-        sessionDir.deleteRecursively()
+        try {
+            // Act
+            val result = generator.generate(
+                input = input,
+                formats = listOf(ReportFormat.HTML)
+            )
+            
+            // Assert
+            assertTrue(result.success)
+            assertNotNull(result.html)
+            assertEquals(null, result.pdfBytes, "PDF should not be generated when not requested")
+            
+            val metadata = result.metadata!!
+            assertEquals(1, metadata.formats.size)
+            assertTrue(metadata.formats.contains(ReportFormat.HTML))
+            assertFalse(metadata.formats.contains(ReportFormat.PDF))
+        } finally {
+            storage.cleanup()
+        }
     }
     
     @Test
@@ -158,24 +149,21 @@ class ThicknessReportGeneratorTest {
             )
         )
         
-        val tempDir = File.createTempFile("test", "").parentFile
-        val storageManager = ReportStorageManager(
-            config = ReportStorageConfig(baseDir = tempDir)
-        )
-        
+        val storage = createStorageTestContext(prefix = "thickness-report-stats")
         val generator = ThicknessReportGenerator(
             htmlFormatter = ThicknessReportHtmlFormatter(),
-            pdfGenerator = PdfGenerator(),
-            storageManager = storageManager,
+            pdfGenerator = FakePdfGenerator(),
+            storageManager = storage.storageManager,
             devMode = true
         )
         
-        // Act
-        val result = generator.generate(input, listOf(ReportFormat.HTML))
-        
-        // Assert
-        val html = result.html!!
-        val stats = input.stats
+        try {
+            // Act
+            val result = generator.generate(input, listOf(ReportFormat.HTML))
+            
+            // Assert
+            val html = result.html!!
+            val stats = input.stats
         
         // Average: (100 + 120 + 180 + 200 + 300) / 5 = 180
         assertEquals(180f, stats.average)
@@ -184,15 +172,14 @@ class ThicknessReportGeneratorTest {
         assertEquals(3, stats.deviations)
         
         // Min/Max
-        assertEquals(100f, stats.min)
-        assertEquals(300f, stats.max)
-        
-        // Verify HTML contains stats
-        assertTrue(html.contains("180"), "HTML should show average value")
-        
-        // Cleanup
-        val sessionDir = tempDir.resolve("reports").resolve("test-session-003")
-        sessionDir.deleteRecursively()
+            assertEquals(100f, stats.min)
+            assertEquals(300f, stats.max)
+            
+            // Verify HTML contains stats
+            assertTrue(html.contains("180"), "HTML should show average value")
+        } finally {
+            storage.cleanup()
+        }
     }
     
     @Test
@@ -205,38 +192,31 @@ class ThicknessReportGeneratorTest {
             )
         )
         
-        val tempDir = File.createTempFile("test", "").parentFile
-        val storageManager = ReportStorageManager(
-            config = ReportStorageConfig(baseDir = tempDir)
-        )
-        
-        // Generate with DEV mode
+        val storage = createStorageTestContext(prefix = "thickness-report-dev-mode")
         val generatorDev = ThicknessReportGenerator(
             htmlFormatter = ThicknessReportHtmlFormatter(),
-            pdfGenerator = PdfGenerator(),
-            storageManager = storageManager,
+            pdfGenerator = FakePdfGenerator(),
+            storageManager = storage.storageManager,
             devMode = true
         )
-        
-        // Generate without DEV mode
         val generatorProd = ThicknessReportGenerator(
             htmlFormatter = ThicknessReportHtmlFormatter(),
-            pdfGenerator = PdfGenerator(),
-            storageManager = storageManager,
+            pdfGenerator = FakePdfGenerator(),
+            storageManager = storage.storageManager,
             devMode = false
         )
         
-        // Act
-        val resultDev = generatorDev.generate(input, listOf(ReportFormat.HTML))
-        val resultProd = generatorProd.generate(input, listOf(ReportFormat.HTML))
-        
-        // Assert
-        assertTrue(resultDev.html!!.contains("[МОК-РЕЖИМ]"), "DEV mode should show badge")
-        assertFalse(resultProd.html!!.contains("[МОК-РЕЖИМ]"), "PROD mode should not show badge")
-        
-        // Cleanup
-        val sessionDir = tempDir.resolve("reports").resolve("test-session-004")
-        sessionDir.deleteRecursively()
+        try {
+            // Act
+            val resultDev = generatorDev.generate(input, listOf(ReportFormat.HTML))
+            val resultProd = generatorProd.generate(input, listOf(ReportFormat.HTML))
+            
+            // Assert
+            assertTrue(resultDev.html!!.contains("[МОК-РЕЖИМ]"), "DEV mode should show badge")
+            assertFalse(resultProd.html!!.contains("[МОК-РЕЖИМ]"), "PROD mode should not show badge")
+        } finally {
+            storage.cleanup()
+        }
     }
     
     @Test
@@ -249,28 +229,24 @@ class ThicknessReportGeneratorTest {
             )
         )
         
-        val tempDir = File.createTempFile("test", "").parentFile
-        val storageManager = ReportStorageManager(
-            config = ReportStorageConfig(baseDir = tempDir)
-        )
-        
+        val storage = createStorageTestContext(prefix = "thickness-report-timing")
         val generator = ThicknessReportGenerator(
             htmlFormatter = ThicknessReportHtmlFormatter(),
-            pdfGenerator = PdfGenerator(),
-            storageManager = storageManager,
+            pdfGenerator = FakePdfGenerator(),
+            storageManager = storage.storageManager,
             devMode = false
         )
         
-        // Act
-        val result = generator.generate(input, listOf(ReportFormat.HTML, ReportFormat.PDF))
-        
-        // Assert
-        assertTrue(result.generationTimeMs > 0, "Generation time should be positive")
-        assertTrue(result.generationTimeMs < 5000, "Generation should complete in reasonable time (<5s)")
-        
-        // Cleanup
-        val sessionDir = tempDir.resolve("reports").resolve("test-session-005")
-        sessionDir.deleteRecursively()
+        try {
+            // Act
+            val result = generator.generate(input, listOf(ReportFormat.HTML, ReportFormat.PDF))
+            
+            // Assert
+            assertTrue(result.generationTimeMs > 0, "Generation time should be positive")
+            assertTrue(result.generationTimeMs < 5000, "Generation should complete in reasonable time (<5s)")
+        } finally {
+            storage.cleanup()
+        }
     }
     
     private fun measurement(

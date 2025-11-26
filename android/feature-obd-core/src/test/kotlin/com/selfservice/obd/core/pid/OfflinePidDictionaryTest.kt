@@ -33,6 +33,6 @@ class OfflinePidDictionaryTest {
         assertTrue(modes.contains("0x01"))
         val coolant = dictionary.find("0x01", "0x05")
         assertNotNull(coolant)
-        assertEquals("Engine coolant temperature", coolant.label)
+        assertEquals("Температура охлаждающей жидкости двигателя", coolant.label)
     }
 }

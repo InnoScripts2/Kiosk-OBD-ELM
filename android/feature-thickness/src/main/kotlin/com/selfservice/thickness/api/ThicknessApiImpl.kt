@@ -4,13 +4,12 @@ import com.selfservice.core.logging.Logger
 import com.selfservice.thickness.ThicknessDevice
 import com.selfservice.thickness.ThicknessMeasurementStateMachine
 import com.selfservice.thickness.models.*
+import com.selfservice.thickness.models.MeasurementStatus as ZoneMeasurementStatus
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import java.time.Instant
 
 /**
  * Реализация ThicknessController
@@ -35,7 +34,7 @@ class ThicknessControllerImpl(
     private val _measurements = MutableStateFlow<List<ZoneMeasurement>>(emptyList())
     override val measurements: StateFlow<List<ZoneMeasurement>> = _measurements.asStateFlow()
     
-    private var targetZones: List<ThicknessZone> = ThicknessZoneLayout.allZones
+    private var targetZones: List<ThicknessZone> = ThicknessZoneLayout.zones
     
     init {
         // Подписываемся на изменения состояния для обновления прогресса
@@ -162,7 +161,7 @@ class ThicknessControllerImpl(
         
         return ThicknessReport(
             sessionId = "session_${System.currentTimeMillis()}",
-            timestamp = Instant.now(),
+            timestamp = System.currentTimeMillis(),
             vehicleType = vehicleType,
             measurements = zoneMeasurements,
             analysis = ThicknessAnalysis.analyze(zoneMeasurements)
@@ -173,27 +172,27 @@ class ThicknessControllerImpl(
         measurements: List<com.selfservice.thickness.ThicknessMeasurement>
     ): List<ZoneMeasurement> {
         return measurements.mapIndexed { index, measurement ->
-            val zone = targetZones.getOrNull(index) ?: ThicknessZoneLayout.allZones[index]
+            val zone = targetZones.getOrNull(index) ?: ThicknessZoneLayout.zones[index]
             
             ZoneMeasurement(
                 zone = zone,
                 value = measurement.value,
-                timestamp = Instant.ofEpochMilli(measurement.timestamp),
-                status = measurement.status,
-                classification = classifyMeasurement(measurement.value)
+                timestamp = measurement.timestamp,
+                status = mapMeasurementStatus(measurement.status)
             )
         }
     }
     
-    private fun classifyMeasurement(value: Float): MeasurementClassification {
-        return when {
-            value < 80f -> MeasurementClassification.BODY_WORK
-            value < 120f -> MeasurementClassification.REPAINT
-            value > 180f -> MeasurementClassification.MAJOR_REPAINT
-            else -> MeasurementClassification.FACTORY
+    private fun mapMeasurementStatus(
+        status: com.selfservice.thickness.MeasurementStatus
+    ): ZoneMeasurementStatus {
+        return when (status) {
+            com.selfservice.thickness.MeasurementStatus.VALID -> ZoneMeasurementStatus.VALID
+            com.selfservice.thickness.MeasurementStatus.ERROR -> ZoneMeasurementStatus.ERROR
+            com.selfservice.thickness.MeasurementStatus.TIMEOUT -> ZoneMeasurementStatus.TIMEOUT
+            com.selfservice.thickness.MeasurementStatus.OUT_OF_RANGE -> ZoneMeasurementStatus.OUT_OF_RANGE
         }
     }
-    
     companion object {
         private const val TAG = "ThicknessController"
     }
@@ -287,17 +286,22 @@ class ThicknessProgressObserverImpl(
 class ThicknessMeasurementValidatorImpl : ThicknessMeasurementValidator {
     
     override fun validate(measurement: ZoneMeasurement): Result<ZoneMeasurement> {
+        val value = measurement.value
+            ?: return Result.failure(
+                IllegalArgumentException("Measurement value is missing for zone ${measurement.zone.name}")
+            )
+        
         return when {
-            measurement.value.isNaN() -> {
+            value.isNaN() -> {
                 Result.failure(IllegalArgumentException("Measurement value is NaN for zone ${measurement.zone.name}"))
             }
-            measurement.value.isInfinite() -> {
+            value.isInfinite() -> {
                 Result.failure(IllegalArgumentException("Measurement value is infinite for zone ${measurement.zone.name}"))
             }
-            measurement.value < 0f -> {
+            value < 0f -> {
                 Result.failure(IllegalArgumentException("Measurement value is negative for zone ${measurement.zone.name}"))
             }
-            measurement.value > 2000f -> {
+            value > 2000f -> {
                 Result.failure(IllegalArgumentException("Measurement value exceeds maximum (2000μm) for zone ${measurement.zone.name}"))
             }
             else -> Result.success(measurement)
@@ -318,7 +322,8 @@ class ThicknessMeasurementValidatorImpl : ThicknessMeasurementValidator {
                 valid.add(measurement)
                 
                 // Проверка на предупреждения
-                if (measurement.value < 80f || measurement.value > 180f) {
+                val value = measurement.value
+                if (value != null && (value < 80f || value > 180f)) {
                     warnings.add(
                         measurement to "Value ${measurement.value}μm is outside typical range (80-180μm)"
                     )

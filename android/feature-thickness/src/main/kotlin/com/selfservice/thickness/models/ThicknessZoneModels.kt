@@ -44,6 +44,8 @@ enum class BodyPart(val displayName: String) {
     FRONT_DOOR_RIGHT("Передняя правая дверь"),
     REAR_DOOR_LEFT("Задняя левая дверь"),
     REAR_DOOR_RIGHT("Задняя правая дверь"),
+    SIDE_SILL_LEFT("Левый порог"),
+    SIDE_SILL_RIGHT("Правый порог"),
     FRONT_BUMPER("Передний бампер"),
     REAR_BUMPER("Задний бампер");
 }
@@ -147,9 +149,9 @@ object ThicknessZoneLayout {
         val result = mutableListOf<ThicknessZone>()
         var index = 0
         
-        // Капот (6 точек) - строка 0
+        // Капот (6 точек) - строка 0, колонки 2-7 для визуального центрирования
         repeat(6) { col ->
-            result.add(createZone("hood_$col", "Капот точка ${col + 1}", BodyPart.HOOD, 0, col, index++))
+            result.add(createZone("hood_$col", "Капот точка ${col + 1}", BodyPart.HOOD, 0, col + 2, index++))
         }
         
         // Переднее левое крыло (3 точки) - строка 1, колонки 0-2
@@ -158,10 +160,16 @@ object ThicknessZoneLayout {
                 BodyPart.FRONT_FENDER_LEFT, 1, col, index++))
         }
         
-        // Переднее правое крыло (3 точки) - строка 1, колонки 3-5
+        // Передний бампер (4 точки) - строка 1, колонки 3-6
+        repeat(4) { col ->
+            result.add(createZone("bumper_f_$col", "Передний бампер точка ${col + 1}", 
+                BodyPart.FRONT_BUMPER, 1, col + 3, index++))
+        }
+
+        // Переднее правое крыло (3 точки) - строка 1, колонки 7-9
         repeat(3) { col ->
             result.add(createZone("fender_fr_$col", "Переднее правое крыло точка ${col + 1}", 
-                BodyPart.FRONT_FENDER_RIGHT, 1, col + 3, index++))
+                BodyPart.FRONT_FENDER_RIGHT, 1, col + 7, index++))
         }
         
         // Передняя левая дверь (4 точки) - строка 2, колонки 0-3
@@ -187,39 +195,49 @@ object ThicknessZoneLayout {
             result.add(createZone("door_rr_$col", "Задняя правая дверь точка ${col + 1}", 
                 BodyPart.REAR_DOOR_RIGHT, 3, col + 4, index++))
         }
+
+        // Левый порог (3 точки) - строка 4, колонки 0-2
+        repeat(3) { col ->
+            result.add(createZone("sill_l_$col", "Левый порог точка ${col + 1}",
+                BodyPart.SIDE_SILL_LEFT, 4, col, index++))
+        }
+
+        // Правый порог (3 точки) - строка 4, колонки 7-9
+        repeat(3) { col ->
+            result.add(createZone("sill_r_$col", "Правый порог точка ${col + 1}",
+                BodyPart.SIDE_SILL_RIGHT, 4, col + 7, index++))
+        }
         
-        // Заднее левое крыло (3 точки) - строка 4, колонки 0-2
+        // Заднее левое крыло (3 точки) - строка 5, колонки 0-2
         repeat(3) { col ->
             result.add(createZone("fender_rl_$col", "Заднее левое крыло точка ${col + 1}", 
-                BodyPart.REAR_FENDER_LEFT, 4, col, index++))
+                BodyPart.REAR_FENDER_LEFT, 5, col, index++))
         }
         
-        // Заднее правое крыло (3 точки) - строка 4, колонки 3-5
+        // Заднее правое крыло (3 точки) - строка 5, колонки 7-9
         repeat(3) { col ->
             result.add(createZone("fender_rr_$col", "Заднее правое крыло точка ${col + 1}", 
-                BodyPart.REAR_FENDER_RIGHT, 4, col + 3, index++))
+                BodyPart.REAR_FENDER_RIGHT, 5, col + 7, index++))
         }
         
-        // Крыша (6 точек) - строка 5, колонки 0-5
+        // Крыша (6 точек) - строка 6, колонки 2-7
         repeat(6) { col ->
-            result.add(createZone("roof_$col", "Крыша точка ${col + 1}", BodyPart.ROOF, 5, col, index++))
+            result.add(createZone("roof_$col", "Крыша точка ${col + 1}", BodyPart.ROOF, 6, col + 2, index++))
         }
         
-        // Багажник (6 точек) - строка 6, колонки 0-5
+        // Багажник (6 точек) - строка 7, колонки 2-7
         repeat(6) { col ->
-            result.add(createZone("trunk_$col", "Багажник точка ${col + 1}", BodyPart.TRUNK, 6, col, index++))
+            result.add(createZone("trunk_$col", "Багажник точка ${col + 1}", BodyPart.TRUNK, 7, col + 2, index++))
         }
         
-        // Передний бампер (4 точки) - строка 7, колонки 0-3
-        repeat(4) { col ->
-            result.add(createZone("bumper_f_$col", "Передний бампер точка ${col + 1}", 
-                BodyPart.FRONT_BUMPER, 7, col, index++))
+        // Задний бампер (4 точки) - строка 7, колонки 0-1 и 8-9 (по 2 точки на каждую сторону)
+        repeat(2) { col ->
+            result.add(createZone("bumper_r_left_$col", "Задний бампер левая секция ${col + 1}", 
+                BodyPart.REAR_BUMPER, 7, col, index++))
         }
-        
-        // Задний бампер (4 точки) - строка 7, колонки 4-7
-        repeat(4) { col ->
-            result.add(createZone("bumper_r_$col", "Задний бампер точка ${col + 1}", 
-                BodyPart.REAR_BUMPER, 7, col + 4, index++))
+        repeat(2) { col ->
+            result.add(createZone("bumper_r_right_$col", "Задний бампер правая секция ${col + 1}", 
+                BodyPart.REAR_BUMPER, 7, col + 8, index++))
         }
         
         return result

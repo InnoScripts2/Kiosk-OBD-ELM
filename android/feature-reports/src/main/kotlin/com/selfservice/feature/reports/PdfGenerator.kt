@@ -21,7 +21,7 @@ import java.io.ByteArrayOutputStream
  * требует WebView или внешней библиотеки (iText, PDFBox).
  * Для production рассмотрите интеграцию с WebView.printPdf().
  */
-class PdfGenerator {
+open class PdfGenerator {
     
     companion object {
         // A4 размер в points (72 dpi)
@@ -57,7 +57,7 @@ class PdfGenerator {
      * @param reportType тип отчёта (для акцентного цвета)
      * @return PDF байты
      */
-    fun generateFromHtml(html: String, reportType: ReportType): ByteArray {
+    open fun generateFromHtml(html: String, reportType: ReportType): ByteArray {
         val document = PdfDocument()
         
         try {
@@ -91,7 +91,7 @@ class PdfGenerator {
      * @param reportType тип отчёта
      * @return PDF байты
      */
-    fun generatePlainText(title: String, content: String, reportType: ReportType): ByteArray {
+    open fun generatePlainText(title: String, content: String, reportType: ReportType): ByteArray {
         val document = PdfDocument()
         
         try {

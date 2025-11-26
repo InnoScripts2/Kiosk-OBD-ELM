@@ -1,1 +1,0 @@
--keep enum org.jetbrains.nav_cupcake.**  { *; }

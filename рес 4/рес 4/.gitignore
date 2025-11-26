@@ -1,7 +1,0 @@
-.DS_Store
-.gradle
-.idea
-.kotlin/
-build/
-local.properties
-kable-btleplug-ffi/target/

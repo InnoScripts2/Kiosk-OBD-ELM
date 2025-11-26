@@ -26,6 +26,10 @@ export class PaymentService {
     this.mockMode = mockMode;
   }
 
+  isMockMode(): boolean {
+    return this.mockMode;
+  }
+
   /**
    * Создать платёжный интент
    */

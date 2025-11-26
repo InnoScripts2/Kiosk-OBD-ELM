@@ -1,46 +1,47 @@
 package com.selfservice.feature.reports
 
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
-import kotlin.text.Charsets
 
 class DiagnosticsReportGeneratorTest {
 
     private val mapper = createReportMapper()
-    private val fakeRenderer = FakePdfRenderer()
-    private val generator = DiagnosticsReportGenerator.create(
-        htmlFormatter = DiagnosticsReportHtmlFormatter(mapper),
-        pdfGenerator = DiagnosticsReportPdfGenerator(mapper, fakeRenderer)
-    )
 
     @Test
-    fun `should produce html and pdf payloads`() {
-        val report = generator.generate(sampleReportInput())
-
-        assertTrue(report.html.contains("Диагностический отчёт"))
-        assertEquals(FakePdfRenderer.RENDERED_BYTES, report.pdfBytes)
-        assertEquals("session-001", fakeRenderer.capturedViewModel?.sessionId)
-        val generatedAt = assertNotNull(fakeRenderer.capturedGeneratedAt)
-        assertTrue(
-            Regex("\\d{2} [\\p{L}]+ \\d{4} \\d{2}:\\d{2}").matches(generatedAt),
-            "Unexpected generatedAt format: $generatedAt"
+    fun `should produce html and pdf payloads`() = runTest {
+        val storage = createStorageTestContext(prefix = "diagnostics-report")
+        val pdfGenerator = FakePdfGenerator()
+        val generator = DiagnosticsReportGenerator(
+            htmlFormatter = DiagnosticsReportHtmlFormatter(mapper),
+            pdfGenerator = pdfGenerator,
+            storageManager = storage.storageManager,
+            devMode = false
         )
-    }
 
-    private class FakePdfRenderer : DiagnosticsReportPdfRenderer {
-        var capturedViewModel: ReportViewModel? = null
-        var capturedGeneratedAt: String? = null
+        try {
+            val report = generator.generate(sampleReportInput())
 
-        override fun render(viewModel: ReportViewModel, generatedAt: String): ByteArray {
-            capturedViewModel = viewModel
-            capturedGeneratedAt = generatedAt
-            return RENDERED_BYTES
-        }
+            assertTrue(report.success)
+            val html = assertNotNull(report.html)
+            assertTrue(html.contains("Диагностический отчёт"))
+            assertEquals(FakePdfGenerator.RENDERED_PDF, report.pdfBytes)
+            assertEquals(ReportType.DIAGNOSTICS, pdfGenerator.capturedReportType)
+            val capturedHtml = assertNotNull(pdfGenerator.capturedHtml)
+            assertTrue(capturedHtml.contains("session-001"))
 
-        companion object {
-            val RENDERED_BYTES: ByteArray = "%PDF-FAKE".toByteArray(Charsets.UTF_8)
+            val metadata = assertNotNull(report.metadata)
+            assertEquals("session-001", metadata.sessionId)
+            assertEquals(ReportStatus.GENERATED, metadata.status)
+            assertTrue(metadata.formats.containsAll(listOf(ReportFormat.HTML, ReportFormat.PDF)))
+
+            val sessionDir = storage.reportsDir.resolve("session-001")
+            assertTrue(sessionDir.resolve("report.html").exists())
+            assertTrue(sessionDir.resolve("report.pdf").exists())
+        } finally {
+            storage.cleanup()
         }
     }
 }

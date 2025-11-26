@@ -44,6 +44,7 @@ export class ArduinoAdapter extends EventEmitter {
   private config: ArduinoConfig;
   private connected = false;
   private pendingCommands: Map<string, {
+    command: ArduinoCommand;
     resolve: (response: ArduinoResponse) => void;
     reject: (error: Error) => void;
     timeout: NodeJS.Timeout;
@@ -171,7 +172,7 @@ export class ArduinoAdapter extends EventEmitter {
       }, this.config.commandTimeout);
 
       // Сохранить обработчики
-      this.pendingCommands.set(commandId, { resolve, reject, timeout });
+      this.pendingCommands.set(commandId, { command, resolve, reject, timeout });
 
       // Отправить команду
       const commandStr = `${command}\n`;
@@ -205,7 +206,7 @@ export class ArduinoAdapter extends EventEmitter {
     if (response.type !== 'LOG') {
       // Найдём первую pending команду соответствующего типа
       for (const [commandId, handlers] of this.pendingCommands.entries()) {
-        const command = commandId.split('_')[0];
+        const command = handlers.command;
         
         // Проверяем соответствие команды и ответа
         let matches = false;
@@ -242,7 +243,7 @@ export class ArduinoAdapter extends EventEmitter {
     const parts = line.split(':');
 
     // LOG messages
-    if (parts[0] === '[LOG]') {
+    if (line.startsWith('[LOG]')) {
       return {
         type: 'LOG',
         raw: line,

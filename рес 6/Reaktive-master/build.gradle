@@ -1,0 +1,15 @@
+buildscript {
+    ext.reaktive_version = '2.4.0'
+    ext.reaktive_group_id = 'com.badoo.reaktive'
+}
+
+plugins {
+    id 'binary-compatibility-configuration'
+}
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}

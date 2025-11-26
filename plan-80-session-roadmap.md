@@ -283,6 +283,8 @@
 | 22     | Интеграция платёжного шлюза (PSP) и аудита оплат                                             | Выполнено (модуль `feature-payments` шифрует intents через AES-256-GCM, `PaymentGatewayResolver` переключает Dev ↔ YooKassa по BuildConfig, а `YooKassaPaymentGateway` реализует REST API с webhooks; `PaymentModule.handleWebhook` извлекает `X-Request-Id`/`Idempotence-Key`, фиксирует `webhook_handled` в Supabase через `SupabasePaymentAuditSink`, а WebView-клиент `PaymentsJavascriptBridge` обслуживает create/status/dev/manual потоки. Юнит-тесты `PaymentModuleTest.handle webhook updates store and emits audit event`, `YooKassaPaymentGatewayTest` и `PaymentGatewayResolverTest` входят в `./gradlew :feature-payments:testDebugUnitTest :app:testDebugUnitTest`. `plan-testing.md` расширен PCI/smoke чек-листами, `plan-secrets-config.md` документирует ротацию `PAYMENTS_ENCRYPTION_KEY` и реквизитов PSP.) | Перейти к сессии 23: подготовить MDM/OTA контур для киосков, контроль прошивок адаптеров                                                               |
 | 23     | Подготовка MDM/OTA контура: heartbeat устройств, Supabase зеркала                             | В работе (создан пакет `com.selfservice.kiosk.mdm` с моделями `DeviceStatusSnapshot`, схемой `DeviceStatusSupabaseSchema` и `DeviceStatusReporter`; `KioskApp` формирует heartbeat с серийником/версией/батареей/сетями и каждые 5 мин пишет его в Supabase outbox, монитор и UI отображают новую категорию очереди, добавлены unit-тесты `DeviceStatusSupabaseSchemaTest`, `DeviceStatusReporterTest`, обновлён mapper `SupabaseOutboxStatusUiMapperTest`; `./gradlew :app:testDebugUnitTest` подтверждает изменения) | Следующий шаг: добавить Supabase таблицы `device_commands`/`device_events`, подключить фактический MDM SDK и обработку команд OTA/reboot |
 
+| 24     | Модульные миграции Supabase и подготовка CLI                                                | В работе ➜ прогресс (миграции разбиты и применены: выполнены `supabase db reset`, `supabase db diff`, `supabase db push` на локальном и удалённом стендах через прямое подключение `--db-url`; генерация типов `supabase gen types typescript --local` добавила `03-apps/02-application/kiosk-shell/agent/src/integrations/supabase/types.ts`; health-check Storage/Kong обходится ручным запуском reset по прямому URL) | Завершить интеграцию типов на фронтенд (Vite) и подключить их в сервисы агента/CLI, после чего отметить сессию как DONE |
+
 #### Сессия 14 — задачи и статус
 
 - [x] Интегрировать `PassThruTransport` в существующие контроллеры диагностики (`ObdConnectionManager`, DI-модули) — внедрён `ObdConnectionController`, `KioskApp` экспонирует поток состояний и управляющие методы, а `MainActivity` инициирует подключение после выполнения Bluetooth-пререквизитов; добавлены юнит-тесты контроллера и инструментальные проверки запросов на подключение/отключение через оверлей.
@@ -398,15 +400,15 @@
 | 12C    | 24.11.2025 | Payment UI chain error fixes    | 6 файлов, ~1400 строк, 18 тестов  | N/A (AGP blocker) | ✅ Code review OK |
 
 ### Категория G (Documentation/Infrastructure)
-| Сессия | Дата       | Описание                                       | Метрики                    | APK Size        | Lint/Test Result |
-| ------ | ---------- | ---------------------------------------------- | -------------------------- | --------------- | ---------------- |
-| 1G     | 23.11.2025 | Документация, логи, .env, README               | 22 файла, 48,422 строки    | N/A (docs only) | ✅ Markdown valid |
-| 2G     | 24.11.2025 | Documentation mass maintenance                 | 31 файл, 5,050 строк       | N/A (docs only) | ✅ Markdown valid |
-| 14Z    | 24.11.2025 | AGP blocker analysis & GitHub Actions workflow | 7 файлов, ~54,000 символов | N/A (BLOCKED)   | ⏸️ BLOCKED AGP    |
-| 15G    | 24.11.2025 | Структура для полиязычной разработки           | 5 каталогов, 4 README      | N/A (structure) | ✅ Markdown valid |
-| 16A    | 24.11.2025 | Волна A: Миграция Node-агентов в android       | 14 файлов, 478 npm пакетов | N/A (npm only)  | ✅ 26/32 tests ✅ lint |
-| 17A    | 24.11.2025 | Волна B: Миграция DevOps скриптов в android    | 8 файлов, ~553 строки кода, 3 Gradle-таски | N/A (scripts) | ✅ pwsh/bash tests ✅ |
-| 18G    | 24.11.2025 | Финальная проверка консолидации и закрытие плана | 12 файлов, ~1,110 строк, 1 Gradle-таска, 2 workflows | N/A (docs/CI) | ✅ Markdown valid ✅ |
+| Сессия | Дата       | Описание                                         | Метрики                                              | APK Size        | Lint/Test Result     |
+| ------ | ---------- | ------------------------------------------------ | ---------------------------------------------------- | --------------- | -------------------- |
+| 1G     | 23.11.2025 | Документация, логи, .env, README                 | 22 файла, 48,422 строки                              | N/A (docs only) | ✅ Markdown valid     |
+| 2G     | 24.11.2025 | Documentation mass maintenance                   | 31 файл, 5,050 строк                                 | N/A (docs only) | ✅ Markdown valid     |
+| 14Z    | 24.11.2025 | AGP blocker analysis & GitHub Actions workflow   | 7 файлов, ~54,000 символов                           | N/A (BLOCKED)   | ⏸️ BLOCKED AGP        |
+| 15G    | 24.11.2025 | Структура для полиязычной разработки             | 5 каталогов, 4 README                                | N/A (structure) | ✅ Markdown valid     |
+| 16A    | 24.11.2025 | Волна A: Миграция Node-агентов в android         | 14 файлов, 478 npm пакетов                           | N/A (npm only)  | ✅ 26/32 tests ✅ lint |
+| 17A    | 24.11.2025 | Волна B: Миграция DevOps скриптов в android      | 8 файлов, ~553 строки кода, 3 Gradle-таски           | N/A (scripts)   | ✅ pwsh/bash tests ✅  |
+| 18G    | 24.11.2025 | Финальная проверка консолидации и закрытие плана | 12 файлов, ~1,110 строк, 1 Gradle-таска, 2 workflows | N/A (docs/CI)   | ✅ Markdown valid ✅   |
 
 **Примечания**:
 - **14Z**: AGP 8.4.1 недоступен из-за сетевой блокировки (dl.google.com). Проведён комплексный анализ, созданы 4 стратегии разблокировки. Создан workflow `.github/workflows/android-build.yml`, который исполняет `lint`, `test`, `assembleDebug` на GitHub-hosted runner и выгружает APK + Gradle caches (реализация Стратегии D). Требуется подтверждение запуска и анализ результатов. Документация: `docs/infra/agp-unblock-plan.md`, `docs/infra/agp-access-handbook.md`.

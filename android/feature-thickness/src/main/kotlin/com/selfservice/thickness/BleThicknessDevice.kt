@@ -2,13 +2,16 @@ package com.selfservice.thickness
 
 import com.selfservice.platform.bluetooth.BlessedBleScanner
 import com.selfservice.platform.bluetooth.BleConnectionManager
+import com.selfservice.platform.bluetooth.BleScannerConfigData
 import com.selfservice.core.logging.Logger
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.withTimeout
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
@@ -45,6 +48,7 @@ class BleThicknessDevice(
 
     private val isConnected = AtomicBoolean(false)
     private val isMeasuring = AtomicBoolean(false)
+    private var activeDeviceAddress: String? = deviceAddress
     
     private var currentZone: String = "unknown"
     private var zoneIndex: Int = 0
@@ -83,6 +87,7 @@ class BleThicknessDevice(
             }
 
             isConnected.set(true)
+            activeDeviceAddress = address
             _connectionStatus.value = ConnectionStatus.CONNECTED
             logger.info("BleThicknessDevice", "Connected to device $address")
             
@@ -99,25 +104,32 @@ class BleThicknessDevice(
      */
     private suspend fun findDevice(): String? {
         logger.debug("BleThicknessDevice", "Scanning for thickness device")
-        
-        var foundAddress: String? = null
-        val scanStartTime = System.currentTimeMillis()
 
-        bleScanner.scanForDevices().collect { result ->
-            if (result.device.name?.contains(deviceName, ignoreCase = true) == true) {
-                foundAddress = result.device.address
-                logger.info("BleThicknessDevice", "Found device: ${result.device.name} at ${result.device.address}")
-                return@collect
+        return try {
+            bleScanner.start(
+                BleScannerConfigData(
+                    serviceUuids = listOf(SERVICE_UUID),
+                    timeoutMs = SCAN_TIMEOUT_MS
+                )
+            )
+
+            val result = withTimeout(SCAN_TIMEOUT_MS) {
+                bleScanner.results.first { scanResult ->
+                    val name = scanResult.device.name
+                    !name.isNullOrBlank() && name.contains(deviceName, ignoreCase = true)
+                }
             }
-            
-            // Таймаут сканирования
-            if (System.currentTimeMillis() - scanStartTime > SCAN_TIMEOUT_MS) {
-                logger.warn("BleThicknessDevice", "Scan timeout exceeded")
-                return@collect
-            }
+            logger.info(
+                "BleThicknessDevice",
+                "Found device: ${result.device.name} at ${result.device.address}"
+            )
+            result.device.address
+        } catch (e: TimeoutCancellationException) {
+            logger.warn("BleThicknessDevice", "Scan timeout exceeded")
+            null
+        } finally {
+            bleScanner.stop()
         }
-
-        return foundAddress
     }
 
     /**
@@ -130,7 +142,7 @@ class BleThicknessDevice(
             stopMeasurements()
         }
 
-        deviceAddress?.let {
+        activeDeviceAddress?.let {
             bleConnectionManager.disconnect(it)
         }
 
@@ -151,33 +163,29 @@ class BleThicknessDevice(
             throw IllegalStateException("Device not connected")
         }
 
-        if (isMeasuring.compareAndSet(false, true)) {
-            try {
-                // Подписываемся на notifications от characteristic
-                deviceAddress?.let { address ->
-                    bleConnectionManager.enableNotifications(address, SERVICE_UUID, CHARACTERISTIC_UUID)
-                    
-                    // Читаем данные из characteristic
-                    bleConnectionManager.observeCharacteristic(address, SERVICE_UUID, CHARACTERISTIC_UUID)
-                        .collect { data ->
-                            val measurement = parseMeasurement(data)
-                            emit(measurement)
-                            
-                            // Логирование
-                            logger.debug(
-                                "BleThicknessDevice",
-                                "Measurement: zone=${measurement.zone}, value=${measurement.value}μm, status=${measurement.status}"
-                            )
-                        }
-                }
-            } catch (e: Exception) {
-                logger.error("BleThicknessDevice", "Error during measurements", e)
-                throw e
-            } finally {
-                isMeasuring.set(false)
-            }
-        } else {
+        if (!isMeasuring.compareAndSet(false, true)) {
             throw IllegalStateException("Measurements already in progress")
+        }
+
+        try {
+            val address = activeDeviceAddress
+                ?: throw IllegalStateException("Device address unknown")
+
+            bleConnectionManager.notifications(address, SERVICE_UUID, CHARACTERISTIC_UUID)
+                .collect { data ->
+                    val measurement = parseMeasurement(data)
+                    emit(measurement)
+
+                    logger.debug(
+                        "BleThicknessDevice",
+                        "Measurement: zone=${measurement.zone}, value=${measurement.value}μm, status=${measurement.status}"
+                    )
+                }
+        } catch (e: Exception) {
+            logger.error("BleThicknessDevice", "Error during measurements", e)
+            throw e
+        } finally {
+            isMeasuring.set(false)
         }
     }
 
@@ -188,8 +196,8 @@ class BleThicknessDevice(
         logger.debug("BleThicknessDevice", "Stopping measurements")
         
         if (isMeasuring.compareAndSet(true, false)) {
-            deviceAddress?.let { address ->
-                bleConnectionManager.disableNotifications(address, SERVICE_UUID, CHARACTERISTIC_UUID)
+            activeDeviceAddress?.let { address ->
+                bleConnectionManager.unsubscribe(address, SERVICE_UUID, CHARACTERISTIC_UUID)
             }
             logger.info("BleThicknessDevice", "Measurements stopped")
         }

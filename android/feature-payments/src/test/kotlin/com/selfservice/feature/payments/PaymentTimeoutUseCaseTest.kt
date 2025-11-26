@@ -1,8 +1,7 @@
 package com.selfservice.feature.payments
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.*
 import org.junit.After
@@ -12,7 +11,6 @@ import java.time.Clock
 import java.time.Instant
 import java.time.ZoneId
 import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 /**
@@ -28,21 +26,21 @@ import kotlin.test.assertTrue
 class PaymentTimeoutUseCaseTest {
     
     private lateinit var testDispatcher: TestDispatcher
-    private lateinit var testScope: TestCoroutineScope
-    private lateinit var mockPaymentModule: MockPaymentModule
+    private lateinit var testScope: TestScope
+    private lateinit var statusProvider: FakePaymentStatusProvider
     private lateinit var mockClock: MockClock
     
     @Before
     fun setup() {
         testDispatcher = StandardTestDispatcher()
-        testScope = TestCoroutineScope(testDispatcher)
-        mockPaymentModule = MockPaymentModule()
+        testScope = TestScope(testDispatcher)
+        statusProvider = FakePaymentStatusProvider()
         mockClock = MockClock()
     }
     
     @After
     fun tearDown() {
-        testScope.cleanupTestCoroutines()
+        testScope.cancel()
     }
     
     @Test
@@ -51,7 +49,7 @@ class PaymentTimeoutUseCaseTest {
         val timeoutMs = 10 * 60 * 1000L // 10 minutes
         
         val poller = PaymentStatusPoller(
-            paymentModule = mockPaymentModule,
+            statusProvider = statusProvider,
             intentId = intentId,
             scope = this,
             clock = mockClock,
@@ -87,7 +85,7 @@ class PaymentTimeoutUseCaseTest {
         val timeoutMs = 10 * 60 * 1000L // 10 minutes
         
         val poller = PaymentStatusPoller(
-            paymentModule = mockPaymentModule,
+            statusProvider = statusProvider,
             intentId = intentId,
             scope = this,
             clock = mockClock,
@@ -98,28 +96,26 @@ class PaymentTimeoutUseCaseTest {
         advanceTimeBy(100L)
         
         // Check remaining time at start
-        val initialRemaining = poller.getRemainingTimeMs()
-        assertNotNull(initialRemaining)
-        assertTrue(initialRemaining!! <= timeoutMs)
+        val initialRemaining = requireNotNull(poller.getRemainingTimeMs())
+        assertTrue(initialRemaining <= timeoutMs)
         
         // Advance time and check again
         mockClock.advanceBy(5 * 60 * 1000L) // 5 minutes
-        val midRemaining = poller.getRemainingTimeMs()
-        assertNotNull(midRemaining)
-        assertTrue(midRemaining!! < initialRemaining)
+        val midRemaining = requireNotNull(poller.getRemainingTimeMs())
+        assertTrue(midRemaining < initialRemaining)
         assertTrue(midRemaining >= 4 * 60 * 1000L) // At least 4 minutes left
         
         // Advance to near timeout
         mockClock.advanceBy(4 * 60 * 1000L) // Another 4 minutes
-        val nearEndRemaining = poller.getRemainingTimeMs()
-        assertNotNull(nearEndRemaining)
-        assertTrue(nearEndRemaining!! < 2 * 60 * 1000L) // Less than 2 minutes left
+        val nearEndRemaining = requireNotNull(poller.getRemainingTimeMs())
+        assertTrue(nearEndRemaining < 2 * 60 * 1000L) // Less than 2 minutes left
+        poller.stopPolling()
     }
     
     @Test
     fun `isTimedOut returns false before timeout`() = testScope.runTest {
         val poller = PaymentStatusPoller(
-            paymentModule = mockPaymentModule,
+            statusProvider = statusProvider,
             intentId = "test-intent",
             scope = this,
             clock = mockClock,
@@ -131,6 +127,7 @@ class PaymentTimeoutUseCaseTest {
         
         // Should not be timed out initially
         assertEquals(false, poller.isTimedOut())
+        poller.stopPolling()
         
         // Should not be timed out after 5 minutes
         mockClock.advanceBy(5 * 60 * 1000L)
@@ -141,7 +138,7 @@ class PaymentTimeoutUseCaseTest {
     fun `isTimedOut returns true after timeout`() = testScope.runTest {
         val timeoutMs = 10 * 60 * 1000L
         val poller = PaymentStatusPoller(
-            paymentModule = mockPaymentModule,
+            statusProvider = statusProvider,
             intentId = "test-intent",
             scope = this,
             clock = mockClock,
@@ -163,7 +160,7 @@ class PaymentTimeoutUseCaseTest {
     fun `timeout state includes elapsed time`() = testScope.runTest {
         val timeoutMs = 10 * 60 * 1000L
         val poller = PaymentStatusPoller(
-            paymentModule = mockPaymentModule,
+            statusProvider = statusProvider,
             intentId = "test-intent",
             scope = this,
             clock = mockClock,
@@ -176,7 +173,7 @@ class PaymentTimeoutUseCaseTest {
         // Advance past timeout
         val extraTime = 5000L
         mockClock.advanceBy(timeoutMs + extraTime)
-        advanceTimeBy(100L)
+        advanceTimeBy(timeoutMs + extraTime + 100L)
         
         // Verify timeout state has correct elapsed time
         val state = poller.pollingState.value
@@ -190,7 +187,7 @@ class PaymentTimeoutUseCaseTest {
     fun `poller stops after timeout`() = testScope.runTest {
         val timeoutMs = 1000L // Short timeout for test
         val poller = PaymentStatusPoller(
-            paymentModule = mockPaymentModule,
+            statusProvider = statusProvider,
             intentId = "test-intent",
             scope = this,
             clock = mockClock,
@@ -199,7 +196,7 @@ class PaymentTimeoutUseCaseTest {
         )
         
         var pollCount = 0
-        launch {
+        val collectorJob = launch {
             poller.pollingState.collect { state ->
                 if (state is PaymentStatusPoller.PollingState.Polling) {
                     pollCount++
@@ -221,15 +218,16 @@ class PaymentTimeoutUseCaseTest {
         val pollCountAfterTimeout = pollCount
         advanceTimeBy(1000L)
         assertEquals(pollCountAfterTimeout, pollCount)
+        collectorJob.cancel()
     }
     
     @Test
     fun `payment confirmed before timeout stops polling`() = testScope.runTest {
         val intentId = "test-intent-confirmed"
-        mockPaymentModule.setStatus(intentId, PaymentStatus.PENDING)
+        statusProvider.setStatus(intentId, PaymentStatus.PENDING)
         
         val poller = PaymentStatusPoller(
-            paymentModule = mockPaymentModule,
+            statusProvider = statusProvider,
             intentId = intentId,
             scope = this,
             clock = mockClock,
@@ -242,7 +240,7 @@ class PaymentTimeoutUseCaseTest {
         
         // Confirm payment after 5 seconds
         mockClock.advanceBy(5000L)
-        mockPaymentModule.setStatus(intentId, PaymentStatus.CONFIRMED)
+        statusProvider.setStatus(intentId, PaymentStatus.CONFIRMED)
         advanceTimeBy(100L) // Poll again
         
         // Verify completed state, not timeout
@@ -269,27 +267,15 @@ class PaymentTimeoutUseCaseTest {
     /**
      * Mock payment module for testing
      */
-    private class MockPaymentModule : PaymentModule {
+    private class FakePaymentStatusProvider : PaymentStatusProvider {
         private val statuses = mutableMapOf<String, PaymentStatus>()
         
         fun setStatus(intentId: String, status: PaymentStatus) {
             statuses[intentId] = status
         }
-        
-        override suspend fun createIntent(input: CreatePaymentIntentInput): CreatePaymentIntentResult {
-            throw NotImplementedError("Not used in this test")
-        }
-        
+
         override suspend fun getStatus(intentId: String): PaymentStatus {
             return statuses[intentId] ?: PaymentStatus.PENDING
-        }
-        
-        override suspend fun getIntent(intentId: String): PaymentIntent {
-            throw NotImplementedError("Not used in this test")
-        }
-        
-        override suspend fun confirmDev(intentId: String): GetPaymentIntentResult? {
-            throw NotImplementedError("Not used in this test")
         }
     }
 }

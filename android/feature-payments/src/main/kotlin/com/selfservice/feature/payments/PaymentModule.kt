@@ -23,7 +23,7 @@ private val DEFAULT_REVSHARE = System.getenv("REVSHARE_PCT")?.toDoubleOrNull() ?
 class PaymentModule(
     options: PaymentModuleOptions,
     private val clock: Clock = Clock.systemUTC(),
-) {
+) : PaymentStatusProvider {
     private val environment: PaymentEnvironment = options.environment
     private val logger: PaymentLogger = options.logger ?: object : PaymentLogger {}
     private val revSharePercent: Double = clampPercent(options.revSharePercent ?: DEFAULT_REVSHARE)
@@ -103,7 +103,7 @@ class PaymentModule(
 
     suspend fun getIntent(id: String): PaymentSessionRecord? = store.get(id)?.let(::buildSessionRecord)
 
-    suspend fun getStatus(id: String): PaymentStatus? {
+    override suspend fun getStatus(id: String): PaymentStatus? {
         val record = store.get(id) ?: return null
         var response: PaymentGatewayStatusResponse? = null
         val statusResponse = runCatching {

@@ -1,10 +1,10 @@
 package com.selfservice.kiosk.mdm
 
 import com.selfservice.kiosk.supabase.SupabaseOutboxWriter
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
-import java.util.TimeZone
+import java.time.Instant
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeFormatterBuilder
 
 class DeviceStatusReporter(
     private val writer: SupabaseOutboxWriter,
@@ -25,15 +25,14 @@ class DeviceStatusReporter(
     }
 
     companion object {
-        private val ISO_FORMAT = ThreadLocal.withInitial {
-            SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX", Locale.US).apply {
-                timeZone = TimeZone.getTimeZone("UTC")
-            }
-        }
+        private val ISO_FORMATTER: DateTimeFormatter = DateTimeFormatterBuilder()
+            .appendPattern("yyyy-MM-dd'T'HH:mm:ss.SSS")
+            .appendOffset("+HH:MM", "+00:00")
+            .toFormatter()
+            .withZone(ZoneOffset.UTC)
 
         fun defaultIsoTimestamp(timestampMillis: Long): String {
-            val formatter = ISO_FORMAT.get()
-            return formatter.format(Date(timestampMillis))
+            return ISO_FORMATTER.format(Instant.ofEpochMilli(timestampMillis))
         }
     }
 }

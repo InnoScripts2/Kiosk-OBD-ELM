@@ -1,5 +1,6 @@
 package com.selfservice.platform.bluetooth.connection
 
+import android.bluetooth.BluetoothGattCharacteristic
 import android.content.Context
 import com.selfservice.platform.bluetooth.ble.BleConnectionState
 import com.selfservice.platform.bluetooth.ble.BleDevice
@@ -59,12 +60,11 @@ class BlessedBleConnectionManager(
     private val _connectionEvents = MutableSharedFlow<ConnectionEvent>()
     override val connectionEvents: Flow<ConnectionEvent> = _connectionEvents.asSharedFlow()
     
+    private val notificationLock = Any()
+    private val notificationFlows = mutableMapOf<NotificationKey, MutableSharedFlow<ByteArray>>()
+    
     private var reconnectAttempts = 0
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-    
-    init {
-        centralManager = BluetoothCentralManager(context, bluetoothCallback, android.os.Handler(context.mainLooper))
-    }
     
     private val bluetoothCallback = object : com.welie.blessed.BluetoothCentralManagerCallback() {
         override fun onConnected(peripheral: BluetoothPeripheral) {
@@ -119,6 +119,10 @@ class BlessedBleConnectionManager(
         }
     }
     
+    init {
+        centralManager = BluetoothCentralManager(context, bluetoothCallback, android.os.Handler(context.mainLooper))
+    }
+    
     private val peripheralCallback = object : BluetoothPeripheralCallback() {
         override fun onServicesDiscovered(peripheral: BluetoothPeripheral) {
             logVerbose("Сервисы обнаружены: ${peripheral.services.size}")
@@ -131,21 +135,7 @@ class BlessedBleConnectionManager(
                     characteristics = service.characteristics.map { char ->
                         BleCharacteristic(
                             uuid = char.uuid,
-                            properties = char.properties.map { prop ->
-                                when (prop) {
-                                    com.welie.blessed.BluetoothGattCharacteristic.PROPERTY_READ -> 
-                                        CharacteristicProperty.READ
-                                    com.welie.blessed.BluetoothGattCharacteristic.PROPERTY_WRITE -> 
-                                        CharacteristicProperty.WRITE
-                                    com.welie.blessed.BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE -> 
-                                        CharacteristicProperty.WRITE_WITHOUT_RESPONSE
-                                    com.welie.blessed.BluetoothGattCharacteristic.PROPERTY_NOTIFY -> 
-                                        CharacteristicProperty.NOTIFY
-                                    com.welie.blessed.BluetoothGattCharacteristic.PROPERTY_INDICATE -> 
-                                        CharacteristicProperty.INDICATE
-                                    else -> null
-                                }
-                            }.filterNotNull().toSet()
+                            properties = mapCharacteristicProperties(char)
                         )
                     }
                 )
@@ -158,10 +148,19 @@ class BlessedBleConnectionManager(
         override fun onCharacteristicUpdate(
             peripheral: BluetoothPeripheral,
             value: ByteArray,
-            characteristic: com.welie.blessed.BluetoothGattCharacteristic,
+            characteristic: BluetoothGattCharacteristic,
             status: GattStatus
         ) {
-            // Обрабатывается в subscribeToNotifications
+            if (status != GattStatus.SUCCESS) {
+                return
+            }
+            val serviceUuid = characteristic.service?.uuid ?: return
+            val targetFlow = synchronized(notificationLock) {
+                notificationFlows[NotificationKey(serviceUuid, characteristic.uuid)]
+            } ?: return
+            scope.launch {
+                targetFlow.emit(value.copyOf())
+            }
         }
         
         override fun onReadRemoteRssi(peripheral: BluetoothPeripheral, rssi: Int, status: GattStatus) {
@@ -203,10 +202,10 @@ class BlessedBleConnectionManager(
                     }
                     
                     currentPeripheral = peripheral
-                    peripheral.setPeripheralCallback(peripheralCallback)
+                    peripheral.peripheralCallback = peripheralCallback
                     
                     // Подключение выполняется асинхронно через callback
-                    centralManager?.connectPeripheral(peripheral, peripheralCallback)
+                    centralManager?.connect(peripheral, peripheralCallback)
                     
                     // Ждем изменения состояния в scope
                     val job = scope.launch {
@@ -260,7 +259,7 @@ class BlessedBleConnectionManager(
                 characteristics = service.characteristics.map { char ->
                     BleCharacteristic(
                         uuid = char.uuid,
-                        properties = emptySet() // TODO: map properties
+                        properties = mapCharacteristicProperties(char)
                     )
                 }
             )
@@ -308,17 +307,25 @@ class BlessedBleConnectionManager(
         val characteristic = peripheral.getCharacteristic(serviceUuid, characteristicUuid)
             ?: throw BleCharacteristicException.CharacteristicNotFound(serviceUuid, characteristicUuid)
         
-        return flow {
-            peripheral.setNotify(characteristic, true)
-            // TODO: implement notification flow
+        val key = NotificationKey(serviceUuid, characteristicUuid)
+        val sharedFlow = synchronized(notificationLock) {
+            notificationFlows.getOrPut(key) { MutableSharedFlow(extraBufferCapacity = 32) }
         }
+        val started = peripheral.startNotify(characteristic)
+        if (!started) {
+            throw BleCharacteristicException.OperationNotSupported(characteristicUuid, "startNotify")
+        }
+        return sharedFlow.asSharedFlow()
     }
     
     override suspend fun unsubscribeFromNotifications(serviceUuid: UUID, characteristicUuid: UUID) {
         val peripheral = currentPeripheral ?: return
         
         val characteristic = peripheral.getCharacteristic(serviceUuid, characteristicUuid) ?: return
-        peripheral.setNotify(characteristic, false)
+        synchronized(notificationLock) {
+            notificationFlows.remove(NotificationKey(serviceUuid, characteristicUuid))
+        }
+        peripheral.stopNotify(characteristic)
     }
     
     override suspend fun readRssi(): Int? {
@@ -352,6 +359,9 @@ class BlessedBleConnectionManager(
         centralManager?.close()
         centralManager = null
         stateMachine.reset()
+        synchronized(notificationLock) {
+            notificationFlows.clear()
+        }
         
         // Cancel scope last to allow cleanup
         scope.cancel()
@@ -396,6 +406,32 @@ class BlessedBleConnectionManager(
             _connectionEvents.emit(event)
         }
     }
+    
+    private fun mapCharacteristicProperties(characteristic: BluetoothGattCharacteristic): Set<CharacteristicProperty> {
+        val properties = characteristic.properties
+        val mapped = mutableSetOf<CharacteristicProperty>()
+        if (properties and BluetoothGattCharacteristic.PROPERTY_READ != 0) {
+            mapped.add(CharacteristicProperty.READ)
+        }
+        if (properties and BluetoothGattCharacteristic.PROPERTY_WRITE != 0) {
+            mapped.add(CharacteristicProperty.WRITE)
+        }
+        if (properties and BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE != 0) {
+            mapped.add(CharacteristicProperty.WRITE_WITHOUT_RESPONSE)
+        }
+        if (properties and BluetoothGattCharacteristic.PROPERTY_NOTIFY != 0) {
+            mapped.add(CharacteristicProperty.NOTIFY)
+        }
+        if (properties and BluetoothGattCharacteristic.PROPERTY_INDICATE != 0) {
+            mapped.add(CharacteristicProperty.INDICATE)
+        }
+        return mapped
+    }
+    
+    private data class NotificationKey(
+        val serviceUuid: UUID,
+        val characteristicUuid: UUID
+    )
     
     private fun logVerbose(message: String) {
         if (config.verboseLogging) {

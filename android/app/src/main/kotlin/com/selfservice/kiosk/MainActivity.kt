@@ -6,6 +6,9 @@ import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.webkit.WebChromeClient
+import android.webkit.WebResourceError
+import android.webkit.WebResourceRequest
+import android.webkit.WebResourceResponse
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -100,6 +103,8 @@ class MainActivity : AppCompatActivity() {
     private var paymentsClientScript: String? = null
     private var diagnosticsBridge: DiagnosticsJavascriptBridge? = null
     private var diagnosticsClientScript: String? = null
+    private lateinit var kioskUrlResolution: KioskUrlResolution
+    private var kioskFallbackIndex: Int = 0
 
     private val requestPermissionsLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -177,6 +182,42 @@ class MainActivity : AppCompatActivity() {
                 injectPaymentsClient(view)
                 injectDiagnosticsClient(view)
             }
+
+            override fun onReceivedHttpError(
+                view: WebView,
+                request: WebResourceRequest,
+                errorResponse: WebResourceResponse
+            ) {
+                if (request.isForMainFrame && errorResponse.statusCode >= HTTP_ERROR_THRESHOLD) {
+                    attemptFallbackLoad(view, request.url?.toString(),
+                        "http_${errorResponse.statusCode}")
+                }
+                super.onReceivedHttpError(view, request, errorResponse)
+            }
+
+            @Suppress("OverridingDeprecatedMember", "DEPRECATION")
+            override fun onReceivedError(
+                view: WebView,
+                request: WebResourceRequest,
+                error: WebResourceError
+            ) {
+                if (request.isForMainFrame) {
+                    attemptFallbackLoad(view, request.url?.toString(), "code_${error.errorCode}")
+                }
+                super.onReceivedError(view, request, error)
+            }
+
+            @Deprecated("Deprecated WebView callback")
+            @Suppress("OverridingDeprecatedMember", "DEPRECATION")
+            override fun onReceivedError(
+                view: WebView,
+                errorCode: Int,
+                description: String?,
+                failingUrl: String?
+            ) {
+                attemptFallbackLoad(view, failingUrl, "legacy_${errorCode}")
+                super.onReceivedError(view, errorCode, description, failingUrl)
+            }
         }
         webView.webChromeClient = WebChromeClient()
         webView.setOnTouchListener(::handleTouch)
@@ -212,8 +253,7 @@ class MainActivity : AppCompatActivity() {
             }
         )
 
-        val kioskUrl = getString(R.string.kiosk_url)
-        webView.loadUrl(kioskUrl)
+        initializeKioskUrl()
 
         setupBluetoothPrerequisites()
         setupDictionarySyncStatus()
@@ -308,10 +348,42 @@ class MainActivity : AppCompatActivity() {
                 val newUrl = input.text.toString()
                 if (newUrl.isNotEmpty()) {
                     webView.loadUrl(newUrl)
+                    kioskFallbackIndex = kioskUrlResolution.fallbackChain.size
                 }
             }
             .setNegativeButton(android.R.string.cancel, null)
             .show()
+    }
+
+    private fun initializeKioskUrl() {
+        kioskUrlResolution = KioskUrlResolver.resolve(
+            appMode = BuildConfig.APP_MODE,
+            options = KioskUrlOptions(
+                primary = getString(R.string.kiosk_url),
+                remote = getString(R.string.kiosk_url_remote),
+                dev = getString(R.string.kiosk_url_dev),
+                fallback = getString(R.string.kiosk_url_fallback)
+            )
+        )
+        kioskFallbackIndex = 0
+        webView.loadUrl(kioskUrlResolution.initialUrl)
+    }
+
+    private fun attemptFallbackLoad(target: WebView, failingUrl: String?, reason: String) {
+        if (!::kioskUrlResolution.isInitialized) {
+            return
+        }
+        val fallback = kioskUrlResolution.fallbackChain.getOrNull(kioskFallbackIndex) ?: return
+        kioskFallbackIndex += 1
+        if (fallback.equals(failingUrl, ignoreCase = true)) {
+            attemptFallbackLoad(target, failingUrl, reason)
+            return
+        }
+        Log.w(
+            TAG,
+            "Switching kiosk UI URL to $fallback due to load failure ($reason) for $failingUrl"
+        )
+        target.post { target.loadUrl(fallback) }
     }
 
     private fun setupBluetoothPrerequisites() {
@@ -1132,6 +1204,7 @@ class MainActivity : AppCompatActivity() {
         private const val GESTURE_HOLD_MS = 5_000L
         private const val PAYMENTS_CLIENT_ASSET = "js/kiosk-payments.js"
         private const val DIAGNOSTICS_CLIENT_ASSET = "js/kiosk-diagnostics.js"
+        private const val HTTP_ERROR_THRESHOLD = 400
         private const val TAG = "MainActivity"
     }
 }

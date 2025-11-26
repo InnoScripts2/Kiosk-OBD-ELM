@@ -208,18 +208,26 @@ cd android
 
 Полный список переменных см. в `.env.example`. Ключевые:
 
-| Переменная                  | Описание                                          | DEV значение      | PROD значение           |
-|-----------------------------|---------------------------------------------------|-------------------|-------------------------|
-| `APP_MODE`                  | Режим приложения (DEV/QA/PROD)                    | `DEV`             | `PROD`                  |
-| `PAYMENT_MOCK`              | Имитация платежей                                 | `true`            | `false`                 |
-| `DEVICE_MOCK_OBD`           | Mock OBD-адаптера                                 | `true`            | `false`                 |
-| `DEVICE_MOCK_THICKNESS`     | Mock толщиномера                                  | `true`            | `false`                 |
-| `ARDUINO_PORT`              | COM-порт Arduino (Windows: COM3, Linux: /dev/ttyACM0) | `COM3`       | `/dev/ttyACM0`          |
-| `YOOKASSA_SHOP_ID`          | YooKassa Shop ID                                  | -                 | `your_shop_id_here`     |
-| `YOOKASSA_SECRET_KEY`       | YooKassa Secret Key                               | -                 | `your_secret_key_here`  |
-| `SUPABASE_URL`              | Supabase Project URL                              | -                 | `https://your_project.supabase.co` |
-| `EMAIL_PROVIDER`            | Email провайдер (MOCK/SENDGRID/SMTP)              | `MOCK`            | `SENDGRID`              |
-| `SMS_PROVIDER`              | SMS провайдер (MOCK/TWILIO/SMSAERO)               | `MOCK`            | `TWILIO`                |
+| Переменная              | Описание                                              | DEV значение | PROD значение                      |
+| ----------------------- | ----------------------------------------------------- | ------------ | ---------------------------------- |
+| `APP_MODE`              | Режим приложения (DEV/QA/PROD)                        | `DEV`        | `PROD`                             |
+| `PAYMENT_MOCK`          | Имитация платежей                                     | `true`       | `false`                            |
+| `DEVICE_MOCK_OBD`       | Mock OBD-адаптера                                     | `true`       | `false`                            |
+| `DEVICE_MOCK_THICKNESS` | Mock толщиномера                                      | `true`       | `false`                            |
+| `ARDUINO_PORT`          | COM-порт Arduino (Windows: COM3, Linux: /dev/ttyACM0) | `COM3`       | `/dev/ttyACM0`                     |
+| `YOOKASSA_SHOP_ID`      | YooKassa Shop ID                                      | -            | `your_shop_id_here`                |
+| `YOOKASSA_SECRET_KEY`   | YooKassa Secret Key                                   | -            | `your_secret_key_here`             |
+| `SUPABASE_URL`          | Supabase Project URL                                  | -            | `https://your_project.supabase.co` |
+| `EMAIL_PROVIDER`        | Email провайдер (MOCK/SENDGRID/SMTP)                  | `MOCK`       | `SENDGRID`                         |
+| `SMS_PROVIDER`          | SMS провайдер (MOCK/TWILIO/SMSAERO)                   | `MOCK`       | `TWILIO`                           |
+
+### Supabase UI и офлайн режим
+
+- **Основной интерфейс** теперь ожидается в Supabase Storage: загрузите собранный фронтенд в бакет `kiosk-ui` и опубликуйте `index.html` по адресу `https://ddaunoxyguqiejrjtwsf.supabase.co/storage/v1/object/public/kiosk-ui/index.html`.
+- **Fallback**: если Supabase недоступен, WebView автоматически переключится на локальный файл `android_asset/html/offline.html`, отображающий инструкции оператору.
+- **Жест оператора** (три одновременных касания) по-прежнему позволяет вручную задать иной URL и перезапустить загрузку.
+- **Диагностика WebView**: используйте расширение **LogcatWin, ADB interface for VSCode** (или `adb logcat`) для поиска записей `Switching kiosk UI URL...` и HTTP ошибок при отладке.
+- **Настройка Supabase**: подробный гайд и команды CLI находятся в `09-docs/02-application/plans/supabase-setup.md`.
 
 ## Текущий статус (Session 1G, 23.11.2025)
 

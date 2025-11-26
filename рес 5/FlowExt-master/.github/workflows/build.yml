@@ -1,0 +1,159 @@
+name: Build and publish snapshot
+
+on:
+  push:
+    branches: [ master ]
+    paths-ignore: [ '**.md', '**.MD' ]
+    tags-ignore:
+      - '**'
+  pull_request:
+    branches: [ master ]
+    paths-ignore: [ '**.md', '**.MD' ]
+  workflow_dispatch:
+
+env:
+  GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx4g -Dorg.gradle.daemon=false -Dkotlin.incremental=false -XX:+UseParallelGC -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8"
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ macos-14, ubuntu-latest, windows-latest ]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+
+      - name: Set up JDK
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v5
+        with:
+          gradle-home-cache-cleanup: true
+
+      - name: Cache konan
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.konan/cache
+            ~/.konan/dependencies
+            ~/.konan/kotlin-native-macos*
+            ~/.konan/kotlin-native-mingw*
+            ~/.konan/kotlin-native-windows*
+            ~/.konan/kotlin-native-linux*
+            ~/.konan/kotlin-native-prebuilt-macos*
+            ~/.konan/kotlin-native-prebuilt-mingw*
+            ~/.konan/kotlin-native-prebuilt-windows*
+            ~/.konan/kotlin-native-prebuilt-linux*
+          key: ${{ matrix.os }}-konan-${{ hashFiles('**/*.gradle*') }}
+          restore-keys: |
+            ${{ matrix.os }}-konan-
+
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
+      - name: Build (no WASM)
+        if: ${{ matrix.os == 'windows-latest' }}
+        run: ./gradlew build --stacktrace -Dkwasm=false
+
+      - name: Build (including WASM)
+        if: ${{ matrix.os != 'windows-latest' }}
+        run: ./gradlew build --stacktrace
+
+      - name: Kover Xml Report
+        run: ./gradlew koverXmlReport
+
+      - name: Upload Test Report
+        uses: codecov/codecov-action@v5.4.3
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Upload test report artifact
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report
+          path: build/reports/tests/allTests/
+
+  publish:
+    needs: [ build ]
+    if: ${{ github.ref == 'refs/heads/master' && github.repository == 'hoc081098/FlowExt' }}
+    strategy:
+      matrix:
+        os: [ macos-14 ]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+
+      - name: Set up JDK
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v5
+        with:
+          gradle-home-cache-cleanup: true
+
+      - name: Cache konan
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.konan/cache
+            ~/.konan/dependencies
+            ~/.konan/kotlin-native-macos*
+            ~/.konan/kotlin-native-mingw*
+            ~/.konan/kotlin-native-windows*
+            ~/.konan/kotlin-native-linux*
+            ~/.konan/kotlin-native-prebuilt-macos*
+            ~/.konan/kotlin-native-prebuilt-mingw*
+            ~/.konan/kotlin-native-prebuilt-windows*
+            ~/.konan/kotlin-native-prebuilt-linux*
+          key: ${{ matrix.os }}-konan-${{ hashFiles('**/*.gradle*') }}
+          restore-keys: |
+            ${{ matrix.os }}-konan-
+
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
+      - name: Retrieve version
+        run: |
+          echo "VERSION_NAME=$(cat gradle.properties | grep -w "VERSION_NAME" | cut -d'=' -f2)" >> $GITHUB_ENV
+        shell: bash
+
+      - name: Publish snapshot
+        run: ./gradlew publish --stacktrace
+        if: ${{ endsWith(env.VERSION_NAME, '-SNAPSHOT') && matrix.os == 'macos-14' }}
+        env:
+          ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.SONATYPE_NEXUS_USERNAME }}
+          ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.SONATYPE_NEXUS_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.MAVEN_SIGNING_PRIVATE_KEY }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.MAVEN_SIGNING_PASSWORD }}
+
+      # - name: Publish snapshot (Windows)
+      #   run: ./gradlew publishMingwX64PublicationToMavenCentralRepository --no-parallel --stacktrace
+      #   if: ${{ endsWith(env.VERSION_NAME, '-SNAPSHOT') && matrix.os == 'windows-latest' }}
+      #   env:
+      #     ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.SONATYPE_NEXUS_USERNAME }}
+      #     ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.SONATYPE_NEXUS_PASSWORD }}
+      #     ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.MAVEN_SIGNING_PRIVATE_KEY }}
+      #     ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.MAVEN_SIGNING_PASSWORD }}
+
+      - name: Generate docs
+        run: ./gradlew dokkaGenerate --no-parallel --stacktrace
+
+      - name: Deploy docs 🚀 to website
+        if: ${{ github.ref == 'refs/heads/master' && github.repository == 'hoc081098/FlowExt' && matrix.os == 'macos-14' }}
+        uses: JamesIves/github-pages-deploy-action@v4.7.3
+        with:
+          branch: gh-pages # The branch the action should deploy to.
+          folder: build/dokka/html # The folder the action should deploy.
+          target-folder: docs/latest/
+          clean: true

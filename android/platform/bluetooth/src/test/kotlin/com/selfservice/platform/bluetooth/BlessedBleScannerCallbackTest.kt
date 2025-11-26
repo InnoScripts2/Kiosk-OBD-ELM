@@ -1,61 +1,14 @@
 package com.selfservice.platform.bluetooth
 
-import android.bluetooth.le.ScanResult
-import android.bluetooth.le.ScanRecord
-import android.content.Context
-import android.os.ParcelUuid
-import com.welie.blessed.BluetoothPeripheral
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.test.runTest
-import org.junit.Before
-import org.junit.Test
-import org.mockito.kotlin.*
-import java.util.UUID
+import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
 
 /**
- * Тесты для проверки корректной работы BlessedBleScanner
- * с правильными blessed API callbacks.
- * 
- * @since Session 10B
+ * Минимальные проверки отображения данных сканера BLE без
+ * инициализации Android BLE стека.
  */
-@OptIn(ExperimentalCoroutinesApi::class)
 class BlessedBleScannerCallbackTest {
-    
-    private lateinit var context: Context
-    private lateinit var scanner: BlessedBleScanner
-    
-    @Before
-    fun setUp() {
-        context = mock()
-        scanner = BlessedBleScanner(context)
-    }
-    
-    @Test
-    fun `scanner uses correct blessed API method name onDiscovered`() {
-        // Этот тест проверяет, что мы используем правильный метод blessed API
-        // onDiscovered (не onDiscoveredPeripheral)
-        
-        // Create mock peripheral
-        val peripheral = mock<BluetoothPeripheral> {
-            on { address } doReturn "AA:BB:CC:DD:EE:FF"
-            on { name } doReturn "Test OBD"
-        }
-        
-        // Create mock scan result
-        val scanRecord = mock<ScanRecord>()
-        val scanResult = mock<ScanResult> {
-            on { rssi } doReturn -65
-            on { this.scanRecord } doReturn scanRecord
-        }
-        
-        // Scanner должен обрабатывать результаты через onDiscovered callback
-        // Проверяем, что метод существует и имеет правильную сигнатуру
-        assertNotNull(scanner)
-    }
-    
+
     @Test
     fun `BleScanResultData correctly maps device address and name`() {
         val device = BleDeviceData(

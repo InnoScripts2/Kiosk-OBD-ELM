@@ -11,7 +11,7 @@ class BluetoothBytesParserTest {
 
     @Test
     fun `test sequential reading of UInt8`() {
-        val bytes = byteArrayOf(0x01, 0x02, 0x03)
+        val bytes = byteArrayOf(0x01.toByte(), 0x02.toByte(), 0x03.toByte())
         val parser = BluetoothBytesParser(bytes)
         
         assertEquals(0x01u, parser.getUInt8())
@@ -22,7 +22,7 @@ class BluetoothBytesParserTest {
 
     @Test
     fun `test sequential reading of Int8`() {
-        val bytes = byteArrayOf(0x7F, 0xFF.toByte())
+        val bytes = byteArrayOf(0x7F.toByte(), 0xFF.toByte())
         val parser = BluetoothBytesParser(bytes)
         
         assertEquals(127, parser.getInt8())
@@ -31,7 +31,7 @@ class BluetoothBytesParserTest {
 
     @Test
     fun `test sequential reading of UInt16 little endian`() {
-        val bytes = byteArrayOf(0x34, 0x12, 0x78, 0x56)
+        val bytes = byteArrayOf(0x34.toByte(), 0x12.toByte(), 0x78.toByte(), 0x56.toByte())
         val parser = BluetoothBytesParser(bytes, byteOrder = ByteOrder.LITTLE_ENDIAN)
         
         assertEquals(0x1234u.toUShort(), parser.getUInt16())
@@ -41,7 +41,7 @@ class BluetoothBytesParserTest {
 
     @Test
     fun `test sequential reading of Int16`() {
-        val bytes = byteArrayOf(0x00, 0x10, 0xFF.toByte(), 0xFF.toByte())
+        val bytes = byteArrayOf(0x00.toByte(), 0x10.toByte(), 0xFF.toByte(), 0xFF.toByte())
         val parser = BluetoothBytesParser(bytes, byteOrder = ByteOrder.LITTLE_ENDIAN)
         
         assertEquals(4096, parser.getInt16())
@@ -50,7 +50,7 @@ class BluetoothBytesParserTest {
 
     @Test
     fun `test sequential reading of UInt24`() {
-        val bytes = byteArrayOf(0x78, 0x56, 0x12)
+        val bytes = byteArrayOf(0x78.toByte(), 0x56.toByte(), 0x12.toByte())
         val parser = BluetoothBytesParser(bytes, byteOrder = ByteOrder.LITTLE_ENDIAN)
         
         assertEquals(0x125678u, parser.getUInt24())
@@ -59,7 +59,7 @@ class BluetoothBytesParserTest {
 
     @Test
     fun `test sequential reading of UInt32`() {
-        val bytes = byteArrayOf(0x78, 0x56, 0x34, 0x12)
+        val bytes = byteArrayOf(0x78.toByte(), 0x56.toByte(), 0x34.toByte(), 0x12.toByte())
         val parser = BluetoothBytesParser(bytes, byteOrder = ByteOrder.LITTLE_ENDIAN)
         
         assertEquals(0x12345678u, parser.getUInt32())
@@ -68,7 +68,7 @@ class BluetoothBytesParserTest {
 
     @Test
     fun `test sequential reading of Int32`() {
-        val bytes = byteArrayOf(0x00, 0x00, 0x00, 0x10)
+        val bytes = byteArrayOf(0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x10.toByte())
         val parser = BluetoothBytesParser(bytes, byteOrder = ByteOrder.LITTLE_ENDIAN)
         
         assertEquals(0x10000000, parser.getInt32())
@@ -77,7 +77,7 @@ class BluetoothBytesParserTest {
 
     @Test
     fun `test sequential reading of UInt48`() {
-        val bytes = byteArrayOf(0x78, 0x56, 0x34, 0x12, 0x90.toByte(), 0xAB.toByte())
+        val bytes = byteArrayOf(0x78.toByte(), 0x56.toByte(), 0x34.toByte(), 0x12.toByte(), 0x90.toByte(), 0xAB.toByte())
         val parser = BluetoothBytesParser(bytes, byteOrder = ByteOrder.LITTLE_ENDIAN)
         
         assertEquals(0xAB9012345678uL, parser.getUInt48())
@@ -86,7 +86,7 @@ class BluetoothBytesParserTest {
 
     @Test
     fun `test sequential reading of UInt64`() {
-        val bytes = byteArrayOf(0x78, 0x56, 0x34, 0x12, 0x90.toByte(), 0xAB.toByte(), 0xCD.toByte(), 0xEF.toByte())
+        val bytes = byteArrayOf(0x78.toByte(), 0x56.toByte(), 0x34.toByte(), 0x12.toByte(), 0x90.toByte(), 0xAB.toByte(), 0xCD.toByte(), 0xEF.toByte())
         val parser = BluetoothBytesParser(bytes, byteOrder = ByteOrder.LITTLE_ENDIAN)
         
         assertEquals(0xEFCDAB9012345678uL, parser.getUInt64())
@@ -115,9 +115,9 @@ class BluetoothBytesParserTest {
     fun `test mixed type reading`() {
         // Create a complex byte array: 1 byte + 2 bytes + 4 bytes
         val bytes = byteArrayOf(
-            0x01,                           // UInt8
-            0x34, 0x12,                     // UInt16 little endian (0x1234)
-            0x78, 0x56, 0x34, 0x12          // UInt32 little endian (0x12345678)
+            0x01.toByte(),                           // UInt8
+            0x34.toByte(), 0x12.toByte(),                     // UInt16 little endian (0x1234)
+            0x78.toByte(), 0x56.toByte(), 0x34.toByte(), 0x12.toByte()          // UInt32 little endian (0x12345678)
         )
         val parser = BluetoothBytesParser(bytes, byteOrder = ByteOrder.LITTLE_ENDIAN)
         
@@ -130,7 +130,7 @@ class BluetoothBytesParserTest {
     @Test
     fun `test getSFloat`() {
         // SFloat with mantissa=100, exponent=-2 => 100 * 10^-2 = 1.0
-        val bytes = byteArrayOf(0x64, 0xF0.toByte()) // Little endian
+        val bytes = byteArrayOf(0x64.toByte(), 0xE0.toByte()) // Little endian (exponent -2)
         val parser = BluetoothBytesParser(bytes, byteOrder = ByteOrder.LITTLE_ENDIAN)
         
         val result = parser.getSFloat()
@@ -140,7 +140,7 @@ class BluetoothBytesParserTest {
 
     @Test
     fun `test big endian reading`() {
-        val bytes = byteArrayOf(0x12, 0x34, 0x56, 0x78)
+        val bytes = byteArrayOf(0x12.toByte(), 0x34.toByte(), 0x56.toByte(), 0x78.toByte())
         val parser = BluetoothBytesParser(bytes, byteOrder = ByteOrder.BIG_ENDIAN)
         
         assertEquals(0x1234u.toUShort(), parser.getUInt16())

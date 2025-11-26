@@ -9,7 +9,6 @@ import java.time.Clock
 import java.time.Instant
 import java.time.ZoneId
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 /**
@@ -22,15 +21,16 @@ class PaymentStatusPollerTest {
     
     private lateinit var testDispatcher: TestDispatcher
     private lateinit var testScope: TestScope
-    private lateinit var mockPaymentModule: MockPaymentModule
-    private lateinit var fixedClock: Clock
+    private lateinit var statusProvider: FakePaymentStatusProvider
+    private lateinit var testClock: SchedulerClock
     
     @Before
     fun setup() {
-        testDispatcher = StandardTestDispatcher()
+        val dispatcher = StandardTestDispatcher()
+        testDispatcher = dispatcher
         testScope = TestScope(testDispatcher)
-        mockPaymentModule = MockPaymentModule()
-        fixedClock = Clock.fixed(Instant.parse("2025-11-24T00:00:00Z"), ZoneId.systemDefault())
+        statusProvider = FakePaymentStatusProvider()
+        testClock = SchedulerClock(dispatcher.scheduler)
     }
     
     @After
@@ -41,12 +41,12 @@ class PaymentStatusPollerTest {
     @Test
     fun `startPolling polls status until confirmed`() = testScope.runTest {
         // Arrange
-        mockPaymentModule.setStatus("intent-123", PaymentStatus.PENDING)
+        statusProvider.setStatus("intent-123", PaymentStatus.PENDING)
         val poller = PaymentStatusPoller(
-            paymentModule = mockPaymentModule,
+            statusProvider = statusProvider,
             intentId = "intent-123",
             scope = this,
-            clock = fixedClock,
+            clock = testClock,
             pollIntervalMs = 100,
             timeoutMs = 10_000
         )
@@ -56,11 +56,9 @@ class PaymentStatusPollerTest {
         advanceTimeBy(50) // First poll
         
         // Assert - still polling
-        val state1 = poller.pollingState.value
-        assertTrue(state1 is PaymentStatusPoller.PollingState.Polling)
-        
+        assertTrue(poller.pollingState.value is PaymentStatusPoller.PollingState.Polling)
         // Simulate confirmation
-        mockPaymentModule.setStatus("intent-123", PaymentStatus.CONFIRMED)
+        statusProvider.setStatus("intent-123", PaymentStatus.CONFIRMED)
         advanceTimeBy(150) // Second poll
         
         // Assert - completed
@@ -72,12 +70,12 @@ class PaymentStatusPollerTest {
     @Test
     fun `startPolling times out after configured duration`() = testScope.runTest {
         // Arrange
-        mockPaymentModule.setStatus("intent-456", PaymentStatus.PENDING)
+        statusProvider.setStatus("intent-456", PaymentStatus.PENDING)
         val poller = PaymentStatusPoller(
-            paymentModule = mockPaymentModule,
+            statusProvider = statusProvider,
             intentId = "intent-456",
             scope = this,
-            clock = fixedClock,
+            clock = testClock,
             pollIntervalMs = 100,
             timeoutMs = 1_000 // 1 second timeout
         )
@@ -95,12 +93,12 @@ class PaymentStatusPollerTest {
     @Test
     fun `stopPolling stops active polling`() = testScope.runTest {
         // Arrange
-        mockPaymentModule.setStatus("intent-789", PaymentStatus.PENDING)
+        statusProvider.setStatus("intent-789", PaymentStatus.PENDING)
         val poller = PaymentStatusPoller(
-            paymentModule = mockPaymentModule,
+            statusProvider = statusProvider,
             intentId = "intent-789",
             scope = this,
-            clock = fixedClock,
+            clock = testClock,
             pollIntervalMs = 100,
             timeoutMs = 10_000
         )
@@ -120,10 +118,10 @@ class PaymentStatusPollerTest {
     fun `getRemainingTimeMs returns correct value`() = testScope.runTest {
         // Arrange
         val poller = PaymentStatusPoller(
-            paymentModule = mockPaymentModule,
+            statusProvider = statusProvider,
             intentId = "intent-999",
             scope = this,
-            clock = fixedClock,
+            clock = testClock,
             pollIntervalMs = 100,
             timeoutMs = 5_000
         )
@@ -135,17 +133,18 @@ class PaymentStatusPollerTest {
         // Assert
         val remaining = poller.getRemainingTimeMs()
         assertTrue(remaining != null && remaining <= 4_000 && remaining >= 3_900)
+        poller.stopPolling()
     }
     
     @Test
     fun `isTimedOut returns true when timeout reached`() = testScope.runTest {
         // Arrange
-        mockPaymentModule.setStatus("intent-000", PaymentStatus.PENDING)
+        statusProvider.setStatus("intent-000", PaymentStatus.PENDING)
         val poller = PaymentStatusPoller(
-            paymentModule = mockPaymentModule,
+            statusProvider = statusProvider,
             intentId = "intent-000",
             scope = this,
-            clock = fixedClock,
+            clock = testClock,
             pollIntervalMs = 100,
             timeoutMs = 500
         )
@@ -161,12 +160,12 @@ class PaymentStatusPollerTest {
     @Test
     fun `polling handles failed status`() = testScope.runTest {
         // Arrange
-        mockPaymentModule.setStatus("intent-fail", PaymentStatus.PENDING)
+        statusProvider.setStatus("intent-fail", PaymentStatus.PENDING)
         val poller = PaymentStatusPoller(
-            paymentModule = mockPaymentModule,
+            statusProvider = statusProvider,
             intentId = "intent-fail",
             scope = this,
-            clock = fixedClock,
+            clock = testClock,
             pollIntervalMs = 100,
             timeoutMs = 5_000
         )
@@ -175,7 +174,7 @@ class PaymentStatusPollerTest {
         poller.startPolling()
         advanceTimeBy(50)
         
-        mockPaymentModule.setStatus("intent-fail", PaymentStatus.FAILED)
+        statusProvider.setStatus("intent-fail", PaymentStatus.FAILED)
         advanceTimeBy(150)
         
         // Assert
@@ -187,12 +186,12 @@ class PaymentStatusPollerTest {
     @Test
     fun `polling prevents duplicate start`() = testScope.runTest {
         // Arrange
-        mockPaymentModule.setStatus("intent-dup", PaymentStatus.PENDING)
+        statusProvider.setStatus("intent-dup", PaymentStatus.PENDING)
         val poller = PaymentStatusPoller(
-            paymentModule = mockPaymentModule,
+            statusProvider = statusProvider,
             intentId = "intent-dup",
             scope = this,
-            clock = fixedClock,
+            clock = testClock,
             pollIntervalMs = 100,
             timeoutMs = 5_000
         )
@@ -204,31 +203,27 @@ class PaymentStatusPollerTest {
         // Assert - should not crash and still be polling
         val state = poller.pollingState.value
         assertTrue(state is PaymentStatusPoller.PollingState.Polling)
+        poller.stopPolling()
     }
     
-    /**
-     * Mock PaymentModule for testing
-     */
-    private class MockPaymentModule : PaymentModule(
-        PaymentModuleOptions(
-            environment = PaymentEnvironment.DEV,
-            storeOptions = PaymentIntentStoreOptions(databasePath = ":memory:"),
-            logger = object : PaymentLogger {
-                override fun debug(message: String, context: Map<String, Any?>) {}
-                override fun info(message: String, context: Map<String, Any?>) {}
-                override fun warn(message: String, context: Map<String, Any?>) {}
-                override fun error(message: String, context: Map<String, Any?>) {}
-            }
-        )
-    ) {
+    private class SchedulerClock(
+        private val scheduler: TestCoroutineScheduler,
+        private val zoneId: ZoneId = ZoneId.systemDefault()
+    ) : Clock() {
+        override fun getZone(): ZoneId = zoneId
+
+        override fun withZone(zone: ZoneId): Clock = SchedulerClock(scheduler, zone)
+
+        override fun instant(): Instant = Instant.ofEpochMilli(scheduler.currentTime)
+    }
+
+    private class FakePaymentStatusProvider : PaymentStatusProvider {
         private val statuses = mutableMapOf<String, PaymentStatus>()
-        
+
         fun setStatus(intentId: String, status: PaymentStatus) {
             statuses[intentId] = status
         }
-        
-        override suspend fun getStatus(id: String): PaymentStatus? {
-            return statuses[id]
-        }
+
+        override suspend fun getStatus(intentId: String): PaymentStatus? = statuses[intentId]
     }
 }

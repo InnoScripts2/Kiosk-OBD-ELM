@@ -137,18 +137,18 @@ class MockUsbSerialAdapterTest {
     
     @Test
     fun `sendCommand without connection throws exception`() = runTest {
-        assertThrows(UsbSerialException.IoError::class.java) {
-            runTest {
-                adapter.sendCommand(ArduinoCommand.PING)
-            }
+        try {
+            adapter.sendCommand(ArduinoCommand.PING)
+            fail("Expected UsbSerialException.IoError")
+        } catch (_: UsbSerialException.IoError) {
+            // expected
         }
     }
     
     @Test
     fun `events flow emits Response events`() = runTest {
-        adapter.connect()
-        
         adapter.events.test {
+            adapter.connect()
             // Skip Connected event
             skipItems(2) // Connected + Ready
             
