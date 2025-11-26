@@ -1,12 +1,14 @@
-# Supabase-kt
+# Supabase-kt Storage
 
-The main Supabase-kt library. It provides a plugin system to extend the client with additional features and provides basic functionality to interact with the Supabase API.
+Extends Supabase-kt with a multiplatform Storage client.
 
 Supported targets:
 
 | Target | **JVM** | **Android** | **JS** | **Wasm** | **Apple** | **Windows** | **Linux** |
 |--------|---------|-------------|--------|----------|-----------|-------------|-----------|
 | Status | ✅       | ✅           | ✅      | ✅        | ✅         | ✅           | ✅         |
+
+> Linux has no support for persistent resumable upload url caching.
 
 <details>
 
@@ -34,33 +36,31 @@ Supported targets:
 
 # Installation
 
-*You don't necessarily need to install this library directly. It is a dependency of the other Supabase-kt libraries.*
-
 Newest version: [![](https://img.shields.io/github/release/supabase-community/supabase-kt?label=)](https://github.com/supabase-community/supabase-kt/releases)
 
 ```kotlin
 dependencies {
-    implementation("io.github.jan-tennert.supabase:supabase-kt:VERSION")
+    implementation("io.github.jan-tennert.supabase:storage-kt:VERSION")
+}
+```
+
+Install the plugin in your SupabaseClient. See the [documentation](https://supabase.com/docs/reference/kotlin/initializing) for more information
+
+```kotlin
+val supabase = createSupabaseClient(
+    supabaseUrl = "https://id.supabase.co",
+    supabaseKey = "apikey"
+) {
+
+    //...
+
+    install(Storage) {
+        // settings
+    }
+
 }
 ```
 
 # Usage
 
-```kotlin
-//Create a Supabase client
-val supabase = createSupabaseClient(
-    supabaseUrl = "https://id.supabase.co",
-    supabaseKey = "apikey"
-) {
-    //Change default settings
-    defaultSerializer = MyCustomSerializer()
-    defaultLogLevel = LogLevel.DEBUG
-    
-    //Install a plugin
-    install(Auth) //from auth-kt
-
-}
-
-//Access a plugin via the client
-val auth = supabase.auth
-```
+See [Storage documentation](https://supabase.com/docs/reference/kotlin/storage-createbucket) for usage

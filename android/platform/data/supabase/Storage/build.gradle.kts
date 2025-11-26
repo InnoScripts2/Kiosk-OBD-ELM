@@ -1,63 +1,40 @@
 plugins {
     id(libs.plugins.kotlin.multiplatform.get().pluginId)
     id(libs.plugins.android.library.get().pluginId)
-    id(libs.plugins.detekt.get().pluginId)
-    id(libs.plugins.dokka.get().pluginId)
-    alias(libs.plugins.kotlinx.plugin.serialization)
-    id(libs.plugins.maven.publish.get().pluginId)
 }
 
-val buildConfigGenerator by tasks.registering(Sync::class) {
+description = "Extends supabase-kt with a Storage Client"
 
-    from(
-        resources.text.fromString(
-            """
-        |package io.github.jan.supabase
-        |
-        |import io.github.jan.supabase.annotations.SupabaseInternal
-        |
-        |@SupabaseInternal
-        |object BuildConfig {
-        |  const val PROJECT_VERSION = "${project.version}"
-        |}
-        |
-      """.trimMargin()
-        )
-    ) {
-        rename { "BuildConfig.kt" } // set the file name
-        into("io/github/jan/supabase/") // change the directory to match the package
-    }
-
-    into(layout.buildDirectory.dir("generated-src/kotlin/"))
+repositories {
+    mavenCentral()
 }
 
 @OptIn(org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi::class)
 kotlin {
     defaultConfig()
+    applyDefaultHierarchyTemplate {
+        common {
+            androidAndJvmGroup()
+            settingsGroup()
+        }
+    }
     allTargets()
     sourceSets {
         commonMain {
-            kotlin.srcDir(
-                // convert the task to a file-provider
-                buildConfigGenerator.map { it.destinationDir }
-            )
             dependencies {
-                api(libs.kotlinx.datetime)
-                api(libs.kotlinx.coroutines.core)
-                api(libs.kermit)
-                api(libs.bundles.ktor.client)
-                api(libs.kotlinx.serialization.json)
-                api(libs.kotlinx.immutable.collections)
+                addModules(SupabaseModule.AUTH)
             }
         }
         commonTest {
             dependencies {
+                implementation(project(":test-common"))
                 implementation(libs.bundles.testing)
+                implementation(libs.turbine)
             }
         }
-        androidMain {
+        val settingsMain by getting {
             dependencies {
-                api(libs.android.lifecycle.process)
+                api(libs.bundles.multiplatform.settings)
             }
         }
     }
