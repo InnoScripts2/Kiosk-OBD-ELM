@@ -1,0 +1,12 @@
+*.iml
+.gradle
+/local.properties
+.idea
+build
+/classes
+/out
+.DS_Store*
+*/node_modules
+*/package-lock.json
+*.hprof
+.kotlin
