@@ -86,8 +86,9 @@
    - ✅ Созданы packages: device-obd, device-thickness, report, payment-mock
    - ✅ Создана структура логирования (logs/sessions, logs/issues)
    - ✅ Обновлён .gitignore (логи, build артефакты)
-   - ⚠️ BLOCKER: Android build по-прежнему недоступен (AGP 8.4.1 не в зеркалах)
-   - **Статус**: Завершено, Node/TS готов, Android требует Maven доступа
+  - ⚠️ BLOCKER (23.11): Android build по-прежнему недоступен (AGP 8.4.1 не в зеркалах)
+  - ✅ 26.11.2025: Введён обход — workflow `.github/workflows/android-build.yml` поддерживает self-hosted раннер, инструкции см. `09-docs/02-application/plans/session08-agp-unblock.md`
+  - **Статус**: Завершено, Node/TS готов, Android требует запуска через Actions до восстановления Google Maven
    - **Метрики**: 32 файла, ~20,300 строк, 17 тестов
 9. **[ВЫПОЛНЕНО 23.11.2025]** Сессия 09: Arduino интеграция и полевая готовность:
    - ✅ Создан Arduino скрипт dispencer.ino (327 строк):
