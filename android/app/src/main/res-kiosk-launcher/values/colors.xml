@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Primary colors -->
+    <color name="purple_200">#E0B1FF</color>  <!-- Light purple -->
+    <color name="purple_500">#7B2CBF</color>  <!-- Medium purple -->
+    <color name="purple_700">#5A189A</color>  <!-- Dark purple -->
+
+    <!-- Status colors -->
+    <color name="teal_200">#52B788</color>    <!-- Success/Good -->
+    <color name="teal_700">#2D6A4F</color>    <!-- Dark success -->
+    <color name="warning">#FF9E00</color>     <!-- Warning -->
+    <color name="error">#D62839</color>       <!-- Error/Danger -->
+
+    <!-- Neutral colors -->
+    <color name="black">#1A1A1A</color>       <!-- Soft black -->
+    <color name="white">#F8F9FA</color>       <!-- Off-white -->
+</resources>
