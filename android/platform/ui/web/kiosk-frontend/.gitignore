@@ -27,6 +27,3 @@ playwright/.cache/
 logs/
 *.log
 npm-debug.log*
-
-# Generated types
-src/integrations/supabase/types.generated.ts

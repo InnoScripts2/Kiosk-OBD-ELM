@@ -20,7 +20,9 @@ npm run dev
 
 Файлы конфигурации:
 - `.env.dev` — DEV-режим (Supabase отключён, mock-режимы включены)
-- `.env.example` — PROD-режим (требует настройки Supabase)
+- `.env.example` — шаблон PROD-режима (требует настройки Supabase)
+
+Для PROD-режима скопируйте `.env.example` в `.env` и заполните Supabase credentials.
 
 ## Overview
 
