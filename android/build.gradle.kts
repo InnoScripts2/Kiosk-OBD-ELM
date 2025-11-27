@@ -1,3 +1,7 @@
+import io.gitlab.arturbosch.detekt.Detekt
+import io.gitlab.arturbosch.detekt.extensions.DetektExtension
+import org.jetbrains.kotlin.gradle.plugin.KotlinBasePluginWrapper
+
 buildscript {
     repositories {
         // Используем те же зеркала, что и в settings.gradle.kts
@@ -17,6 +21,61 @@ plugins {
     alias(libs.plugins.kotlin.android) apply false
     alias(libs.plugins.kotlin.kapt) apply false
     alias(libs.plugins.kotlin.serialization) apply false
+    alias(libs.plugins.detekt) apply false
+}
+
+val detektConfigFile = rootProject.file("detekt.yml")
+val detektVersion = libs.versions.detekt.get()
+val detektPluginId = "io.gitlab.arturbosch.detekt"
+val detektFormattingDependency = "io.gitlab.arturbosch.detekt:detekt-formatting:$detektVersion"
+
+val aggregateDetektTask = tasks.register("detektAll") {
+    group = "verification"
+    description = "Runs Detekt across all Kotlin subprojects"
+}
+
+subprojects {
+    plugins.withType<KotlinBasePluginWrapper> {
+        if (!pluginManager.hasPlugin(detektPluginId)) {
+            pluginManager.apply(detektPluginId)
+        }
+    }
+
+    plugins.withId(detektPluginId) {
+        extensions.configure<DetektExtension>("detekt") {
+            buildUponDefaultConfig = true
+            allRules = false
+            autoCorrect = false
+            parallel = true
+            ignoreFailures = true
+            basePath = rootProject.projectDir.absolutePath
+            config.setFrom(detektConfigFile)
+        }
+
+        dependencies {
+            add("detektPlugins", detektFormattingDependency)
+        }
+
+        tasks.withType<Detekt>().configureEach {
+            jvmTarget = "17"
+            reports {
+                html.required.set(true)
+                sarif.required.set(true)
+                xml.required.set(false)
+                txt.required.set(false)
+            }
+        }
+
+        tasks.matching { it.name == "detekt" }.configureEach {
+            aggregateDetektTask.configure { dependsOn(this@configureEach) }
+        }
+    }
+}
+
+tasks.register("detekt") {
+    group = "verification"
+    description = "Alias task for running Detekt across all modules"
+    dependsOn(aggregateDetektTask)
 }
 
 // DevOps and Maintenance Tasks (Session 17A)

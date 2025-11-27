@@ -1,6 +1,7 @@
 [versions]
 androidGradlePlugin = "8.4.1"
 kotlin = "1.9.24"
+detekt = "1.23.6"
 coroutines = "1.9.0"
 coreKtx = "1.13.1"
 appcompat = "1.7.0"
@@ -39,6 +40,7 @@ android-library = { id = "com.android.library", version.ref = "androidGradlePlug
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 
 [libraries]
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
@@ -96,4 +98,5 @@ kable-core = { module = "com.juul.kable:core", version.ref = "kable" }
 reaktive-core = { module = "com.badoo.reaktive:reaktive", version.ref = "reaktive" }
 reaktive-coroutines-interop = { module = "com.badoo.reaktive:coroutines-interop", version.ref = "reaktive" }
 flowext = { module = "io.github.hoc081098:FlowExt", version.ref = "flowext" }
+detekt-formatting = { module = "io.gitlab.arturbosch.detekt:detekt-formatting", version.ref = "detekt" }
 
