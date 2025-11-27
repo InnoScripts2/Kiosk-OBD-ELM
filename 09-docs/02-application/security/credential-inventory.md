@@ -207,6 +207,7 @@
 | 24.11.2025 | 1.0 | Создание документа, миграция Supabase сервера | BKG Agent |
 | 26.11.2025 | 1.1 | Session 4: Добавлена интеграция Supabase в Android | Copilot Agent |
 | 27.11.2025 | 1.2 | Добавлены публичные Supabase ключи в .env файлы | Copilot Agent |
+| 27.11.2025 | 1.3 | Создан local-credential-notes.local.md для локальных секретов | Copilot Agent |
 
 ## Session 4 Updates (26.11.2025)
 
