@@ -206,6 +206,7 @@
 |------|--------|-----------|-------|
 | 24.11.2025 | 1.0 | Создание документа, миграция Supabase сервера | BKG Agent |
 | 26.11.2025 | 1.1 | Session 4: Добавлена интеграция Supabase в Android | Copilot Agent |
+| 27.11.2025 | 1.2 | Добавлены публичные Supabase ключи в .env файлы | Copilot Agent |
 
 ## Session 4 Updates (26.11.2025)
 
@@ -270,6 +271,67 @@ android {
 - Anon key можно коммитить (публичный, ограниченные права)
 - Service role key использовать только на бэкенде (Node-агент)
 - Android использует anon key + Row Level Security
+
+## 9. Локальная разработка (DEV)
+
+### 9.1 Публичные ключи (можно коммитить)
+
+Следующие значения являются **публичными** и настроены в `.env.example`, `.env.dev`:
+
+```bash
+# Supabase Project (DEV)
+SUPABASE_URL=https://ddaunoxyguqiejrjtwsf.supabase.co
+NEXT_PUBLIC_SUPABASE_URL=https://ddaunoxyguqiejrjtwsf.supabase.co
+VITE_SUPABASE_URL=https://ddaunoxyguqiejrjtwsf.supabase.co
+
+# Supabase Anon Key (публичный, ограниченные права через RLS)
+SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkYXVub3h5Z3VxaWVqcmp0d3NmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM5NTQ0MjYsImV4cCI6MjA3OTUzMDQyNn0.eV2J8CYHMEEahKzH7QTYpKyRAwKmbh-vE5xi2zf-Drg
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<то же значение>
+VITE_SUPABASE_ANON_KEY=<то же значение>
+
+# PostgreSQL Host (публичный)
+POSTGRES_HOST=db.ddaunoxyguqiejrjtwsf.supabase.co
+POSTGRES_DATABASE=postgres
+POSTGRES_USER=postgres
+```
+
+### 9.2 Секретные ключи (НЕ коммитить!)
+
+Для локальной разработки с полным доступом к БД создайте файл `09-docs/02-application/security/local-credential-notes.local.md` (в `.gitignore`):
+
+```bash
+# Содержимое local-credential-notes.local.md
+POSTGRES_PASSWORD=<ваш пароль>
+POSTGRES_URL=postgres://postgres.ddaunoxyguqiejrjtwsf:<password>@aws-1-us-east-1.pooler.supabase.com:6543/postgres?sslmode=require&supa=base-pooler.x
+POSTGRES_PRISMA_URL=postgres://postgres.ddaunoxyguqiejrjtwsf:<password>@aws-1-us-east-1.pooler.supabase.com:6543/postgres?sslmode=require&pgbouncer=true
+POSTGRES_URL_NON_POOLING=postgres://postgres.ddaunoxyguqiejrjtwsf:<password>@aws-1-us-east-1.pooler.supabase.com:5432/postgres?sslmode=require
+SUPABASE_SERVICE_ROLE_KEY=<service role key>
+SUPABASE_JWT_SECRET=<jwt secret>
+```
+
+### 9.3 Настройка локального окружения
+
+1. Скопируйте `.env.example` в `.env`:
+   ```bash
+   cp .env.example .env
+   ```
+
+2. Заполните секретные значения из Vault или Supabase Dashboard
+
+3. Для kiosk-frontend:
+   ```bash
+   cd android/platform/ui/web/kiosk-frontend
+   cp .env.dev .env
+   npm run dev
+   ```
+
+4. Для Node-агента:
+   ```bash
+   cd android/platform/ui/web/agent
+   cp .env.example .env
+   # Заполните секретные значения
+   npm run dev
+   ```
 
 ---
 
