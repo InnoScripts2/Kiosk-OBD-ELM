@@ -7,6 +7,8 @@ import { initPaymentClient } from './core/payment-client.js';
 import { initSessionManager } from './core/session-manager.js';
 import { initErrorHandler } from './core/error-handler.js';
 import { initDevMode } from './core/dev-mode.js';
+import { initSessionTelemetry } from './features/session-telemetry/session-telemetry.js';
+import { initFlowController } from './core/flow-controller.js';
 
 loadConfig();
 
@@ -16,6 +18,8 @@ initDeviceStatus();
 initPaymentClient();
 initSessionManager();
 initDevMode();
+initSessionTelemetry();
+initFlowController();
 
 // Передаём kiosk_id и environment в глобальные метаданные
 if (KioskConfig.getKioskId()) {

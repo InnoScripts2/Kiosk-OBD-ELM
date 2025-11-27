@@ -1,0 +1,38 @@
+﻿2025-11-26T15:15:01.0149719Z ##[debug]Evaluating condition for step: 'Ensure gradlew is executable'
+2025-11-26T15:15:01.0152388Z ##[debug]Evaluating: (success() && (runner.os != 'Windows'))
+2025-11-26T15:15:01.0152793Z ##[debug]Evaluating And:
+2025-11-26T15:15:01.0153084Z ##[debug]..Evaluating success:
+2025-11-26T15:15:01.0153449Z ##[debug]..=> true
+2025-11-26T15:15:01.0153743Z ##[debug]..Evaluating NotEqual:
+2025-11-26T15:15:01.0154039Z ##[debug]....Evaluating Index:
+2025-11-26T15:15:01.0154330Z ##[debug]......Evaluating runner:
+2025-11-26T15:15:01.0154614Z ##[debug]......=> Object
+2025-11-26T15:15:01.0154898Z ##[debug]......Evaluating String:
+2025-11-26T15:15:01.0155173Z ##[debug]......=> 'os'
+2025-11-26T15:15:01.0155538Z ##[debug]....=> 'Linux'
+2025-11-26T15:15:01.0156013Z ##[debug]....Evaluating String:
+2025-11-26T15:15:01.0156286Z ##[debug]....=> 'Windows'
+2025-11-26T15:15:01.0156538Z ##[debug]..=> true
+2025-11-26T15:15:01.0156796Z ##[debug]=> true
+2025-11-26T15:15:01.0157279Z ##[debug]Expanded: (true && ('Linux' != 'Windows'))
+2025-11-26T15:15:01.0157680Z ##[debug]Result: true
+2025-11-26T15:15:01.0158167Z ##[debug]Starting: Ensure gradlew is executable
+2025-11-26T15:15:01.0166275Z ##[debug]Loading inputs
+2025-11-26T15:15:01.0167130Z ##[debug]Loading env
+2025-11-26T15:15:01.0181781Z ##[group]Run chmod +x gradlew
+2025-11-26T15:15:01.0182264Z [36;1mchmod +x gradlew[0m
+2025-11-26T15:15:01.0218128Z shell: /usr/bin/bash -e {0}
+2025-11-26T15:15:01.0218360Z env:
+2025-11-26T15:15:01.0218650Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.17-10/x64
+2025-11-26T15:15:01.0219113Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.17-10/x64
+2025-11-26T15:15:01.0219477Z   ANDROID_HOME: /usr/local/lib/android/sdk
+2025-11-26T15:15:01.0219784Z   ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+2025-11-26T15:15:01.0220069Z   GRADLE_ACTION_ID: gradle/actions/setup-gradle
+2025-11-26T15:15:01.0220347Z   GRADLE_BUILD_ACTION_SETUP_COMPLETED: true
+2025-11-26T15:15:01.0220605Z   GRADLE_BUILD_ACTION_CACHE_RESTORED: true
+2025-11-26T15:15:01.0221015Z   DEVELOCITY_INJECTION_INIT_SCRIPT_NAME: gradle-actions.inject-develocity.init.gradle
+2025-11-26T15:15:01.0221473Z   DEVELOCITY_AUTO_INJECTION_CUSTOM_VALUE: gradle-actions
+2025-11-26T15:15:01.0221767Z   GITHUB_DEPENDENCY_GRAPH_ENABLED: false
+2025-11-26T15:15:01.0222000Z ##[endgroup]
+2025-11-26T15:15:01.0273402Z ##[debug]/usr/bin/bash -e /home/runner/work/_temp/0129d9b8-d0c9-4229-b63a-ec2e275e1d05.sh
+2025-11-26T15:15:01.0313566Z ##[debug]Finishing: Ensure gradlew is executable

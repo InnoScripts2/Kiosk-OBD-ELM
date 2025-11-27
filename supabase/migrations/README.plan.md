@@ -46,6 +46,14 @@ RLS, функции, индексы) могла эволюционировать
    - Дополнительные `UNIQUE` / `CHECK`, которые не были заданы в основной
      таблице, переносятся сюда для управляемости.
 
+8. **20251127110000_extend_kiosk_sessions.sql**
+    - Нормализованные таблицы `kiosk_sessions`, `kiosk_session_events`,
+       `obd_scan_sessions`, `obd_dtc_records`, `thickness_measurements`,
+       `lock_events`, `kiosk_payment_intents`.
+    - Единые политики RLS для новых таблиц и триггеры `updated_at`.
+    - Функции `upsert_kiosk_session_state`, `append_kiosk_session_event`,
+       `get_kiosk_session_overview`, `purge_expired_kiosk_sessions`.
+
 ## Порядок действий
 
 1. Отредактировать `complete_database_schema.sql`, оставив только расширения и
@@ -85,3 +93,6 @@ RLS, функции, индексы) могла эволюционировать
    разобраться с миграцией storage либо обновить локальный образ.
 - Следующий шаг: после запуска Docker выполнить `supabase db reset`, затем
    `supabase db diff` → `supabase db push` и генерацию типов TypeScript.
+- Дополнительно: новая миграция `20251127110000_extend_kiosk_sessions.sql`
+   ожидает `db reset/db push`; приоритет — проверить совместимость функций с
+   Supabase Edge (security definer) и обновить типы TS после применения.

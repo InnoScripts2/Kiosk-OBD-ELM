@@ -457,6 +457,23 @@ jobs:
 - Workflow публикует артефакт `gradle-caches`, что позволяет импортировать скачанные с Google Maven артефакты в изолированную среду (`~/.gradle/caches`, `~/.gradle/wrapper`).
 - Запуск доступен через `workflow_dispatch`, push/pull_request в ветках `main`, `develop`, `release/**` при изменениях в `android/**`.
 
+#### Практический сценарий: сборка на GitHub-hosted runner + локальный offline build
+Чтобы выполнить успешную сборку в среде без доступа к Google Maven:
+
+1. **Запустить workflow** `Android Build (AGP Unblock)` из вкладки Actions и выбрать режим `github-hosted`. GitHub runner скачает AGP и соберёт `assembleDebug`.
+2. **Скачать артефакты** `app-debug-apk` (для проверки) и `gradle-caches.zip` (кэш Gradle).
+3. **Импортировать кэш локально** с помощью скрипта `android/scripts/powershell/import-gradle-cache.ps1`:
+   ```
+   pwsh ./android/scripts/powershell/import-gradle-cache.ps1 -ArchivePath .\gradle-caches.zip
+   ```
+   Скрипт восстановит каталоги `.gradle/caches` и `.gradle/wrapper`, что позволяет запускать Gradle в `--offline` режиме.
+4. **Запустить локальную сборку**:
+   ```
+   cd android
+   ./gradlew --offline clean assembleDebug
+   ```
+   После переноса кэша Gradle использует локальные артефакты и сборка проходит без обращения к `dl.google.com`.
+
 **Session 20R** — Расширение инфраструктуры сборки:
 - Создан workflow `.github/workflows/android-build-bootstrap.yml` для bootstrap-процесса (подготовка AGP артефактов).
 - Расширен workflow `.github/workflows/ci-maven-check.yml`:

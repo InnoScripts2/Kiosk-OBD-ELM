@@ -10,9 +10,25 @@ export interface SessionContactInfo {
 }
 
 export interface SessionIds {
+  kiosk: string | null;
   thicknessId: string | null;
   obdId: string | null;
 }
+
+export type SessionServiceType = 'thickness' | 'diagnostics' | null;
+
+export type SessionLifecycleStatus =
+  | 'created'
+  | 'in_progress'
+  | 'awaiting_payment'
+  | 'paid'
+  | 'measuring'
+  | 'scanning'
+  | 'reporting'
+  | 'completed'
+  | 'failed'
+  | 'cancelled'
+  | 'expired';
 
 export interface SessionReportFlags {
   thickness: boolean;
@@ -23,10 +39,13 @@ export interface SessionState {
   contact: SessionContactInfo;
   session: SessionIds;
   reportSent: SessionReportFlags;
-  selectedService: string | null;
+  selectedService: SessionServiceType;
   thicknessType: string | null;
   obdMode: string;
   obdMake: string | null;
+  stage: string | null;
+  status: SessionLifecycleStatus;
+  serviceType: SessionServiceType;
 }
 
 export interface KioskMetadata {

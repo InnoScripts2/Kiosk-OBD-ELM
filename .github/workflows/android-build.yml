@@ -97,7 +97,7 @@ jobs:
             ~/.gradle/caches
             ~/.gradle/wrapper
           retention-days: 7
-           if-no-files-found: warn
+          if-no-files-found: warn
 
   assemble-debug-selfhosted:
     name: Gradle · self-hosted runner

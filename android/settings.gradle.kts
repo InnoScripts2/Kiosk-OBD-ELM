@@ -1,6 +1,6 @@
-includeBuild("build-logic/binary-compatibility")
-
 pluginManagement {
+
+    includeBuild("build-logic/binary-compatibility")
 
     repositories {
         // Зеркала Google Maven для обхода блокировки dl.google.com
@@ -47,7 +47,6 @@ val modules = listOf(
     ":feature-lock-control",
     ":platform-background",
     ":platform-data",
-    ":platform-data-supabase",
     ":platform-logging",
     ":platform-bluetooth",
     ":platform-bluetooth-kable",
@@ -59,7 +58,6 @@ modules.forEach { include(it) }
 
 // Явная настройка директорий для модулей в platform/
 project(":platform-data").projectDir = file("platform/data")
-project(":platform-data-supabase").projectDir = file("platform/data/supabase")
 project(":platform-logging").projectDir = file("platform/logging")
 project(":platform-bluetooth").projectDir = file("platform/bluetooth")
 project(":platform-bluetooth-kable").projectDir = file("platform/bluetooth/kable-core")

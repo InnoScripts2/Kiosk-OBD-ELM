@@ -1,0 +1,8 @@
+﻿2025-11-26T15:18:13.0382784Z ##[debug]Evaluating condition for step: 'Gradle clean · lint · detekt · test · assembleDebug (Windows)'
+2025-11-26T15:18:13.0385029Z ##[debug]Evaluating: (success() && (runner.os == 'Windows'))
+2025-11-26T15:18:13.0385513Z ##[debug]Evaluating And:
+2025-11-26T15:18:13.0386348Z ##[debug]..Evaluating success:
+2025-11-26T15:18:13.0386748Z ##[debug]..=> false
+2025-11-26T15:18:13.0387010Z ##[debug]=> false
+2025-11-26T15:18:13.0388133Z ##[debug]Expanded: (false && (runner['os'] == 'Windows'))
+2025-11-26T15:18:13.0388517Z ##[debug]Result: false

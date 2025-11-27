@@ -4,14 +4,12 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
-import org.jetbrains.kotlin.gradle.dsl.JsModuleKind
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTargetWithTests
 import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
 import java.net.URI
 
 plugins {
-  kotlin("multiplatform") version "2.2.0"
+  kotlin("multiplatform")
   id("com.diffplug.spotless") version "8.0.0"
   id("maven-publish")
   id("com.vanniktech.maven.publish") version "0.34.0"
@@ -23,12 +21,6 @@ plugins {
 
 val coroutinesVersion = "1.10.2"
 val ktlintVersion = "1.0.0"
-
-repositories {
-  mavenCentral()
-  google()
-  gradlePluginPortal()
-}
 
 apiValidation {
   @OptIn(kotlinx.validation.ExperimentalBCVApi::class)
@@ -55,16 +47,18 @@ kotlin {
   }
 
   jvm {
-    compilerOptions {
-      jvmTarget = JvmTarget.JVM_1_8
+    compilations.all {
+      kotlinOptions.jvmTarget = "1.8"
     }
   }
 
   js(IR) {
-    outputModuleName = project.name
-    compilerOptions {
-      sourceMap.set(true)
-      moduleKind.set(JsModuleKind.MODULE_COMMONJS)
+    moduleName = project.name
+    compilations.all {
+      kotlinOptions {
+        sourceMap = true
+        moduleKind = "commonjs"
+      }
     }
 
     browser {
@@ -89,15 +83,20 @@ kotlin {
       .toBoolean()
       .also { println(">>> kmpWasmEnabled=$it") }
 
+  val kmpNativeEnabled =
+    System.getProperty("knative", "false")
+      .toBoolean()
+      .also { println(">>> kmpNativeEnabled=$it") }
+
   tasks.getByName("apiCheck") { onlyIf { kmpWasmEnabled } }
   tasks.getByName("klibApiCheck") { onlyIf { kmpWasmEnabled } }
 
   if (kmpWasmEnabled) {
-    @OptIn(org.jetbrains.kotlin.gradle.ExperimentalWasmDsl::class)
+    @OptIn(org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl::class)
     wasmJs {
       // Module name should be different from the one from JS
       // otherwise IC tasks that start clashing different modules with the same module name
-      outputModuleName = project.name + "Wasm"
+      moduleName = project.name + "Wasm"
 
       browser {
         testTask {
@@ -116,32 +115,33 @@ kotlin {
     }
   }
 
-  // According to https://kotlinlang.org/docs/native-target-support.html
+  if (kmpNativeEnabled) {
+    // According to https://kotlinlang.org/docs/native-target-support.html
+    iosArm64()
+    iosX64()
+    iosSimulatorArm64()
 
-  iosArm64()
-  iosX64()
-  iosSimulatorArm64()
+    macosX64()
+    macosArm64()
+    mingwX64()
+    linuxX64()
+    linuxArm64()
 
-  macosX64()
-  macosArm64()
-  mingwX64()
-  linuxX64()
-  linuxArm64()
+    tvosX64()
+    tvosSimulatorArm64()
+    tvosArm64()
 
-  tvosX64()
-  tvosSimulatorArm64()
-  tvosArm64()
+    watchosArm32()
+    watchosArm64()
+    watchosX64()
+    watchosSimulatorArm64()
+    watchosDeviceArm64()
 
-  watchosArm32()
-  watchosArm64()
-  watchosX64()
-  watchosSimulatorArm64()
-  watchosDeviceArm64()
-
-  androidNativeArm32()
-  androidNativeArm64()
-  androidNativeX86()
-  androidNativeX64()
+    androidNativeArm32()
+    androidNativeArm64()
+    androidNativeX86()
+    androidNativeX64()
+  }
 
   applyDefaultHierarchyTemplate()
 
@@ -201,42 +201,32 @@ kotlin {
       }
     }
 
-    nativeMain {
-      dependsOn(nonJvmMain)
-    }
-    nativeTest {
-      dependsOn(nonJvmTest)
-    }
-  }
-
-  // enable running ios tests on a background thread as well
-  // configuration copied from: https://github.com/square/okio/pull/929
-  targets.withType<KotlinNativeTargetWithTests<*>>().all {
-    binaries {
-      // Configure a separate test where code runs in background
-      test("background", setOf(NativeBuildType.DEBUG)) {
-        freeCompilerArgs = freeCompilerArgs + "-trw"
+    if (kmpNativeEnabled) {
+      nativeMain {
+        dependsOn(nonJvmMain)
       }
-    }
-    testRuns {
-      val background by creating {
-        setExecutionSourceFrom(binaries.getTest("background", NativeBuildType.DEBUG))
+      nativeTest {
+        dependsOn(nonJvmTest)
       }
     }
   }
-}
 
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask<*>>().configureEach {
-  compilerOptions {
-    // 'expect'/'actual' classes (including interfaces, objects, annotations, enums,
-    // and 'actual' typealiases) are in Beta.
-    // You can use -Xexpect-actual-classes flag to suppress this warning.
-    // Also see: https://youtrack.jetbrains.com/issue/KT-61573
-    freeCompilerArgs.addAll(
-      listOf(
-        "-Xexpect-actual-classes",
-      ),
-    )
+  if (kmpNativeEnabled) {
+    // enable running ios tests on a background thread as well
+    // configuration copied from: https://github.com/square/okio/pull/929
+    targets.withType<KotlinNativeTargetWithTests<*>>().all {
+      binaries {
+        // Configure a separate test where code runs in background
+        test("background", setOf(NativeBuildType.DEBUG)) {
+          freeCompilerArgs = freeCompilerArgs + "-trw"
+        }
+      }
+      testRuns {
+        val background by creating {
+          setExecutionSourceFrom(binaries.getTest("background", NativeBuildType.DEBUG))
+        }
+      }
+    }
   }
 }
 

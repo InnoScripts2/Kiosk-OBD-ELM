@@ -1,0 +1,131 @@
+﻿2025-11-26T15:15:00.5640947Z ##[debug]Evaluating condition for step: 'Prepare Gradle configuration cache'
+2025-11-26T15:15:00.5642682Z ##[debug]Evaluating: success()
+2025-11-26T15:15:00.5643073Z ##[debug]Evaluating success:
+2025-11-26T15:15:00.5643520Z ##[debug]=> true
+2025-11-26T15:15:00.5643834Z ##[debug]Result: true
+2025-11-26T15:15:00.5644366Z ##[debug]Starting: Prepare Gradle configuration cache
+2025-11-26T15:15:00.5684573Z ##[debug]Register post job cleanup for action: gradle/actions/setup-gradle@v3
+2025-11-26T15:15:00.5694375Z ##[debug]Loading inputs
+2025-11-26T15:15:00.5698501Z ##[debug]Evaluating: ((github.event.repository != null) && (github.ref_name != github.event.repository.default_branch))
+2025-11-26T15:15:00.5699055Z ##[debug]Evaluating And:
+2025-11-26T15:15:00.5699323Z ##[debug]..Evaluating NotEqual:
+2025-11-26T15:15:00.5700270Z ##[debug]....Evaluating Index:
+2025-11-26T15:15:00.5700534Z ##[debug]......Evaluating Index:
+2025-11-26T15:15:00.5700774Z ##[debug]........Evaluating github:
+2025-11-26T15:15:00.5701049Z ##[debug]........=> Object
+2025-11-26T15:15:00.5701317Z ##[debug]........Evaluating String:
+2025-11-26T15:15:00.5701567Z ##[debug]........=> 'event'
+2025-11-26T15:15:00.5701823Z ##[debug]......=> Object
+2025-11-26T15:15:00.5702034Z ##[debug]......Evaluating String:
+2025-11-26T15:15:00.5702270Z ##[debug]......=> 'repository'
+2025-11-26T15:15:00.5702565Z ##[debug]....=> Object
+2025-11-26T15:15:00.5702779Z ##[debug]....Evaluating Null:
+2025-11-26T15:15:00.5703016Z ##[debug]....=> null
+2025-11-26T15:15:00.5704232Z ##[debug]..=> true
+2025-11-26T15:15:00.5704644Z ##[debug]..Evaluating NotEqual:
+2025-11-26T15:15:00.5704891Z ##[debug]....Evaluating Index:
+2025-11-26T15:15:00.5705119Z ##[debug]......Evaluating github:
+2025-11-26T15:15:00.5705357Z ##[debug]......=> Object
+2025-11-26T15:15:00.5705565Z ##[debug]......Evaluating String:
+2025-11-26T15:15:00.5706118Z ##[debug]......=> 'ref_name'
+2025-11-26T15:15:00.5706392Z ##[debug]....=> 'My-project'
+2025-11-26T15:15:00.5706619Z ##[debug]....Evaluating Index:
+2025-11-26T15:15:00.5706856Z ##[debug]......Evaluating Index:
+2025-11-26T15:15:00.5707071Z ##[debug]........Evaluating Index:
+2025-11-26T15:15:00.5707301Z ##[debug]..........Evaluating github:
+2025-11-26T15:15:00.5707551Z ##[debug]..........=> Object
+2025-11-26T15:15:00.5707787Z ##[debug]..........Evaluating String:
+2025-11-26T15:15:00.5708019Z ##[debug]..........=> 'event'
+2025-11-26T15:15:00.5708235Z ##[debug]........=> Object
+2025-11-26T15:15:00.5708454Z ##[debug]........Evaluating String:
+2025-11-26T15:15:00.5708727Z ##[debug]........=> 'repository'
+2025-11-26T15:15:00.5708952Z ##[debug]......=> Object
+2025-11-26T15:15:00.5709164Z ##[debug]......Evaluating String:
+2025-11-26T15:15:00.5709395Z ##[debug]......=> 'default_branch'
+2025-11-26T15:15:00.5709683Z ##[debug]....=> 'My-project'
+2025-11-26T15:15:00.5709902Z ##[debug]..=> false
+2025-11-26T15:15:00.5710085Z ##[debug]=> false
+2025-11-26T15:15:00.5711374Z ##[debug]Expanded: ((Object != null) && ('My-project' != 'My-project'))
+2025-11-26T15:15:00.5711723Z ##[debug]Result: false
+2025-11-26T15:15:00.5726157Z ##[debug]Evaluating: toJSON(matrix)
+2025-11-26T15:15:00.5726451Z ##[debug]Evaluating toJSON:
+2025-11-26T15:15:00.5733652Z ##[debug]..Evaluating matrix:
+2025-11-26T15:15:00.5733932Z ##[debug]..=> null
+2025-11-26T15:15:00.5737892Z ##[debug]=> 'null'
+2025-11-26T15:15:00.5738132Z ##[debug]Result: 'null'
+2025-11-26T15:15:00.5739347Z ##[debug]Evaluating: github.token
+2025-11-26T15:15:00.5739605Z ##[debug]Evaluating Index:
+2025-11-26T15:15:00.5740012Z ##[debug]..Evaluating github:
+2025-11-26T15:15:00.5740250Z ##[debug]..=> Object
+2025-11-26T15:15:00.5740456Z ##[debug]..Evaluating String:
+2025-11-26T15:15:00.5740669Z ##[debug]..=> 'token'
+2025-11-26T15:15:00.5741089Z ##[debug]=> '***'
+2025-11-26T15:15:00.5741499Z ##[debug]Result: '***'
+2025-11-26T15:15:00.5742242Z ##[debug]Loading env
+2025-11-26T15:15:00.5746510Z ##[group]Run gradle/actions/setup-gradle@v3
+2025-11-26T15:15:00.5746765Z with:
+2025-11-26T15:15:00.5746954Z   build-root-directory: android
+2025-11-26T15:15:00.5747178Z   cache-disabled: false
+2025-11-26T15:15:00.5747586Z   cache-read-only: false
+2025-11-26T15:15:00.5747784Z   cache-write-only: false
+2025-11-26T15:15:00.5748004Z   cache-overwrite-existing: false
+2025-11-26T15:15:00.5748277Z   gradle-home-cache-includes: caches
+notifications
+
+2025-11-26T15:15:00.5748589Z   gradle-home-cache-cleanup: false
+2025-11-26T15:15:00.5748823Z   add-job-summary: always
+2025-11-26T15:15:00.5749053Z   add-job-summary-as-pr-comment: never
+2025-11-26T15:15:00.5749320Z   dependency-graph: disabled
+2025-11-26T15:15:00.5749569Z   dependency-graph-continue-on-failure: true
+2025-11-26T15:15:00.5749844Z   build-scan-publish: false
+2025-11-26T15:15:00.5750061Z   validate-wrappers: false
+2025-11-26T15:15:00.5750277Z   generate-job-summary: true
+2025-11-26T15:15:00.5750508Z   gradle-home-cache-strict-match: false
+2025-11-26T15:15:00.5750764Z   workflow-job-context: null
+2025-11-26T15:15:00.5751099Z   github-token: ***
+2025-11-26T15:15:00.5751276Z env:
+2025-11-26T15:15:00.5751547Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.17-10/x64
+2025-11-26T15:15:00.5752007Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.17-10/x64
+2025-11-26T15:15:00.5752369Z   ANDROID_HOME: /usr/local/lib/android/sdk
+2025-11-26T15:15:00.5752628Z   ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+2025-11-26T15:15:00.5752874Z ##[endgroup]
+2025-11-26T15:15:00.8554725Z ##[debug]Determined user.home from java -version output: '/home/runner'
+2025-11-26T15:15:00.9068531Z ##[debug]Determined user.home from java -version output: '/home/runner'
+2025-11-26T15:15:00.9119169Z Merged default JDK locations into /home/runner/.m2/toolchains.xml
+2025-11-26T15:15:00.9120712Z Created a new /home/runner/.gradle/gradle.properties with --info and --stacktrace
+2025-11-26T15:15:00.9121919Z ::group::Restore Gradle state from cache
+2025-11-26T15:15:00.9122415Z ##[group]Restore Gradle state from cache
+2025-11-26T15:15:00.9123362Z Requesting Gradle User Home with
+2025-11-26T15:15:00.9124592Z     key:gradle-home-v1|Linux|assemble-debug[f5a1349caf903cc7d143ab43253dffed]-d61a7936665a086a0c8c3c977e76c3319a38feab
+2025-11-26T15:15:00.9126548Z     restoreKeys:[gradle-home-v1|Linux|assemble-debug[f5a1349caf903cc7d143ab43253dffed],gradle-home-v1|Linux|assemble-debug,gradle-home-v1|Linux]
+2025-11-26T15:15:00.9128267Z Using cache paths: /home/runner/.gradle/caches,/home/runner/.gradle/notifications,/home/runner/.gradle/.setup-gradle
+2025-11-26T15:15:00.9133215Z ##[debug]Resolved Keys:
+2025-11-26T15:15:00.9135441Z ##[debug]["gradle-home-v1|Linux|assemble-debug[f5a1349caf903cc7d143ab43253dffed]-d61a7936665a086a0c8c3c977e76c3319a38feab","gradle-home-v1|Linux|assemble-debug[f5a1349caf903cc7d143ab43253dffed]","gradle-home-v1|Linux|assemble-debug","gradle-home-v1|Linux"]
+2025-11-26T15:15:00.9140084Z ##[debug]Checking zstd --quiet --version
+2025-11-26T15:15:00.9219853Z ##[debug]1.5.7
+2025-11-26T15:15:00.9224541Z ##[debug]zstd version: 1.5.7
+2025-11-26T15:15:00.9234603Z ##[debug]Resource Url: https://artifactcache.actions.githubusercontent.com/FaQjJ3YGUraeQCOhyiV6rshL8i8j3QmW202kmLuQEFvQ1Zhv42/_apis/artifactcache/cache?keys=gradle-home-v1%7CLinux%7Cassemble-debug%5Bf5a1349caf903cc7d143ab43253dffed%5D-d61a7936665a086a0c8c3c977e76c3319a38feab%2Cgradle-home-v1%7CLinux%7Cassemble-debug%5Bf5a1349caf903cc7d143ab43253dffed%5D%2Cgradle-home-v1%7CLinux%7Cassemble-debug%2Cgradle-home-v1%7CLinux&version=efbc4f98d90c3a37d4c88199cd0a027f9a903840cd0ec083c3af7c7fd4363155
+2025-11-26T15:15:00.9969796Z ##[debug]Failed to delete archive: Error: ENOENT: no such file or directory, unlink ''
+2025-11-26T15:15:00.9986298Z ##[warning]Failed to restore gradle-home-v1|Linux|assemble-debug[f5a1349caf903cc7d143ab43253dffed]-d61a7936665a086a0c8c3c977e76c3319a38feab: Error: Cache service responded with 400
+2025-11-26T15:15:01.0047274Z Error: Cache service responded with 400
+2025-11-26T15:15:01.0049009Z     at Object.<anonymous> (/home/runner/work/_actions/gradle/actions/v3/dist/setup-gradle/main/index.js:6820:19)
+2025-11-26T15:15:01.0052017Z     at Generator.next (<anonymous>)
+2025-11-26T15:15:01.0055375Z     at fulfilled (/home/runner/work/_actions/gradle/actions/v3/dist/setup-gradle/main/index.js:6744:58)
+2025-11-26T15:15:01.0057118Z     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2025-11-26T15:15:01.0058745Z Gradle User Home cache not found. Will initialize empty.
+2025-11-26T15:15:01.0061239Z ::endgroup::
+2025-11-26T15:15:01.0061575Z ##[endgroup]
+2025-11-26T15:15:01.0131661Z ##[debug]Node Action run completed with exit code 0
+2025-11-26T15:15:01.0132983Z ##[debug]GRADLE_ACTION_ID='gradle/actions/setup-gradle'
+2025-11-26T15:15:01.0133337Z ##[debug]GRADLE_BUILD_ACTION_SETUP_COMPLETED='true'
+2025-11-26T15:15:01.0133645Z ##[debug]GRADLE_BUILD_ACTION_CACHE_RESTORED='true'
+2025-11-26T15:15:01.0134128Z ##[debug]DEVELOCITY_INJECTION_INIT_SCRIPT_NAME='gradle-actions.inject-develocity.init.gradle'
+2025-11-26T15:15:01.0134639Z ##[debug]DEVELOCITY_AUTO_INJECTION_CUSTOM_VALUE='gradle-actions'
+2025-11-26T15:15:01.0134997Z ##[debug]GITHUB_DEPENDENCY_GRAPH_ENABLED='false'
+2025-11-26T15:15:01.0136445Z ##[debug]Save intra-action state GRADLE_BUILD_ACTION_SETUP_COMPLETED = true
+2025-11-26T15:15:01.0136862Z ##[debug]Save intra-action state USER_HOME = /home/runner
+2025-11-26T15:15:01.0137247Z ##[debug]Save intra-action state GRADLE_USER_HOME = /home/runner/.gradle
+2025-11-26T15:15:01.0137680Z ##[debug]Save intra-action state GRADLE_BUILD_ACTION_CACHE_RESTORED = true
+2025-11-26T15:15:01.0139568Z ##[debug]Save intra-action state CACHE_LISTENER = {"cacheEntries":[{"entryName":"Gradle User Home","requestedKey":"gradle-home-v1|Linux|assemble-debug[f5a1349caf903cc7d143ab43253dffed]-d61a7936665a086a0c8c3c977e76c3319a38feab","requestedRestoreKeys":["gradle-home-v1|Linux|assemble-debug[f5a1349caf903cc7d143ab43253dffed]","gradle-home-v1|Linux|assemble-debug","gradle-home-v1|Linux"],"notRestored":"Cache service responded with 400"}],"cacheReadOnly":false,"cacheWriteOnly":false,"cacheDisabled":false,"cacheDisabledReason":"disabled"}
+2025-11-26T15:15:01.0141395Z ##[debug]Save intra-action state deprecations = []
+2025-11-26T15:15:01.0142063Z ##[debug]Finishing: Prepare Gradle configuration cache
