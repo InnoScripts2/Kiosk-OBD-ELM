@@ -70,14 +70,14 @@ jobs:
 
       - name: Gradle clean · lint · detekt · test · assembleDebug (Linux/macOS)
         if: runner.os != 'Windows'
-        run: ./gradlew ${{ inputs.gradle_tasks || 'clean lint detekt test assembleDebug' }} --build-cache --stacktrace
+        run: ./gradlew ${{ inputs.gradle_tasks || 'clean lint detekt test assembleDebug' }} --build-cache --stacktrace --info
         working-directory: android
 
       - name: Gradle clean · lint · detekt · test · assembleDebug (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          ./gradlew.bat ${{ inputs.gradle_tasks || 'clean lint detekt test assembleDebug' }} --build-cache --stacktrace
+          ./gradlew.bat ${{ inputs.gradle_tasks || 'clean lint detekt test assembleDebug' }} --build-cache --stacktrace --info
         working-directory: android
 
       - name: Upload APK artifact
@@ -133,14 +133,14 @@ jobs:
 
       - name: Gradle clean · lint · detekt · test · assembleDebug (Linux/macOS)
         if: runner.os != 'Windows'
-        run: ./gradlew ${{ inputs.gradle_tasks || 'clean lint detekt test assembleDebug' }} --build-cache --stacktrace
+        run: ./gradlew ${{ inputs.gradle_tasks || 'clean lint detekt test assembleDebug' }} --build-cache --stacktrace --info
         working-directory: android
 
       - name: Gradle clean · lint · detekt · test · assembleDebug (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          ./gradlew.bat ${{ inputs.gradle_tasks || 'clean lint detekt test assembleDebug' }} --build-cache --stacktrace
+          ./gradlew.bat ${{ inputs.gradle_tasks || 'clean lint detekt test assembleDebug' }} --build-cache --stacktrace --info
         working-directory: android
 
       - name: Upload APK artifact

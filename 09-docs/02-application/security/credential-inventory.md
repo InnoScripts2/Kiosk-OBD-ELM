@@ -22,40 +22,44 @@
 
 **Миграция**: 24.11.2025 - новый сервер `ddaunoxyguqiejrjtwsf.supabase.co`
 
-| Параметр | Назначение | Vault Path | Ротация | Критичность |
-|----------|-----------|------------|---------|-------------|
-| `SUPABASE_URL` | URL проекта Supabase | Публичный, в коде | Не требуется | Низкая |
-| `SUPABASE_ANON_KEY` | Публичный ключ (anon role) | Публичный, в коде | При компрометации | Средняя |
-| `SUPABASE_SERVICE_ROLE_KEY` | Сервисный ключ (полный доступ) | `kv/.../supabase/{env}/service:serviceKey` | 90 дней | **Критичная** |
-| `SUPABASE_JWT_SECRET` | Секрет для JWT токенов | `kv/.../supabase/{env}/service:jwtSecret` | 90 дней | **Критичная** |
+| Параметр                    | Назначение                     | Vault Path                                 | Ротация           | Критичность   |
+| --------------------------- | ------------------------------ | ------------------------------------------ | ----------------- | ------------- |
+| `SUPABASE_URL`              | URL проекта Supabase           | Публичный, в коде                          | Не требуется      | Низкая        |
+| `SUPABASE_ANON_KEY`         | Публичный ключ (anon role)     | Публичный, в коде                          | При компрометации | Средняя       |
+| `SUPABASE_SERVICE_ROLE_KEY` | Сервисный ключ (полный доступ) | `kv/.../supabase/{env}/service:serviceKey` | 90 дней           | **Критичная** |
+| `SUPABASE_JWT_SECRET`       | Секрет для JWT токенов         | `kv/.../supabase/{env}/service:jwtSecret`  | 90 дней           | **Критичная** |
 
 **Текущие значения** (DEV окружение):
 - URL: `https://ddaunoxyguqiejrjtwsf.supabase.co`
 - Project Ref: `ddaunoxyguqiejrjtwsf`
 - Region: AWS US East 1
+- Anon Key: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkYXVub3h5Z3VxaWVqcmp0d3NmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM5NTQ0MjYsImV4cCI6MjA3OTUzMDQyNn0.eV2J8CYHMEEahKzH7QTYpKyRAwKmbh-vE5xi2zf-Drg`
+- Service Role Key: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkYXVub3h5Z3VxaWVqcmp0d3NmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2Mzk1NDQyNiwiZXhwIjoyMDc5NTMwNDI2fQ._YE1sa98gZDpN7duHyq9p4KssroIhuav3yXegMyhCzQ`
+- JWT Secret: `5RKLZZwyqNAy4kASnUoPsJXJhsKGP1HugLahTWarKWXlhi1MiRUsZcxc1Lxc99F63iiT2GX/ONTJh3PHyP90ZQ==`
 
 **Использование**:
-- Android: через `BuildConfig.SUPABASE_URL`, `BuildConfig.SUPABASE_SERVICE_KEY`
-- Node-агент: через переменные окружения `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`
+- Android: через `BuildConfig.SUPABASE_URL`, `BuildConfig.SUPABASE_SERVICE_KEY` (из `android/gradle.properties`)
+- Node-агент: через переменные окружения `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` (из `.env`)
+- Kiosk Frontend: через `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` (из `.env.dev`)
 - CI/CD: скрипт `android/scripts/export-supabase-service-key.ps1`
 
 **Процедура ротации**:
 1. Сгенерировать новый JWT Secret в Supabase Dashboard
-2. Обновить значение в Vault для всех окружений
+2. Обновить значение в `android/gradle.properties`, `.env` файлах и Vault для всех окружений
 3. Выполнить `pwsh export-supabase-service-key.ps1 -Environment <ENV> -EmitPipelineVariables`
 4. Пересобрать и развернуть приложения
 5. Обновить дату ротации в этом документе
 
-**Последняя ротация**: 24.11.2025 (миграция сервера)
+**Последняя ротация**: 27.11.2025 (добавление реальных ключей в репозиторий)
 
 ### 2.2 PostgreSQL Credentials
 
-| Параметр | Назначение | Vault Path | Ротация | Критичность |
-|----------|-----------|------------|---------|-------------|
-| `POSTGRES_PASSWORD` | Пароль пользователя postgres | `kv/.../supabase/{env}/postgres:password` | 90 дней | **Критичная** |
-| `POSTGRES_HOST` | Хост БД | Публичный | Не требуется | Низкая |
-| `POSTGRES_URL` | Connection string (pooler) | Содержит пароль в Vault | При ротации пароля | **Критичная** |
-| `POSTGRES_URL_NON_POOLING` | Direct connection | Содержит пароль в Vault | При ротации пароля | **Критичная** |
+| Параметр                   | Назначение                   | Vault Path                                | Ротация            | Критичность   |
+| -------------------------- | ---------------------------- | ----------------------------------------- | ------------------ | ------------- |
+| `POSTGRES_PASSWORD`        | Пароль пользователя postgres | `kv/.../supabase/{env}/postgres:password` | 90 дней            | **Критичная** |
+| `POSTGRES_HOST`            | Хост БД                      | Публичный                                 | Не требуется       | Низкая        |
+| `POSTGRES_URL`             | Connection string (pooler)   | Содержит пароль в Vault                   | При ротации пароля | **Критичная** |
+| `POSTGRES_URL_NON_POOLING` | Direct connection            | Содержит пароль в Vault                   | При ротации пароля | **Критичная** |
 
 **Текущие значения** (DEV):
 - Host: `db.ddaunoxyguqiejrjtwsf.supabase.co`
@@ -63,9 +67,12 @@
 - Port (direct): 5432
 - Database: `postgres`
 - User: `postgres`
+- Password: `EkN1vKuxlhKQp0zR`
+- Connection URL (pooler): `postgresql://postgres.ddaunoxyguqiejrjtwsf:EkN1vKuxlhKQp0zR@aws-0-us-east-1.pooler.supabase.com:6543/postgres?sslmode=require&pgbouncer=true`
+- Connection URL (direct): `postgresql://postgres.ddaunoxyguqiejrjtwsf:EkN1vKuxlhKQp0zR@aws-0-us-east-1.pooler.supabase.com:5432/postgres?sslmode=require`
 
 **Использование**:
-- Node-агент: миграции БД, прямые запросы
+- Node-агент: миграции БД, прямые запросы (из `.env` файлов)
 - Edge-cache: репликация данных
 - Аналитика: чтение через Prisma
 
@@ -73,11 +80,11 @@
 
 ### 3.1 YooKassa
 
-| Параметр | Назначение | Vault Path | Ротация | Критичность |
-|----------|-----------|------------|---------|-------------|
-| `YOOKASSA_SHOP_ID` | ID магазина в YooKassa | `kv/.../payments/{env}/psp:shopId` | При смене договора | Средняя |
-| `YOOKASSA_SECRET_KEY` | Secret key для API | `kv/.../payments/{env}/psp:secret` | 90 дней | **Критичная** |
-| `YOOKASSA_WEBHOOK_SECRET` | Секрет для валидации webhook | `kv/.../payments/{env}/psp:webhookSecret` | 90 дней | **Критичная** |
+| Параметр                  | Назначение                   | Vault Path                                | Ротация            | Критичность   |
+| ------------------------- | ---------------------------- | ----------------------------------------- | ------------------ | ------------- |
+| `YOOKASSA_SHOP_ID`        | ID магазина в YooKassa       | `kv/.../payments/{env}/psp:shopId`        | При смене договора | Средняя       |
+| `YOOKASSA_SECRET_KEY`     | Secret key для API           | `kv/.../payments/{env}/psp:secret`        | 90 дней            | **Критичная** |
+| `YOOKASSA_WEBHOOK_SECRET` | Секрет для валидации webhook | `kv/.../payments/{env}/psp:webhookSecret` | 90 дней            | **Критичная** |
 
 **Использование**:
 - Android: через `BuildConfig.YOOKASSA_*`
@@ -96,8 +103,8 @@
 
 ### 3.2 Payment Encryption Key
 
-| Параметр | Назначение | Vault Path | Ротация | Критичность |
-|----------|-----------|------------|---------|-------------|
+| Параметр                  | Назначение                      | Vault Path                             | Ротация | Критичность   |
+| ------------------------- | ------------------------------- | -------------------------------------- | ------- | ------------- |
 | `PAYMENTS_ENCRYPTION_KEY` | AES-256 ключ для шифрования PII | `kv/.../payments/{env}/encryption-key` | 90 дней | **Критичная** |
 
 **Формат**: 32 байта hex (64 символа)
@@ -114,27 +121,27 @@
 
 ### 4.1 Email (SendGrid)
 
-| Параметр | Назначение | Vault Path | Ротация | Критичность |
-|----------|-----------|------------|---------|-------------|
-| `SENDGRID_API_KEY` | API ключ SendGrid | `kv/.../communications/{env}/email:apiKey` | При компрометации | Высокая |
+| Параметр           | Назначение        | Vault Path                                 | Ротация           | Критичность |
+| ------------------ | ----------------- | ------------------------------------------ | ----------------- | ----------- |
+| `SENDGRID_API_KEY` | API ключ SendGrid | `kv/.../communications/{env}/email:apiKey` | При компрометации | Высокая     |
 
 **Использование**: Node-агент `ReportService` для отправки отчётов
 
 ### 4.2 SMS (Twilio)
 
-| Параметр | Назначение | Vault Path | Ротация | Критичность |
-|----------|-----------|------------|---------|-------------|
-| `TWILIO_ACCOUNT_SID` | Account SID | `kv/.../communications/{env}/sms:accountSid` | Не требуется | Низкая |
-| `TWILIO_AUTH_TOKEN` | Auth Token | `kv/.../communications/{env}/sms:authToken` | 180 дней | Высокая |
+| Параметр             | Назначение  | Vault Path                                   | Ротация      | Критичность |
+| -------------------- | ----------- | -------------------------------------------- | ------------ | ----------- |
+| `TWILIO_ACCOUNT_SID` | Account SID | `kv/.../communications/{env}/sms:accountSid` | Не требуется | Низкая      |
+| `TWILIO_AUTH_TOKEN`  | Auth Token  | `kv/.../communications/{env}/sms:authToken`  | 180 дней     | Высокая     |
 
 **Использование**: Node-агент для SMS-отчётов и оповещений
 
 ### 4.3 WhatsApp (Green API)
 
-| Параметр | Назначение | Vault Path | Ротация | Критичность |
-|----------|-----------|------------|---------|-------------|
-| `GREEN_API_INSTANCE_ID` | Instance ID | `kv/.../communications/{env}/whatsapp:instanceId` | Не требуется | Низкая |
-| `GREEN_API_TOKEN` | API Token | `kv/.../communications/{env}/whatsapp:token` | 90 дней | Высокая |
+| Параметр                | Назначение  | Vault Path                                        | Ротация      | Критичность |
+| ----------------------- | ----------- | ------------------------------------------------- | ------------ | ----------- |
+| `GREEN_API_INSTANCE_ID` | Instance ID | `kv/.../communications/{env}/whatsapp:instanceId` | Не требуется | Низкая      |
+| `GREEN_API_TOKEN`       | API Token   | `kv/.../communications/{env}/whatsapp:token`      | 90 дней      | Высокая     |
 
 **Использование**: Будущая интеграция для WhatsApp уведомлений
 
@@ -142,9 +149,9 @@
 
 ### 5.1 Grafana
 
-| Параметр | Назначение | Vault Path | Ротация | Критичность |
-|----------|-----------|------------|---------|-------------|
-| `GRAFANA_API_KEY` | API ключ для метрик | `kv/.../monitoring/{env}/grafana:apiKey` | 180 дней | Средняя |
+| Параметр          | Назначение          | Vault Path                               | Ротация  | Критичность |
+| ----------------- | ------------------- | ---------------------------------------- | -------- | ----------- |
+| `GRAFANA_API_KEY` | API ключ для метрик | `kv/.../monitoring/{env}/grafana:apiKey` | 180 дней | Средняя     |
 
 **Использование**: Будущая интеграция (placeholder)
 
@@ -202,12 +209,12 @@
 
 ## История изменений
 
-| Дата | Версия | Изменение | Автор |
-|------|--------|-----------|-------|
-| 24.11.2025 | 1.0 | Создание документа, миграция Supabase сервера | BKG Agent |
-| 26.11.2025 | 1.1 | Session 4: Добавлена интеграция Supabase в Android | Copilot Agent |
-| 27.11.2025 | 1.2 | Добавлены публичные Supabase ключи в .env файлы | Copilot Agent |
-| 27.11.2025 | 1.3 | Создан local-credential-notes.local.md для локальных секретов | Copilot Agent |
+| Дата       | Версия | Изменение                                                     | Автор         |
+| ---------- | ------ | ------------------------------------------------------------- | ------------- |
+| 24.11.2025 | 1.0    | Создание документа, миграция Supabase сервера                 | BKG Agent     |
+| 26.11.2025 | 1.1    | Session 4: Добавлена интеграция Supabase в Android            | Copilot Agent |
+| 27.11.2025 | 1.2    | Добавлены публичные Supabase ключи в .env файлы               | Copilot Agent |
+| 27.11.2025 | 1.3    | Создан local-credential-notes.local.md для локальных секретов | Copilot Agent |
 
 ## Session 4 Updates (26.11.2025)
 
