@@ -1,7 +1,7 @@
 /**
  * AUTO-GENERATED FILE. DO NOT EDIT.
  * Source: ../../../../../03-apps/02-application/kiosk-shell/agent/src/integrations/supabase/types.ts
- * Synced: 2025-11-26T09:24:12.480Z
+ * Synced: 2025-11-27T06:02:37.710Z
  */
 export type Json =
   | string

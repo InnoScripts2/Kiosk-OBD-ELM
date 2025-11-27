@@ -1,5 +1,29 @@
 # Kiosk Frontend - Modular Architecture
 
+## Quick Start (Локальная разработка)
+
+```bash
+cd android/platform/ui/web/kiosk-frontend
+npm install
+cp .env.dev .env    # Используйте DEV-конфигурацию
+npm run dev
+```
+
+Откройте `http://localhost:5173` в браузере. Интерфейс работает сразу после запуска.
+
+### Режимы работы
+
+| Режим | Supabase | Mock устройств | Кнопка "Пропустить" |
+|-------|----------|----------------|---------------------|
+| DEV   | Отключён | Включены       | Да                  |
+| PROD  | Требуется| Отключены      | Нет                 |
+
+Файлы конфигурации:
+- `.env.dev` — DEV-режим (Supabase отключён, mock-режимы включены)
+- `.env.example` — шаблон PROD-режима (требует настройки Supabase)
+
+Для PROD-режима скопируйте `.env.example` в `.env` и заполните Supabase credentials.
+
 ## Overview
 
 This is the modernized kiosk self-service frontend built with vanilla JavaScript ES modules and Vite. The architecture follows clean separation of concerns with no reactive framework dependencies.
