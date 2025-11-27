@@ -594,3 +594,65 @@ jobs:
 **Обновление**: 24.11.2025 (Session 19G)  
 **Следующие шаги**: выбор и реализация одной из стратегий разблокировки (D рекомендуется).
 
+## Дополнения Session 21G (27.11.2025)
+
+### Подтверждённый статус блокировки
+
+Повторная диагностика подтвердила:
+- `dl.google.com` — недоступен (timeout)
+- `maven.google.com` — перенаправляет на `dl.google.com` (недоступен)
+- `maven.aliyun.com` — недоступен (timeout)
+- `repo1.maven.org` (Maven Central) — ✅ доступен
+- `plugins.gradle.org` (Gradle Plugin Portal) — ✅ доступен
+
+AGP 8.4.1 недоступен ни из одного работающего репозитория.
+
+### Рекомендуемый подход: GitHub Actions
+
+**Стратегия D** остаётся единственным рабочим решением:
+
+1. **Запуск сборки через GitHub Actions**:
+   ```bash
+   # Вручную через GitHub UI: Actions → Android Build Bootstrap → Run workflow
+   # Или через push в android/**
+   ```
+
+2. **Workflows для сборки**:
+   - `.github/workflows/android-build-bootstrap.yml` — основной workflow для lint+test+assembleDebug
+   - `.github/workflows/android-build.yml` — расширенный workflow с выбором runner (github-hosted/self-hosted)
+
+3. **Получение артефактов**:
+   После успешной сборки доступны:
+   - `app-debug-apk-{run_number}` — APK файл
+   - `gradle-caches-{run_number}` — Gradle кэш для офлайн сборки
+   - `lint-reports-{run_number}` — отчёты линтера
+   - `test-reports-{run_number}` — результаты тестов
+
+### Локальная офлайн сборка (после импорта кэша)
+
+```bash
+# 1. Скачать gradle-caches.zip из артефактов GitHub Actions
+# 2. Импортировать кэш:
+pwsh ./android/scripts/powershell/import-gradle-cache.ps1 -ArchivePath ./gradle-caches.zip
+
+# 3. Запустить офлайн сборку:
+cd android
+./gradlew --offline clean assembleDebug
+```
+
+### Frontend готов к полевым тестам
+
+Kiosk-frontend полностью работоспособен:
+```bash
+cd android/platform/ui/web/kiosk-frontend
+npm install
+npm run dev   # http://localhost:5173
+```
+
+Интерфейс запускается сразу после `npm run dev`, все экраны навигации работают.
+
+---
+
+**Обновление**: 27.11.2025 (Session 21G)  
+**Статус**: AGP blocker активен. Использовать GitHub Actions для Android сборок. Frontend готов.
+
