@@ -568,6 +568,116 @@ export type Database = {
         }
         Relationships: []
       }
+      lock_events: {
+        Row: {
+          action: string
+          completed_at: string | null
+          created_at: string
+          device_type: string
+          duration_ms: number | null
+          environment: string
+          error_code: string | null
+          error_message: string | null
+          kiosk_id: string | null
+          lock_event_id: string
+          metadata: Json | null
+          requested_at: string
+          result: string
+          session_id: string | null
+        }
+        Insert: {
+          action: string
+          completed_at?: string | null
+          created_at?: string
+          device_type: string
+          duration_ms?: number | null
+          environment: string
+          error_code?: string | null
+          error_message?: string | null
+          kiosk_id?: string | null
+          lock_event_id?: string
+          metadata?: Json | null
+          requested_at: string
+          result: string
+          session_id?: string | null
+        }
+        Update: {
+          action?: string
+          completed_at?: string | null
+          created_at?: string
+          device_type?: string
+          duration_ms?: number | null
+          environment?: string
+          error_code?: string | null
+          error_message?: string | null
+          kiosk_id?: string | null
+          lock_event_id?: string
+          metadata?: Json | null
+          requested_at?: string
+          result?: string
+          session_id?: string | null
+        }
+        Relationships: []
+      }
+      kiosk_payment_intents: {
+        Row: {
+          amount_minor: number
+          confirmed_at: string | null
+          created_at: string
+          currency: string
+          environment: string
+          failure_reason: string | null
+          gateway: string
+          intent_id: string
+          kiosk_id: string | null
+          metadata: Json | null
+          session_id: string
+          status: string
+          updated_at: string
+          expires_at: string | null
+        }
+        Insert: {
+          amount_minor: number
+          confirmed_at?: string | null
+          created_at?: string
+          currency?: string
+          environment: string
+          failure_reason?: string | null
+          gateway: string
+          intent_id: string
+          kiosk_id?: string | null
+          metadata?: Json | null
+          session_id: string
+          status: string
+          updated_at?: string
+          expires_at?: string | null
+        }
+        Update: {
+          amount_minor?: number
+          confirmed_at?: string | null
+          created_at?: string
+          currency?: string
+          environment?: string
+          failure_reason?: string | null
+          gateway?: string
+          intent_id?: string
+          kiosk_id?: string | null
+          metadata?: Json | null
+          session_id?: string
+          status?: string
+          updated_at?: string
+          expires_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kiosk_payment_intents_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "kiosk_sessions"
+            referencedColumns: ["session_id"]
+          },
+        ]
+      }
       posts: {
         Row: {
           content: string

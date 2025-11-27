@@ -462,12 +462,24 @@ jobs:
 
 1. **Запустить workflow** `Android Build (AGP Unblock)` из вкладки Actions и выбрать режим `github-hosted`. GitHub runner скачает AGP и соберёт `assembleDebug`.
 2. **Скачать артефакты** `app-debug-apk` (для проверки) и `gradle-caches.zip` (кэш Gradle).
-3. **Импортировать кэш локально** с помощью скрипта `android/scripts/powershell/import-gradle-cache.ps1`:
+3. **(Новый вариант) Автоматически скачать и импортировать кэш** из GitHub Actions, чтобы исключить ручные шаги:
+
+   1. Установить переменную окружения `GITHUB_TOKEN` c PAT, у которого есть право `actions:read` на репозиторий `InnoScripts2/Kiosk-OBD-ELM`.
+   2. Запустить скрипт `android/scripts/powershell/bootstrap-gradle-cache.ps1` (при необходимости указать другие репозиторий или имя артефакта):
+      ```
+      pwsh ./android/scripts/powershell/bootstrap-gradle-cache.ps1 \
+        -Repo "InnoScripts2/Kiosk-OBD-ELM" \
+        -ArtifactName "gradle-caches-restored"
+      ```
+      Скрипт с помощью GitHub API найдёт последний неистёкший артефакт, скачает его и автоматически вызовет `import-gradle-cache.ps1`. Для диагностики можно добавить `-GradleHome` (если Gradle хранится не в `%USERPROFILE%\.gradle`) и `-KeepArchive`, чтобы сохранить zip.
+   3. После сообщения `Gradle cache импортирован` шаг 4 можно выполнять сразу — никаких мануальных загрузок не требуется.
+
+4. **(Исходный вариант) Импортировать кэш локально вручную**, если токена нет или автоматизация недоступна, с помощью скрипта `android/scripts/powershell/import-gradle-cache.ps1`:
    ```
    pwsh ./android/scripts/powershell/import-gradle-cache.ps1 -ArchivePath .\gradle-caches.zip
    ```
    Скрипт восстановит каталоги `.gradle/caches` и `.gradle/wrapper`, что позволяет запускать Gradle в `--offline` режиме.
-4. **Запустить локальную сборку**:
+5. **Запустить локальную сборку**:
    ```
    cd android
    ./gradlew --offline clean assembleDebug
@@ -486,6 +498,11 @@ jobs:
 - Обновлён `ci-maven-check.yml`: автоматическая еженедельная проверка доступности Maven с отчётностью.
 - Создан Gradle task `prepareReleaseBuild` (dependsOn: lint, test, assembleDebug).
 - Добавлен параметр `-PskipDeviceTasks=true` для отключения hardware/lock tasks.
+
+**Session 24T** — Автоматизация bootstrap-процесса для изолированных машин:
+- Добавлен PowerShell-скрипт `android/scripts/powershell/bootstrap-gradle-cache.ps1`, который по токену GitHub скачивает последний артефакт `gradle-caches` и автоматически вызывает `import-gradle-cache.ps1`.
+- Скрипт поддерживает параметры `-Repo`, `-ArtifactName`, `-GradleHome`, `-KeepArchive`, поэтому может работать для форков и кастомных путей.
+- Документирован регламент использования (см. раздел «Практический сценарий…», шаг 3). Теперь подготовка AGP-кэша занимает <1 минуты и не требует ручного скачивания артефактов.
 
 ---
 

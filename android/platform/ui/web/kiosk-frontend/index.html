@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="./styles.css" />
   <link rel="manifest" href="./manifest.webmanifest" />
   <meta name="theme-color" content="#0b1020" />
+  <script type="module" src="./assets/runtime-config.js"></script>
   <script type="module" src="/src/bootstrap/supabase-client.js"></script>
   <script type="module" src="./assets/supabase-init.js"></script>
 </head>
@@ -584,24 +585,29 @@
 
       // Settings and data source management
       const SETTINGS_KEY = 'kiosk-settings';
+      const runtimeConfig = window.__kioskRuntimeConfig || null;
+      const SUPABASE_EVENT = runtimeConfig?.EVENT_NAME || 'supabase:config-change';
+      const SUPABASE_PAYMENT_EVENT = runtimeConfig?.PAYMENT_EVENT || 'supabase:payment-change';
       let dataSource = 'agent'; // 'agent' or 'supabase'
       let supabaseClient = null;
+      let obdPaymentPollStopper = null;
+      let thkPaymentPollStopper = null;
+      let obdPaymentRealtime = null;
+      let thkPaymentRealtime = null;
+      let thkPaymentIntentId = null;
 
       // Load settings from localStorage
       function loadSettings() {
         try {
+          if (runtimeConfig?.loadSettings) {
+            const stored = runtimeConfig.loadSettings() || { source: 'agent' };
+            dataSource = stored.source || 'agent';
+            return stored;
+          }
           const saved = localStorage.getItem(SETTINGS_KEY);
           if (saved) {
             const settings = JSON.parse(saved);
             dataSource = settings.source || 'agent';
-
-            if (dataSource === 'supabase' && settings.supabaseUrl && settings.supabaseAnonKey) {
-              // Initialize Supabase client
-              // Note: @supabase/supabase-js would need to be loaded via CDN
-              // For now, we'll just store the config
-              console.log('[Settings] Supabase mode configured');
-            }
-
             return settings;
           }
         } catch (e) {
@@ -612,10 +618,60 @@
 
       function saveSettings(settings) {
         try {
-          localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+          if (runtimeConfig?.saveSettings) {
+            runtimeConfig.saveSettings(settings);
+          } else {
+            localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+          }
           console.log('[Settings] Settings saved:', settings.source);
         } catch (e) {
           console.error('[Settings] Failed to save settings:', e);
+        }
+      }
+
+      function clearSettings() {
+        try {
+          if (runtimeConfig?.saveSettings) {
+            runtimeConfig.saveSettings({ source: 'agent' });
+          } else {
+            localStorage.removeItem(SETTINGS_KEY);
+          }
+        } catch (e) {
+          console.error('[Settings] Failed to clear settings:', e);
+        }
+      }
+
+      function pushSupabaseConfig(settings, emitEvent = true) {
+        const canUseSupabase = settings?.source === 'supabase'
+          && typeof settings.supabaseUrl === 'string'
+          && typeof settings.supabaseAnonKey === 'string'
+          && settings.supabaseUrl.trim()
+          && settings.supabaseAnonKey.trim();
+
+        if (canUseSupabase) {
+          const detail = {
+            url: settings.supabaseUrl.trim(),
+            anonKey: settings.supabaseAnonKey.trim(),
+            source: 'settings',
+          };
+          if (runtimeConfig?.applySupabase) {
+            runtimeConfig.applySupabase(detail, { emitEvent });
+          } else {
+            window.__supabaseConfig = detail;
+            if (emitEvent) {
+              window.dispatchEvent(new CustomEvent(SUPABASE_EVENT, { detail }));
+            }
+          }
+          return;
+        }
+
+        if (runtimeConfig?.clearSupabase) {
+          runtimeConfig.clearSupabase({ emitEvent });
+        } else {
+          delete window.__supabaseConfig;
+          if (emitEvent) {
+            window.dispatchEvent(new CustomEvent(SUPABASE_EVENT, { detail: null }));
+          }
         }
       }
 
@@ -682,6 +738,7 @@
 
         saveSettings(settings);
         dataSource = source;
+        pushSupabaseConfig(settings, true);
 
         settingsStatus.textContent = `✅ Настройки сохранены. Источник: ${source === 'agent' ? 'Локальный агент' : 'Supabase (read-only)'}`;
         settingsStatus.style.color = '#10b981';
@@ -695,7 +752,8 @@
       });
 
       settingsReset?.addEventListener('click', () => {
-        localStorage.removeItem(SETTINGS_KEY);
+        const defaults = { source: 'agent' };
+        clearSettings();
         dataSource = 'agent';
         settingsSource.value = 'agent';
         settingsSupabaseUrl.value = '';
@@ -703,6 +761,7 @@
         settingsSupabaseFields.style.display = 'none';
         settingsStatus.textContent = '✅ Настройки сброшены на значения по умолчанию';
         settingsStatus.style.color = '#10b981';
+        pushSupabaseConfig(defaults, true);
         updateUIForDataSource();
       });
 
@@ -744,6 +803,7 @@
       // Load initial settings
       const initialSettings = loadSettings();
       dataSource = initialSettings.source || 'agent';
+      pushSupabaseConfig(initialSettings, false);
       updateUIForDataSource();
 
       // End of settings management
@@ -838,13 +898,30 @@
         }
       };
       window.__kioskSessionState = sessionState;
+      const sessionEventName = 'kiosk:session-id-changed';
       const syncGlobalSessionIds = () => {
         if (typeof window === 'undefined') {
           return;
         }
+        const previousSessionId = typeof window.SESSION_ID === 'string' ? window.SESSION_ID : window.SESSION_ID ?? null;
         window.THICKNESS_SESSION_ID = sessionState.session.thicknessId;
         window.OBD_SESSION_ID = sessionState.session.obdId;
-        window.SESSION_ID = sessionState.session.obdId || sessionState.session.thicknessId || null;
+        const nextSessionId = sessionState.session.obdId || sessionState.session.thicknessId || null;
+        window.SESSION_ID = nextSessionId;
+
+        if (previousSessionId !== nextSessionId) {
+          try {
+            window.dispatchEvent(new CustomEvent(sessionEventName, {
+              detail: {
+                sessionId: nextSessionId,
+                thicknessId: sessionState.session.thicknessId,
+                obdId: sessionState.session.obdId,
+              },
+            }));
+          } catch (error) {
+            console.warn('[kiosk] Не удалось оповестить о смене sessionId:', error);
+          }
+        }
       };
       syncGlobalSessionIds();
 
@@ -902,6 +979,204 @@
         }
         tick();
         return () => { stopped = true; };
+      }
+
+      window.addEventListener(SUPABASE_PAYMENT_EVENT, (event) => {
+        try {
+          handleSupabasePaymentUpdate(event?.detail);
+        } catch (error) {
+          console.warn('[kiosk] Ошибка обработки события оплаты', error);
+        }
+      });
+
+      function handleSupabasePaymentUpdate(detail) {
+        const normalized = normalizeRealtimePaymentDetail(detail);
+        if (!normalized) {
+          return;
+        }
+        const service = determinePaymentService(normalized);
+        if (!service) {
+          return;
+        }
+        if (service === 'obd') {
+          applyObdPaymentRealtime(normalized);
+          return;
+        }
+        if (service === 'thickness') {
+          applyThicknessPaymentRealtime(normalized);
+        }
+      }
+
+      function normalizeRealtimePaymentDetail(detail) {
+        if (!detail || typeof detail !== 'object') {
+          return null;
+        }
+        const recordedAt = detail.recordedAt || detail.record?.recorded_at || detail.record?.updated_at || detail.record?.created_at || null;
+        const receivedAt = typeof detail.receivedAt === 'number' && Number.isFinite(detail.receivedAt)
+          ? detail.receivedAt
+          : Date.now();
+        const normalized = {
+          intentId: detail.intentId || detail.record?.intent_id || null,
+          sessionId: detail.sessionId || detail.record?.session_id || null,
+          service: detail.service || detail.record?.service || null,
+          status: detail.status || detail.record?.status || null,
+          amount: detail.amount,
+          amountMinor: detail.amountMinor,
+          currency: detail.currency || detail.record?.currency || 'RUB',
+          gateway: detail.gateway || detail.record?.gateway || null,
+          recordedAt,
+          origin: detail.origin || detail.source || detail.table || null,
+          source: detail.source || null,
+          receivedAt,
+        };
+
+        normalized.currency = normalized.currency ? normalized.currency.toString().toUpperCase() : 'RUB';
+
+        if (normalized.service) {
+          normalized.service = normalized.service.toString().toLowerCase();
+        }
+        if (normalized.status) {
+          normalized.status = normalized.status.toString().toLowerCase();
+        }
+
+        if (typeof normalized.amount !== 'number' || !Number.isFinite(normalized.amount)) {
+          const minor = typeof normalized.amountMinor === 'number' ? normalized.amountMinor : NaN;
+          normalized.amount = Number.isFinite(minor) ? minor / 100 : null;
+        }
+
+        return normalized;
+      }
+
+      function paymentOriginPriority(origin) {
+        if (!origin) {
+          return 1;
+        }
+        const key = origin.toString().toLowerCase();
+        switch (key) {
+          case 'kiosk_payment_intents':
+          case 'kiosk-payment-intents':
+          case 'payment_intents':
+          case 'kioskpaymentintents':
+            return 3;
+          case 'payments':
+            return 2;
+          default:
+            return 1;
+        }
+      }
+
+      function parsePaymentTimestamp(detail) {
+        if (!detail) {
+          return null;
+        }
+        if (detail.recordedAt) {
+          const ts = Date.parse(detail.recordedAt);
+          if (!Number.isNaN(ts)) {
+            return ts;
+          }
+        }
+        if (typeof detail.receivedAt === 'number' && Number.isFinite(detail.receivedAt)) {
+          return detail.receivedAt;
+        }
+        return null;
+      }
+
+      function shouldApplyPaymentRealtime(previous, next) {
+        if (!next) {
+          return false;
+        }
+        if (!previous) {
+          return true;
+        }
+        const prevTs = parsePaymentTimestamp(previous);
+        const nextTs = parsePaymentTimestamp(next);
+        if (prevTs !== null && nextTs !== null) {
+          if (nextTs > prevTs) {
+            return true;
+          }
+          if (nextTs < prevTs) {
+            return false;
+          }
+          return paymentOriginPriority(next.origin) >= paymentOriginPriority(previous.origin);
+        }
+        if (nextTs !== null) {
+          return true;
+        }
+        return paymentOriginPriority(next.origin) >= paymentOriginPriority(previous.origin);
+      }
+
+      function determinePaymentService(detail) {
+        if (!detail) {
+          return null;
+        }
+        const service = detail.service;
+        if (service === 'obd' || service === 'diagnostics' || service === 'obd2') {
+          return 'obd';
+        }
+        if (service === 'thickness' || service === 'thk' || service === 'paint') {
+          return 'thickness';
+        }
+        if (detail.sessionId) {
+          if (sessionState.session.obdId && detail.sessionId === sessionState.session.obdId) {
+            return 'obd';
+          }
+          if (sessionState.session.thicknessId && detail.sessionId === sessionState.session.thicknessId) {
+            return 'thickness';
+          }
+        }
+        if (detail.intentId) {
+          if (obdPaymentIntent?.id && detail.intentId === obdPaymentIntent.id) {
+            return 'obd';
+          }
+          if (thkPaymentIntentId && detail.intentId === thkPaymentIntentId) {
+            return 'thickness';
+          }
+        }
+        return null;
+      }
+
+      function applyObdPaymentRealtime(update) {
+        if (!update) {
+          return;
+        }
+        if (!shouldApplyPaymentRealtime(obdPaymentRealtime, update)) {
+          return;
+        }
+        obdPaymentRealtime = update;
+        if (obdPaymentPollStopper) {
+          try { obdPaymentPollStopper(); } catch { }
+          obdPaymentPollStopper = null;
+        }
+        renderObdPaymentInfo();
+        if (update.status === 'succeeded' && activeScreenId === 'screen-obd-paywall') {
+          idx = screens.indexOf('screen-obd-results');
+          show('screen-obd-results');
+        }
+      }
+
+      function applyThicknessPaymentRealtime(update) {
+        if (!update) {
+          return;
+        }
+        if (!shouldApplyPaymentRealtime(thkPaymentRealtime, update)) {
+          return;
+        }
+        thkPaymentRealtime = update;
+        if (thkPaymentPollStopper) {
+          try { thkPaymentPollStopper(); } catch { }
+          thkPaymentPollStopper = null;
+        }
+        const statusEl = document.getElementById('thk-payment-status');
+        if (statusEl) {
+          const label = describePaymentStatus(update);
+          statusEl.textContent = update.status === 'failed' || update.status === 'canceled'
+            ? `${label}. Попробуйте снова.`
+            : label;
+        }
+        if (update.status === 'succeeded' && activeScreenId === 'screen-thk-payment') {
+          idx = screens.indexOf('screen-thk-prep');
+          show('screen-thk-prep');
+        }
       }
 
       const updateWelcomeState = () => {
@@ -1615,6 +1890,12 @@
         sessionState.session.thicknessId = null;
         syncGlobalSessionIds();
         sessionState.reportSent.thickness = false;
+        if (thkPaymentPollStopper) {
+          try { thkPaymentPollStopper(); } catch { }
+          thkPaymentPollStopper = null;
+        }
+        thkPaymentRealtime = null;
+        thkPaymentIntentId = null;
         enableThicknessPolling(false);
         thicknessPollPending = false;
         thkTypeCards.forEach(card => {
@@ -1626,6 +1907,8 @@
         applyThkVehiclePreview('');
         if (typeof window !== 'undefined') { window.__thk_intent = null; }
         if (thkAmountEl) thkAmountEl.textContent = '';
+        const thkPaymentStatusEl = document.getElementById('thk-payment-status');
+        if (thkPaymentStatusEl) thkPaymentStatusEl.textContent = '';
         if (thkStart) {
           thkStart.disabled = true;
           thkStart.dataset.locked = '';
@@ -1794,6 +2077,11 @@
         sessionState.session.obdId = null;
         syncGlobalSessionIds();
         sessionState.reportSent.diagnostics = false;
+        if (obdPaymentPollStopper) {
+          try { obdPaymentPollStopper(); } catch { }
+          obdPaymentPollStopper = null;
+        }
+        obdPaymentRealtime = null;
         obdSelectedPort = '';
         obdSerialPorts = [];
         obdPortLoadPending = false;
@@ -2292,9 +2580,33 @@
         return relative;
       }
 
-      function formatCurrency(amount) {
+      function formatCurrency(amount, currency = 'RUB') {
         if (typeof amount !== 'number' || !Number.isFinite(amount)) return '—';
-        return new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB', maximumFractionDigits: 0 }).format(amount);
+        return new Intl.NumberFormat('ru-RU', { style: 'currency', currency, maximumFractionDigits: 0 }).format(amount);
+      }
+
+      function describePaymentStatus(update) {
+        if (!update || !update.status) {
+          return '';
+        }
+        const labels = {
+          created: 'Готовим оплату',
+          pending: 'Ожидаем оплату',
+          processing: 'Платёж обрабатывается',
+          succeeded: 'Оплата подтверждена',
+          failed: 'Оплата не прошла',
+          canceled: 'Оплата отменена',
+          refunded: 'Оплата возвращена',
+        };
+        const base = labels[update.status] || `Статус оплаты: ${update.status.toUpperCase()}`;
+        const parts = [base];
+        if (typeof update.amount === 'number' && Number.isFinite(update.amount)) {
+          parts.push(formatCurrency(update.amount, update.currency || 'RUB'));
+        }
+        if (update.gateway) {
+          parts.push(update.gateway);
+        }
+        return parts.join(' • ');
       }
 
       async function startObdScan() {
@@ -2401,9 +2713,13 @@
           // DEV confirm button attach
           attachObdDevConfirmButton();
           // Poll status
-          startPaymentPolling(intent.id, (st) => {
+          if (obdPaymentPollStopper) {
+            try { obdPaymentPollStopper(); } catch { }
+          }
+          obdPaymentPollStopper = startPaymentPolling(intent.id, (st) => {
             renderObdPaymentInfo();
             if (st?.status === 'succeeded') {
+              idx = screens.indexOf('screen-obd-results');
               show('screen-obd-results');
             }
           });
@@ -2471,8 +2787,6 @@
         }
         devBtn.style.display = isDev ? '' : 'none';
         const qrBox = screen.querySelector('.qr-placeholder');
-        let currentIntentId = null;
-        let stopPoll = null;
         function renderDetails() {
           detailsEl.textContent = thkPrice ? `К оплате: ${formatCurrency(thkPrice)}` : '';
         }
@@ -2484,11 +2798,13 @@
             const created = await paymentsCreateIntent(thkPrice || 350, { service: 'thickness', type: thkType || 'sedan', sessionId: sessionState.session.thicknessId });
             const intent = created.intent || created?.data?.intent || null;
             if (!intent || !intent.id) { renderStatus('Не удалось создать платёж.'); return; }
-            currentIntentId = intent.id;
+            thkPaymentIntentId = intent.id;
             if (qrBox) { qrBox.textContent = intent.qrText || `Отсканируйте QR (ID: ${intent.id})`; }
             renderStatus('Ожидание оплаты…');
-            if (stopPoll) stopPoll();
-            stopPoll = startPaymentPolling(currentIntentId, async (st) => {
+            if (thkPaymentPollStopper) {
+              try { thkPaymentPollStopper(); } catch { }
+            }
+            thkPaymentPollStopper = startPaymentPolling(thkPaymentIntentId, async (st) => {
               if (st?.status === 'succeeded') {
                 renderStatus('Оплата подтверждена. Продолжаем…');
                 // переход к подготовке оборудования
@@ -2501,8 +2817,8 @@
           } catch (e) { renderStatus('Ошибка подготовки оплаты.'); }
         };
         devBtn.onclick = async () => {
-          if (!currentIntentId) return;
-          try { await paymentsConfirmDev(currentIntentId); } catch (e) { console.warn('thk confirm-dev failed', e); }
+          if (!thkPaymentIntentId) return;
+          try { await paymentsConfirmDev(thkPaymentIntentId); } catch (e) { console.warn('thk confirm-dev failed', e); }
         };
       }
 
@@ -2513,6 +2829,11 @@
           return;
         }
         if (!obdPaymentIntent) {
+          const realtimeNote = describePaymentStatus(obdPaymentRealtime);
+          if (realtimeNote) {
+            obdPaymentInfo.innerHTML = `<div class="obd-note">${escapeHtml(realtimeNote)}</div>`;
+            return;
+          }
           obdPaymentInfo.innerHTML = '<div class="obd-note">Подготовка данных для оплаты…</div>';
           return;
         }
@@ -2529,6 +2850,10 @@
           parts.push(`<li>Доля партнёров (${partnerPercent ?? 0}%): ${formatCurrency(partner.shareAmount)}</li>`);
         }
         parts.push(`<li>Нетто после выплаты партнёрам: ${formatCurrency(net)}</li>`);
+        const realtimeStatus = describePaymentStatus(obdPaymentRealtime);
+        if (realtimeStatus) {
+          parts.push(`<li>${escapeHtml(realtimeStatus)}</li>`);
+        }
         obdPaymentInfo.innerHTML = `<strong>Итог перед оплатой</strong><ul>${parts.join('')}</ul>`;
       }
 

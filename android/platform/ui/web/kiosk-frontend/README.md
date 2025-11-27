@@ -198,6 +198,13 @@ The kiosk UI is published from Supabase Storage (`kiosk-ui` bucket on project `d
 
 Always keep real credentials outside git (Vault + local notes) and update the credential inventory whenever keys rotate.
 
+### Runtime Supabase configuration
+
+- `assets/runtime-config.js` подхватывает `kiosk-settings` из `localStorage`, публикует API `window.__kioskRuntimeConfig` и синхронизирует `window.__supabaseConfig` до загрузки модулей.
+- Настройки открываются в киоске через кнопку ⚙️ (доступна в DEV или по клавишам `Ctrl+Shift+S`). Выберите источник Supabase, заполните URL и публичный `anon` ключ, затем сохраните изменения.
+- После сохранения скрипт отправляет событие `supabase:config-change`, и `src/bootstrap/supabase-client.js` пересоздаёт клиент без перезагрузки UI.
+- Переключение обратно на локальный агент очищает Supabase-конфиг на лету, поэтому режим read-only не мешает автономной работе киоска.
+
 ## Service Worker
 
 The service worker implements three caching strategies:
