@@ -1,0 +1,1182 @@
+<!doctype html>
+<html lang="ru">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Автосервис самообслуживания</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Playfair+Display:wght@600&family=JetBrains+Mono:wght@500&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css" />
+  <meta name="theme-color" content="#0b1020" />
+</head>
+
+<body data-dev-mode="off">
+  <div class="app-background" aria-hidden="true">
+    <div class="app-background-layer app-background-layer--gradient"></div>
+    <div class="app-background-layer app-background-layer--vignette"></div>
+    <div class="app-background-layer app-background-layer--grid"></div>
+    <div class="app-background-layer app-background-layer--orbits"></div>
+    <div class="app-background-layer app-background-layer--noise"></div>
+    <div class="app-background-glow app-background-glow--one"></div>
+    <div class="app-background-glow app-background-glow--two"></div>
+  </div>
+  <div id="app" class="app">
+    <!-- Screen: Attract -->
+    <section id="screen-attract" class="screen active" tabindex="0">
+      <div class="attract-backdrop" aria-hidden="true">
+        <div class="attract-orb orb-one"></div>
+        <div class="attract-orb orb-two"></div>
+        <div class="attract-grid-lines"></div>
+      </div>
+      <div class="center hero-center">
+        <div class="hero-layout">
+          <div class="hero-primary">
+            <p class="hero-eyebrow">Самообслуживание · без консультанта</p>
+            <h1 class="hero-title">
+              <span>Киоск диагностики и толщинометрии</span>
+              <span class="hero-title-accent">готов через 2 клика</span>
+            </h1>
+            <p class="hero-lead">
+              Экран мгновенно показывает два сценария — толщинометрия и полная OBD‑проверка. Терминал сам выдаёт
+              оборудование, отслеживает подключение устройств и формирует отчёт простым языком без технического
+              сленга. Всё укладывается в пару минут даже для тех, кто видит киоск впервые.
+            </p>
+            <div class="hero-pill-row" role="list">
+              <span class="hero-pill" role="listitem">Автовыдача толщиномера и OBD‑адаптера</span>
+              <span class="hero-pill" role="listitem">PDF и SMS отчёты сразу после завершения</span>
+              <span class="hero-pill hero-pill--outline" role="listitem">QR‑оплата, статус виден на экране</span>
+            </div>
+            <div class="hero-actions" role="group" aria-label="Основные действия">
+              <button type="button" class="hero-btn hero-btn--primary" data-hero-action="start">Выбрать услугу</button>
+              <button type="button" class="hero-btn hero-btn--ghost" data-hero-action="learn">Посмотреть
+                сценарии</button>
+            </div>
+            <div class="hero-trust" role="note">
+              <span>Обслужили 10 000+ автомобилей</span>
+              <span>98% точность · результаты за 3 минуты</span>
+            </div>
+            <div class="hero-cta">
+              <div class="cta subtle">Коснитесь в любом месте — переход к согласию и выбору услуги занимает менее
+                секунды.
+              </div>
+              <p class="hero-hint">Каждый экран отвечает только за одно действие, поэтому не нужно вспоминать сложные
+                цепочки.</p>
+            </div>
+          </div>
+          <div class="hero-secondary" aria-label="Статистика терминала">
+            <div class="hero-stats-card floating-panel">
+              <div class="hero-stat">
+                <div class="hero-stat-value">10 842</div>
+                <div class="hero-stat-label">успешных диагностик</div>
+              </div>
+              <div class="hero-stat">
+                <div class="hero-stat-value">4.9/5</div>
+                <div class="hero-stat-label">оценка сервиса</div>
+              </div>
+              <div class="hero-divider"></div>
+              <ul class="hero-checklist">
+                <li>Этапы «Подключение → Анализ → Отчёт» видны в реальном времени</li>
+                <li>Данные берём только с устройств — никаких симуляций или догадок</li>
+                <li>Толщиномер и OBD‑адаптер выдаются автоматически после оплаты</li>
+              </ul>
+              <div class="hero-status">
+                <span class="badge badge-ok">Набор оборудования готов</span>
+                <span class="hero-status-note">Толщиномер заряжен · QR платёж активен</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Screen: Welcome & Terms -->
+    <section id="screen-welcome" class="screen">
+      <div class="center wide welcome-center">
+        <div class="welcome-grid">
+          <div class="welcome-panel">
+            <div class="eyebrow">Шаг 1 · Приветствие</div>
+            <h2>Путь расписан по шагам и не требует подсказок персонала</h2>
+            <p class="lead">
+              Терминал говорит простым языком: объясняет, что будет происходить, показывает обязательные шаги и сразу
+              предлагает службу поддержки, если устройство не готово. Ничего лишнего — только то, что нужно для быстрого
+              старта.
+            </p>
+            <div class="welcome-highlights">
+              <div class="highlight-card">
+                <div class="highlight-title">1 экран — 1 действие</div>
+                <p>Каждый экран содержит одну задачу: согласие, выбор услуги, оплата или статус оборудования.</p>
+              </div>
+              <div class="highlight-card">
+                <div class="highlight-title">Устройства под контролем</div>
+                <p>Киоск сам выдаёт толщиномер и OBD‑адаптер, а экран показывает заряд, связь и готовность.</p>
+              </div>
+              <div class="highlight-card">
+                <div class="highlight-title">Отчёт сразу</div>
+                <p>PDF и SMS/Email формируются сразу после завершения и автоматически стираются через 30 дней.</p>
+              </div>
+            </div>
+          </div>
+          <div class="welcome-card" aria-labelledby="terms-title">
+            <div class="terms-summary">
+              <div class="terms-badge">Перед началом</div>
+              <h3 id="terms-title">Примите условия обслуживания</h3>
+              <p>Мы используем контакты только для отправки отчётов. После доставки файл и персональные данные
+                автоматически удаляются. Подробные правила доступны по ссылке.</p>
+              <button type="button" id="open-terms-link" class="link">Читать условия полностью</button>
+            </div>
+            <div class="consent">
+              <label class="checkbox">
+                <input id="welcome-agree" type="checkbox" />
+                <span>Я принимаю условия обслуживания и подтверждаю ознакомление</span>
+              </label>
+            </div>
+            <div class="privacy-note">
+              <span class="badge badge-ok">Данные защищены</span>
+              <p>Сессия очищается после завершения или 5 минут простоя. В журнал попадают только технические события.
+              </p>
+            </div>
+            <div class="actions column">
+              <button class="primary" id="welcome-continue" disabled>Продолжить</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="screen-services" class="screen">
+      <div class="center wide">
+        <div class="services-header">
+          <div>
+            <div class="eyebrow">Шаг 2 · Выбор сервиса</div>
+            <h2>Выберите формат проверки</h2>
+            <p class="lead">Доступны два сценария: детальная OBD‑диагностика и расширенная толщинометрия кузова. Каждый
+              из них запускается мгновенно, показывает прогресс и выдаёт отчёт с понятными рекомендациями. Выбор
+              подтверждается одной кнопкой.
+            </p>
+          </div>
+          <div class="services-stats" aria-label="Метрики конверсии">
+            <div>
+              <div class="services-stat-value">≤ 3 мин</div>
+              <div class="services-stat-label">до готовности отчёта</div>
+            </div>
+            <div>
+              <div class="services-stat-value">85%</div>
+              <div class="services-stat-label">переходят к оплате</div>
+            </div>
+          </div>
+        </div>
+        <div class="services-grid" id="service-options">
+          <article class="card selectable service-card floating-card" data-service="diagnostics"
+            data-target-screen="screen-obd-intro" data-auto-advance="true" role="button" tabindex="0"
+            aria-pressed="false">
+            <div class="service-card-head">
+              <div>
+                <p class="service-kicker">Диагностика</p>
+                <h3>Полная проверка двигателя</h3>
+                <p class="service-sub">Обнаружит до 99% скрытых проблем: от ошибок блока управления до состояния
+                  датчиков.</p>
+              </div>
+              <div class="service-price">
+                <span>480 ₽</span>
+                <small>фиксированная стоимость</small>
+              </div>
+            </div>
+            <ul class="service-benefits">
+              <li><strong>Включает:</strong> анализ ошибок, рекомендации, адреса ближайших сервисов</li>
+              <li>Видите этапы: подключение → сканирование → отчёт</li>
+              <li>PDF и SMS сразу после завершения</li>
+            </ul>
+            <div class="service-meta">
+              <span class="badge badge-ok">Адаптер подключен</span>
+              <span>Bluetooth стабильный · поддерживаем Toyota, Lexus, Hyundai, BMW</span>
+            </div>
+          </article>
+          <article class="card selectable service-card floating-card" data-service="thickness"
+            data-target-screen="screen-thk-intro" data-auto-advance="true" role="button" tabindex="0"
+            aria-pressed="false">
+            <div class="service-card-head">
+              <div>
+                <p class="service-kicker">Измерение кузова</p>
+                <h3>Профессиональная толщинометрия</h3>
+                <p class="service-sub">Проверим до 60 точек ЛКП по фиксированной схеме и покажем отклонения цветом.</p>
+              </div>
+              <div class="service-price">
+                <span>от 350 ₽</span>
+                <small>зависит от типа кузова</small>
+              </div>
+            </div>
+            <ul class="service-benefits">
+              <li><strong>Включает:</strong> схему кузова, анализ зон риска, PDF отчёт</li>
+              <li>Терминал выдаёт толщиномер после оплаты и ведёт по точкам</li>
+              <li>Рекомендуемые действия и ближайшие сервисы в конце</li>
+            </ul>
+            <div class="service-meta">
+              <span class="badge badge-ok">Устройство готово</span>
+              <span>Заряд 98% · калибровка подтверждена</span>
+            </div>
+          </article>
+        </div>
+        <div class="services-footer">
+          <div class="insight-badges">
+            <div>
+              <span class="badge badge-warn">Без данных — без услуги</span>
+              <p>Мы не генерируем фиктивные значения. Если устройство не подключено, предложим повтор.</p>
+            </div>
+            <div>
+              <span class="badge badge-ok">Отчёт сразу после оплаты</span>
+              <p>PDF сохраняется локально и отправляется на выбранный канал.</p>
+            </div>
+          </div>
+          <div class="actions row services-actions">
+            <button class="secondary" data-back>Назад</button>
+            <button class="primary" id="service-continue" disabled>Продолжить</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="screen-thk-intro" class="screen">
+      <div class="center narrow">
+        <h2>Толщинометрия ЛКП</h2>
+        <p class="lead">Киоск выдаёт откалиброванный толщиномер сразу после оплаты. На экране видно схему кузова,
+          остаток точек и подсказки по каждому замеру. Все значения берутся только с устройства и фиксируются в отчёте.
+        </p>
+        <p class="muted-note">Мы измеряем реальные слои ЛКП, чтобы выявить перекрасы, шпаклёвку и следы ремонта.
+          Подсказки подскажут, куда приложить датчик и как держать его ровно. Все результаты автоматически отправляются
+          на телефон или email и удаляются спустя 30 дней.</p>
+        <ul class="checklist">
+          <li>40–60 точек на кузове по понятной схеме.</li>
+          <li>Подсказки на каждом шаге — без лишних вопросов.</li>
+          <li>Отчёт отправим на телефон/email сразу после завершения.</li>
+          <li>Для контроля мы сохраняем время каждого измерения и состояние устройства — можно просмотреть историю в
+            отчёте.</li>
+        </ul>
+        <div class="flow-overview" aria-label="Этапы толщинометрии">
+          <div class="flow-step">
+            <div class="flow-step-index">01</div>
+            <div>
+              <div class="flow-step-title">Выберите тип кузова</div>
+              <p>Мы сразу фиксируем стоимость и подбираем схему точек.</p>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-index">02</div>
+            <div>
+              <div class="flow-step-title">Подтвердите контакт</div>
+              <p>Телефон или email нужен только для отправки PDF/SMS отчёта.</p>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-index">03</div>
+            <div>
+              <div class="flow-step-title">Оплатите и получите устройство</div>
+              <p>QR оплата → выдача толщиномера → подсказки по точкам.</p>
+            </div>
+          </div>
+        </div>
+        <div class="cards three" id="thk-types">
+          <div class="card selectable thk-type-card" data-type="sedan" data-price="350" role="button" tabindex="0"
+            aria-pressed="false">
+            <img class="vehicle-thumb" src="./assets/images/vehicles/thk-sedan.png" alt="Силуэт седана" loading="lazy"
+              decoding="async" />
+            <div class="card-title">Седан</div>
+            <div class="card-desc">40 точек по стойкам, крыше и дверям</div>
+            <div class="card-price">350 ₽</div>
+            <ul class="vehicle-meta-list">
+              <li>Слот выдачи №1</li>
+              <li>Среднее время замеров ≈ 2 мин</li>
+            </ul>
+          </div>
+          <div class="card selectable thk-type-card" data-type="hatchback" data-price="350" role="button" tabindex="0"
+            aria-pressed="false">
+            <img class="vehicle-thumb" src="./assets/images/vehicles/thk-hatchback.webp" alt="Силуэт хэтчбека"
+              loading="lazy" decoding="async" />
+            <div class="card-title">Хэтчбек</div>
+            <div class="card-desc">Компакт 3/5 дверей, удобный доступ сзади</div>
+            <div class="card-price">350 ₽</div>
+            <ul class="vehicle-meta-list">
+              <li>Слот выдачи №1</li>
+              <li>45 точек + крышка багажника</li>
+            </ul>
+          </div>
+          <div class="card selectable thk-type-card" data-type="minivan" data-price="400" role="button" tabindex="0"
+            aria-pressed="false">
+            <img class="vehicle-thumb" src="./assets/images/vehicles/thk-minivan.png" alt="Силуэт минивэна"
+              loading="lazy" decoding="async" />
+            <div class="card-title">Минивэн</div>
+            <div class="card-desc">Расширенная схема для MPV и микроавтобусов</div>
+            <div class="card-price">400 ₽</div>
+            <ul class="vehicle-meta-list">
+              <li>Слот выдачи №2</li>
+              <li>До 60 точек, включая двери-сдвижки</li>
+            </ul>
+          </div>
+        </div>
+        <div id="thk-vehicle-preview" class="vehicle-preview hidden" aria-live="polite">
+          <figure>
+            <img id="thk-vehicle-image" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=="
+              alt="" loading="lazy" />
+          </figure>
+          <div class="vehicle-preview-caption">
+            <div id="thk-vehicle-caption" class="vehicle-caption"></div>
+            <ul id="thk-vehicle-insights" class="vehicle-insights hidden"></ul>
+          </div>
+        </div>
+        <div class="actions row">
+          <button class="secondary" data-back>Назад</button>
+          <button class="primary" id="thk-continue-1" disabled>Продолжить</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="screen-thk-contact" class="screen">
+      <div class="center narrow">
+        <h2>Куда отправить отчёт?</h2>
+        <p class="muted-note">Телефон или email нужны исключительно для доставки PDF/SMS. Не делимся контактами,
+          автоматически удаляем их через 30 дней или раньше по запросу.</p>
+        <div class="contact-layout">
+          <div class="contact-main">
+            <div class="form">
+              <label class="field contact-field">
+                <span>Телефон или email</span>
+                <input id="thk-contact" class="contact-input" type="text" inputmode="tel" autocomplete="tel"
+                  aria-describedby="thk-contact-hint" placeholder="+7 (9XX) XXX-XX-XX или email" />
+              </label>
+              <div id="thk-contact-hint" class="field-hint">Формат проверяется автоматически. Введите телефон или
+                email — мы пришлём ссылку сразу после завершения измерений.</div>
+              <div id="thk-contact-error" class="field-error" role="alert" aria-live="polite"></div>
+            </div>
+            <div id="thk-selection-summary" class="selection-summary selection-summary--pending" aria-live="polite">
+              <div class="selection-summary__label">Выбор кузова</div>
+              <div class="selection-summary__heading">
+                <div id="thk-summary-title" class="selection-summary__title">Тип кузова пока не выбран</div>
+                <div id="thk-summary-price" class="selection-summary__price">— ₽</div>
+              </div>
+              <ul id="thk-summary-meta" class="selection-summary__meta">
+                <li>Выберите карточку на предыдущем шаге, чтобы зафиксировать стоимость.</li>
+              </ul>
+              <div id="thk-summary-note" class="selection-summary__note">После выбора покажем слот выдачи и среднее
+                время замеров.</div>
+            </div>
+            <div class="contact-instructions">
+              <h3>Как это работает</h3>
+              <ul class="steps">
+                <li>Введите номер в формате +7 (9XX) XXX-XX-XX или укажите email.</li>
+                <li>После завершения измерений пришлём SMS или письмо с PDF и ссылкой.</li>
+                <li>Контакты используются только для отчёта — без подписок и рекламных сообщений.</li>
+              </ul>
+              <div class="contact-illustrations" role="img" aria-label="Иллюстрации: телефон, письмо, защита данных">
+                <div class="tile">
+                  <img src="./assets/icons/phone.svg" alt="Телефон" loading="lazy" />
+                  <div class="caption">SMS с ссылкой</div>
+                </div>
+                <div class="tile">
+                  <img src="./assets/icons/mail.svg" alt="Email" loading="lazy" />
+                  <div class="caption">Письмо с PDF</div>
+                </div>
+                <div class="tile">
+                  <img src="./assets/icons/lock.svg" alt="Защита данных" loading="lazy" />
+                  <div class="caption">Удаляем после отправки</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <aside class="contact-side-card" aria-label="Контроль шагов выдачи толщиномера">
+            <div class="side-card-header">
+              <span class="badge badge-ok">До выдачи устройства</span>
+              <h3>Что произойдёт дальше</h3>
+            </div>
+            <div class="info-section">
+              <div class="info-column">
+                <h4>Этапы выдачи</h4>
+                <ul class="side-steps">
+                  <li>
+                    <strong>Оплата по QR</strong>
+                    <p>Сумма фиксируется сейчас, чек попадёт в Supabase и в отчёт.</p>
+                  </li>
+                  <li>
+                    <strong>Автовыдача толщиномера</strong>
+                    <p>Слот открывается после подтверждения платежа, статус видно на экране.</p>
+                  </li>
+                  <li>
+                    <strong>Измерения с подсказками</strong>
+                    <p>Киоск показывает схему кузова и фиксирует каждую точку.</p>
+                  </li>
+                </ul>
+              </div>
+              <div class="info-column">
+                <h4>Что важно знать</h4>
+                <div class="side-note">
+                  <p>Контакт нужен только для доставки PDF/SMS. Сессия и данные стираются через 30 дней или сразу после
+                    отправки отчёта.</p>
+                </div>
+              </div>
+            </div>
+          </aside>
+        </div>
+        <div class="actions row">
+          <button class="secondary" data-back>Назад</button>
+          <button class="primary" id="thk-continue-2" disabled>Продолжить</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="screen-thk-payment" class="screen">
+      <div class="center narrow">
+        <h2>Оплата по QR</h2>
+        <div class="hero-icon" aria-hidden="true">
+          <img src="./assets/icons/credit-card.svg" alt="" loading="lazy" />
+        </div>
+        <p class="lead">Отсканируйте QR-код для оплаты. В этой сборке оплата временно недоступна (провайдер ещё не
+          подключён).</p>
+        <p class="muted-note">Мы показываем сумму и назначение платежа до подтверждения. После оплаты терминал
+          автоматически проверит поступление средств и откроет следующий шаг.</p>
+        <div id="thk-amount" class="amount" aria-live="polite"></div>
+        <div class="qr-placeholder" aria-label="QR placeholder"></div>
+        <div class="actions column">
+          <button class="secondary" data-back>Назад</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="screen-thk-prep" class="screen">
+      <div class="center narrow">
+        <h2>Подготовка оборудования</h2>
+        <p class="muted-note">Перед выдачей мы проверяем заряд устройства и корректность калибровки. Следуйте шагам ниже
+          — так замеры будут точными даже на сложных участках кузова.</p>
+        <div class="prep-grid">
+          <div class="prep-card">
+            <div class="prep-stage">01</div>
+            <div>
+              <h3>Проверяем заряд</h3>
+              <p>Терминал убеждается, что батарея толщиномера ≥ 90% и датчик прошёл самотест.</p>
+            </div>
+          </div>
+          <div class="prep-card">
+            <div class="prep-stage">02</div>
+            <div>
+              <h3>Выдаём устройство</h3>
+              <p>Отсек откроется автоматически. Возьмите прибор и протрите эталонную пластину.</p>
+            </div>
+          </div>
+          <div class="prep-card">
+            <div class="prep-stage">03</div>
+            <div>
+              <h3>Готовим поверхность</h3>
+              <p>Протрите участок кузова, держите датчик перпендикулярно и касайтесь без усилий.</p>
+            </div>
+          </div>
+        </div>
+        <div class="device-status-panel" aria-live="polite">
+          <div class="device-status-title">Статус оборудования</div>
+          <ul>
+            <li><span class="status-dot ok"></span>Слот закрыт до подтверждения отплаты.</li>
+            <li><span class="status-dot ok"></span>Последняя калибровка: &lt; 24 часов назад.</li>
+            <li><span class="status-dot warn"></span>Не кладите прибор в карман — используйте ремешок.</li>
+          </ul>
+        </div>
+        <div class="actions row">
+          <button class="secondary" data-back>Назад</button>
+          <button class="primary" id="thk-continue-3">Далее</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="screen-thk-measure" class="screen">
+      <div class="center narrow">
+        <h2>Измерения</h2>
+        <p class="lead">Требуется подключённый поддерживаемый толщиномер. Без устройства измерения недоступны.</p>
+        <ul class="benefits">
+          <li>Сначала выполните контрольный замер на эталонной пластине — приложение подтвердит готовность.</li>
+          <li>Каждую точку фиксируем автоматически: отображается значение, допустимое отклонение и краткий совет.</li>
+          <li>Если нужно сделать паузу — просто положите датчик в держатель, сессия сохранится.</li>
+        </ul>
+        <div class="status-line"><span id="thk-status" class="badge badge-danger" aria-live="polite">Толщиномер: нет
+            соединения</span></div>
+        <button class="primary" id="thk-start" disabled>Начать измерения</button>
+        <div id="thk-session" class="card hidden" aria-live="polite">
+          <div class="card-title">Прогресс измерений</div>
+          <div id="thk-progress" class="meta">—</div>
+          <div id="thk-points-grid" class="thk-points-grid"></div>
+          <div class="actions row">
+            <button class="ghost" type="button" id="thk-dev-mark" data-dev-only data-dev-managed hidden>Отметить точку
+              (DEV)</button>
+            <button class="primary" type="button" id="thk-finish" disabled>Завершить</button>
+          </div>
+        </div>
+        <div class="muted-note">Нет симуляции измерений в PROD. В DEV используйте «Пропустить» для навигации.</div>
+        <div class="actions">
+          <button class="secondary" data-back>Назад</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="screen-thk-done" class="screen">
+      <div class="center narrow">
+        <h2>Готово</h2>
+        <p class="lead">Отчёт сформирован. Посмотрите предпросмотр и решите — отправить по SMS/email или сохранить
+          локально.</p>
+        <p class="muted-note">В файле вы увидите таблицу с точками измерений, текстовые комментарии и рекомендации по
+          повторной проверке. Если что-то пошло не так, можно сразу начать новую сессию.</p>
+        <p class="muted-note">Если оставить экран без действий, терминал через 30 секунд автоматически вернёт вас на
+          главный экран. Любое касание сбрасывает таймер.</p>
+        <div id="report-status-thk" class="report-status" aria-live="polite"></div>
+        <div id="credits-thk" class="credits" aria-live="polite"></div>
+        <div class="report-next-steps">
+          <div class="report-step-card">
+            <h3>Проверить PDF</h3>
+            <p>Откройте предпросмотр на экране или на устройстве — файл доступен 30 дней.</p>
+          </div>
+          <div class="report-step-card">
+            <h3>Отправить клиенту</h3>
+            <p>SMS/email уходят сразу после подтверждения, можно дублировать вручную.</p>
+          </div>
+          <div class="report-step-card">
+            <h3>Начать новую сессию</h3>
+            <p>Если нужно проверить другое авто — нажмите «На главный экран» и стартуйте заново.</p>
+          </div>
+        </div>
+        <div class="actions row">
+          <button class="ghost" id="thk-preview">Предпросмотр</button>
+          <button class="primary" id="back-to-home-1">На главный экран</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Flow: Diagnostics (OBD-II) -->
+    <section id="screen-obd-intro" class="screen">
+      <div class="center narrow">
+        <h2>Диагностика OBD‑II</h2>
+        <p class="lead">Подключаемся к адаптеру ELM327 и считываем коды неисправностей (DTC), статусы систем и ключевые
+          параметры в стандартизированном режиме. Всё прозрачно и без лишних терминов.</p>
+        <p class="muted-note">Система автоматически распознаёт марку автомобиля и подбирает оптимальный сценарий опроса.
+          В отчёте будут коды DTC, описание неисправностей и рекомендации по дальнейшим действиям.</p>
+        <ul class="checklist">
+          <li>Быстрый обзор систем или детальный стандарт OBD‑II — на ваш выбор.</li>
+          <li>Покажем актуальные коды/статусы и кратко объясним, что это значит.</li>
+          <li>Платёж — после готовности отчёта. Сразу после оплаты откроем результаты.</li>
+          <li>Дополнительно соберём live-данные (напряжение, температура, обороты), чтобы оценить текущие параметры
+            мотора.</li>
+        </ul>
+        <div class="flow-overview" aria-label="Этапы диагностики OBD">
+          <div class="flow-step">
+            <div class="flow-step-index">01</div>
+            <div>
+              <div class="flow-step-title">Выберите режим и марку</div>
+              <p>Режим определяет глубину проверки, марка — подсказки подключения.</p>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-index">02</div>
+            <div>
+              <div class="flow-step-title">Подключите адаптер</div>
+              <p>Экран покажет подготовку, проверит питание и самопроверку устройства.</p>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-index">03</div>
+            <div>
+              <div class="flow-step-title">Получите результат и оплатите</div>
+              <p>После сканирования показываем сводку, а полный отчёт открываем после оплаты.</p>
+            </div>
+          </div>
+        </div>
+        <div class="cards two" id="obd-modes">
+          <div class="card selectable obd-mode-card" data-mode="general" role="button" tabindex="0"
+            aria-pressed="false">
+            <div class="card-title">Общая</div>
+            <div class="card-desc">Краткая проверка основных систем</div>
+          </div>
+          <div class="card selectable obd-mode-card" data-mode="obd2" role="button" tabindex="0" aria-pressed="false">
+            <div class="card-title">OBD‑II</div>
+            <div class="card-desc">Стандартизированный режим OBD‑II</div>
+          </div>
+        </div>
+        <div class="actions row">
+          <button class="secondary" data-back>Назад</button>
+          <button class="primary" id="obd-continue-1" disabled>Продолжить</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="screen-obd-contact" class="screen">
+      <div class="center narrow">
+        <h2>Куда отправить отчёт?</h2>
+        <p class="muted-note">Контакты нужны только для уведомлений о ходе сканирования и ссылки на PDF. Никаких
+          дополнительных рассылок — данные удаляются автоматически через 30 дней.</p>
+        <div class="contact-layout">
+          <div class="contact-main">
+            <div class="form">
+              <label class="field contact-field">
+                <span>Телефон или email</span>
+                <input id="obd-contact" class="contact-input" type="text" inputmode="tel" autocomplete="tel"
+                  aria-describedby="obd-contact-hint" placeholder="+7 (9XX) XXX-XX-XX или email" />
+              </label>
+              <div id="obd-contact-hint" class="field-hint">Введите телефон с кодом России — мы пришлём результаты
+                диагностики сразу после завершения. Допустим и email, если предпочитаете письмо.</div>
+              <div id="obd-contact-error" class="field-error" role="alert" aria-live="polite"></div>
+            </div>
+            <div id="obd-selection-summary" class="selection-summary selection-summary--pending" aria-live="polite">
+              <div class="selection-summary__label">Параметры диагностики</div>
+              <div class="selection-summary__heading">
+                <div id="obd-summary-make" class="selection-summary__title">Марка не выбрана</div>
+                <div id="obd-summary-mode" class="selection-summary__subtitle">Выберите режим проверки</div>
+              </div>
+              <ul id="obd-summary-meta" class="selection-summary__meta">
+                <li>После выбора подберём схему подключения и проверок.</li>
+              </ul>
+              <div id="obd-summary-note" class="selection-summary__note">Режим «OBD‑II» раскрывает стандартизированные
+                команды, «Общая» — быстрый обзор систем.</div>
+            </div>
+            <div class="contact-instructions">
+              <h3>Как это работает</h3>
+              <ul class="steps">
+                <li>Укажите телефон или email — мы проверим формат автоматически.</li>
+                <li>По готовности диагностики отправим ссылку и файл отчёта.</li>
+                <li>Контакты нужны только для доставки — мы их удаляем.</li>
+              </ul>
+              <div class="contact-illustrations" role="img" aria-label="Иллюстрации: телефон, письмо, защита данных">
+                <div class="tile">
+                  <img src="./assets/icons/phone.svg" alt="Телефон" loading="lazy" />
+                  <div class="caption">SMS с ссылкой</div>
+                </div>
+                <div class="tile">
+                  <img src="./assets/icons/mail.svg" alt="Email" loading="lazy" />
+                  <div class="caption">Письмо с PDF</div>
+                </div>
+                <div class="tile">
+                  <img src="./assets/icons/lock.svg" alt="Защита данных" loading="lazy" />
+                  <div class="caption">Удаляем после отправки</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <aside class="contact-side-card" aria-label="Информация о следующем шаге диагностики">
+            <div class="side-card-header">
+              <span class="badge badge-ok">Перед подключением адаптера</span>
+              <h3>Дальнейшие действия</h3>
+            </div>
+            <div class="info-section">
+              <div class="info-column">
+                <h4>Шаги диагностики</h4>
+                <ul class="side-steps">
+                  <li>
+                    <strong>Подготовка адаптера</strong>
+                    <p>ELM327 проходит самопроверку, мы показываем статус питания и подключения.</p>
+                  </li>
+                  <li>
+                    <strong>Сканирование до 90 секунд</strong>
+                    <p>Прогресс идёт по этапам: коды → статусы → live-данные. Всё фиксируется в журнале.</p>
+                  </li>
+                  <li>
+                    <strong>Оплата после сводки</strong>
+                    <p>Вы уже знаете, сколько ошибок найдено, прежде чем платить за полный отчёт.</p>
+                  </li>
+                </ul>
+              </div>
+              <div class="info-column">
+                <h4>Контроль процесса</h4>
+                <div class="side-note">
+                  <p>Контакты нужны для рассылки PDF и уведомлений о статусе сканирования. Данные очищаются через 30
+                    дней
+                    или по запросу сразу.</p>
+                </div>
+              </div>
+            </div>
+          </aside>
+        </div>
+        <div class="actions row">
+          <button class="secondary" data-back>Назад</button>
+          <button class="primary" id="obd-continue-2" disabled>Продолжить</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="screen-obd-vehicle" class="screen">
+      <div class="center narrow">
+        <h2>Выбор автомобиля</h2>
+        <p class="lead">Выберите марку — мы подготовим подсказки подключения и учтём особенности системы.</p>
+        <div class="vehicle-grid" id="obd-makes">
+          <div class="card selectable obd-make-card" data-make="Toyota" role="button" tabindex="0" aria-pressed="false">
+            <div class="brand-lockup brand-lockup--compact">
+              <img class="brand-logo" src="./assets/images/brands/logo-toyota.jpg" alt="Логотип Toyota" loading="lazy"
+                decoding="async" />
+              <div class="brand-lockup-copy">
+                <span class="brand-lockup-title">Toyota</span>
+                <span class="brand-lockup-note">TNGA · CAN 11 бит · адаптер до 90 c</span>
+              </div>
+            </div>
+            <div class="card-desc">Покажем разъём, проверим питание и выведем live-данные двигателя без сложной
+              терминологии.</div>
+            <ul class="vehicle-meta-list">
+              <li>Подсветим схемы подключения OBD‑II</li>
+              <li>Отдельная вкладка для гибридных батарей</li>
+            </ul>
+          </div>
+          <div class="card selectable obd-make-card" data-make="Lexus" role="button" tabindex="0" aria-pressed="false">
+            <div class="brand-lockup brand-lockup--compact">
+              <img class="brand-logo" src="./assets/images/brands/Lexus-Logo-1280x720.png" alt="Логотип Lexus"
+                loading="lazy" decoding="async" />
+              <div class="brand-lockup-copy">
+                <span class="brand-lockup-title">Lexus</span>
+                <span class="brand-lockup-note">Гибридные комплексы · premium CAN</span>
+              </div>
+            </div>
+            <div class="card-desc">Премиальные блоки подключаются деликатно: подсказки подскажут, когда включать READY
+              и как безопасно считать HV‑ошибки.</div>
+            <ul class="vehicle-meta-list">
+              <li>Контроль HV аккумулятора</li>
+              <li>Расшифровка предупреждений VSC/PCS</li>
+            </ul>
+          </div>
+          <div class="card selectable obd-make-card" data-make="Hyundai" role="button" tabindex="0"
+            aria-pressed="false">
+            <div class="brand-lockup brand-lockup--compact">
+              <img class="brand-logo" src="./assets/images/brands/logo-hyundai.svg" alt="Логотип Hyundai" loading="lazy"
+                decoding="async" />
+              <div class="brand-lockup-copy">
+                <span class="brand-lockup-title">Hyundai</span>
+                <span class="brand-lockup-note">CAN + K-Line, корейские блоки</span>
+              </div>
+            </div>
+            <div class="card-desc">Для Solaris, Creta и др. укажем варианты портов, переключим адаптер между CAN и
+              K-Line автоматически.</div>
+            <ul class="vehicle-meta-list">
+              <li>Проверим ESP и подушки безопасности</li>
+              <li>Live‑данные трансмиссии</li>
+            </ul>
+          </div>
+          <div class="card selectable obd-make-card" data-make="BMW" role="button" tabindex="0" aria-pressed="false">
+            <div class="brand-lockup brand-lockup--compact">
+              <img class="brand-logo" src="./assets/images/brands/logo-bmw.svg" alt="Логотип BMW" loading="lazy"
+                decoding="async" />
+              <div class="brand-lockup-copy">
+                <span class="brand-lockup-title">BMW</span>
+                <span class="brand-lockup-note">ISTA/UDS подсказки</span>
+              </div>
+            </div>
+            <div class="card-desc">Покажем подсказки к шинам MOST/UDS, чтобы легко пройти через этапы сканирования и не
+              перегрузить адаптер.</div>
+            <ul class="vehicle-meta-list">
+              <li>Поддержка BDC/FEM блоков</li>
+              <li>Рекомендации для сброса адаптаций</li>
+            </ul>
+          </div>
+        </div>
+        <div id="obd-vehicle-preview" class="vehicle-preview hidden" aria-live="polite">
+          <figure>
+            <img id="obd-vehicle-image" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=="
+              alt="" loading="lazy" />
+          </figure>
+          <div class="vehicle-preview-caption">
+            <div id="obd-vehicle-caption" class="vehicle-caption"></div>
+            <ul id="obd-vehicle-insights" class="vehicle-insights hidden"></ul>
+          </div>
+        </div>
+        <p class="muted-note">Логотип помогает понять, что сценарий подобран именно под выбранную марку: мы используем
+          официальные схемы расположения разъёма и стандарты CAN/LIN протоколов.</p>
+        <div class="hint">Логотип и краткие подсказки появятся после выбора. Список марок будем расширять.</div>
+        <div class="actions row">
+          <button class="secondary" data-back>Назад</button>
+          <button class="primary" id="obd-continue-3" disabled>Далее</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="screen-obd-prep" class="screen">
+      <div class="center narrow">
+        <h2>Подготовка оборудования</h2>
+        <p class="muted-note">Чтобы сканирование прошло корректно, убедитесь что аккумулятор не разряжен, а адаптер
+          ELM327 установлен до щелчка. Если автомобиль гибридный, дождитесь сообщения на приборной панели о готовности
+          систем.</p>
+        <div class="prep-grid">
+          <div class="prep-card">
+            <div class="prep-stage">01</div>
+            <div>
+              <h3>Подключите адаптер</h3>
+              <p>Вставьте ELM327 в разъём до щелчка. Программа контролирует питание и подсветит ошибки.</p>
+            </div>
+          </div>
+          <div class="prep-card">
+            <div class="prep-stage">02</div>
+            <div>
+              <h3>Включите зажигание</h3>
+              <p>Заведите бортовую сеть без запуска двигателя, чтобы блоки перешли в режим ответа.</p>
+            </div>
+          </div>
+          <div class="prep-card">
+            <div class="prep-stage">03</div>
+            <div>
+              <h3>Следите за подсказками</h3>
+              <p>Экран подскажет, когда начать сканирование, и сообщит о найденных проблемах.</p>
+            </div>
+          </div>
+        </div>
+        <div class="device-status-panel" aria-live="polite">
+          <div class="device-status-title">Контроль соединения</div>
+          <ul>
+            <li><span class="status-dot ok"></span>Питание адаптера фиксируем автоматически.</li>
+            <li><span class="status-dot ok"></span>Проверяем протоколы CAN/ISO перед запуском скана.</li>
+            <li><span class="status-dot warn"></span>Не отключайте адаптер до завершения отчёта.</li>
+          </ul>
+        </div>
+        <div class="actions row">
+          <button class="secondary" data-back>Назад</button>
+          <button class="primary" id="obd-continue-4">Далее</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="screen-obd-scan" class="screen">
+      <div class="center narrow">
+        <h2>Сканирование</h2>
+        <p class="lead">Требуется подключённый адаптер ELM327. Без устройства сканирование недоступно.</p>
+        <ul class="benefits">
+          <li>После подключения мы выполняем автоматическую самопроверку адаптера и фиксируем уровень напряжения
+            бортсети.</li>
+          <li>Можно наблюдать прогресс: сначала считываются коды, затем статусы систем и live-данные.</li>
+          <li>Если связь прервётся — приложение предложит восстановить сессию без повторного ввода данных.</li>
+        </ul>
+        <div class="status-line"><span id="obd-status" class="badge badge-danger" aria-live="polite">OBD‑адаптер: нет
+            соединения</span></div>
+        <div id="obd-connection-meta" class="obd-connection-meta" data-obd-connection-meta aria-live="polite"></div>
+        <button class="primary" id="obd-start" disabled>Начать сканирование</button>
+        <div class="muted-note">Нет симуляции данных в PROD. В DEV используйте «Пропустить».</div>
+        <div class="actions">
+          <div class="form">
+            <label class="field">
+              <span>COM-порт адаптера</span>
+              <select id="obd-port">
+                <option value="">Выберите порт…</option>
+              </select>
+            </label>
+            <div class="form-row">
+              <button class="ghost small" type="button" id="obd-refresh">Обновить список</button>
+              <div class="port-status-wrapper">
+                <div id="obd-port-status" class="hint">Подключите адаптер и обновите список.</div>
+                <div id="obd-port-last-refresh" class="meta"></div>
+              </div>
+            </div>
+          </div>
+          <button class="secondary" data-back>Назад</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="screen-obd-paywall" class="screen">
+      <div class="center narrow">
+        <h2>Показ результатов после оплаты</h2>
+        <div class="hero-icon hero-icon--indigo" aria-hidden="true">
+          <img src="./assets/icons/shield-check.svg" alt="" loading="lazy" />
+        </div>
+        <p class="lead" id="obd-paywall-lead">Стоимость зависит от выбранного режима диагностики.</p>
+        <p class="muted-note">До оплаты вы видите сводную информацию о найденных ошибках и длительности сканирования.
+          После подтверждения откроется полный отчёт с расшифровкой и рекомендациями.</p>
+        <div id="obd-paywall-amount" class="amount" aria-live="polite"></div>
+        <div class="qr-placeholder" aria-label="QR placeholder"></div>
+        <div id="obd-payment-info" class="payment-info"></div>
+        <div id="obd-self-check" class="self-check-box" aria-live="polite"></div>
+        <div class="obd-connection-meta" data-obd-connection-meta aria-live="polite"></div>
+        <div class="actions column">
+          <button class="secondary" data-back>Назад</button>
+          <button class="ghost" type="button" id="obd-self-check-rerun">Повторить самопроверку</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="screen-obd-results" class="screen">
+      <div class="center narrow">
+        <h2>Результаты диагностики</h2>
+        <p class="lead" id="obd-results-lead">Здесь будут коды DTC и статусы при подключённом устройстве.</p>
+        <p class="muted-note">Каждый код сопровождается пояснением уровня серьёзности. Вы можете обновить live-данные,
+          чтобы сравнить показатели до и после сброса, или сохранить сессию для отправки на email.</p>
+        <div id="obd-results-wrapper" class="card">
+          <div id="obd-results-title" class="card-title">Коды неисправностей</div>
+          <div id="obd-status-summary" class="obd-summary" aria-live="polite"></div>
+          <div id="obd-live-data" class="obd-live" aria-live="polite"></div>
+          <div id="obd-summary-grid" class="obd-summary-grid hidden" aria-live="polite"></div>
+          <div id="obd-results-list" class="card-desc">Отсутствуют данные без устройства.</div>
+          <div id="obd-self-check-results" class="self-check-box self-check-box--inline" aria-live="polite"></div>
+          <div class="obd-connection-meta" data-obd-connection-meta aria-live="polite"></div>
+        </div>
+        <!-- Internal AI automation is not exposed to clients -->
+        <div class="actions row">
+          <button class="secondary" id="obd-clear" disabled>Сбросить ошибки (Clear DTC)</button>
+          <button class="ghost" id="obd-live-refresh">Обновить параметры</button>
+          <!-- AI button removed from client UI by policy -->
+          <button class="primary" id="obd-finish">Завершить</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="screen-obd-done" class="screen">
+      <div class="center narrow">
+        <h2>Готово</h2>
+        <p class="lead">Отчёт сформирован. Посмотрите предпросмотр и решите — отправить по SMS/email или сохранить
+          локально.</p>
+        <p class="muted-note">В отчёте указаны коды ошибок, статус MIL, результаты самопроверки адаптера и, при
+          необходимости, отметка о выполнении сброса DTC. Вы всегда можете вернуться к терминалу для повторной проверки.
+        </p>
+        <p class="muted-note">Киоск сам сбрасывает экран через 30 секунд бездействия, чтобы подготовить следующую
+          сессию. Нажатие любой кнопки отменит обратный отсчёт.</p>
+        <div id="report-status-obd" class="report-status" aria-live="polite"></div>
+        <div id="credits-obd" class="credits" aria-live="polite"></div>
+        <div class="report-next-steps">
+          <div class="report-step-card">
+            <h3>Сохранить отчёт</h3>
+            <p>PDF содержит коды, статусы MIL и отметку о сбросе ошибок. Скачайте его до истечения сессии.</p>
+          </div>
+          <div class="report-step-card">
+            <h3>Отправить клиенту</h3>
+            <p>SMS/email фиксируются в истории Supabase. При необходимости можно повторить отправку.</p>
+          </div>
+          <div class="report-step-card">
+            <h3>План действий</h3>
+            <p>Используйте рекомендации отчёта или сразу начните новую диагностику после устранения проблемы.</p>
+          </div>
+        </div>
+        <div class="actions row">
+          <button class="ghost" id="obd-preview">Предпросмотр</button>
+          <button class="primary" id="back-to-home-2">На главный экран</button>
+        </div>
+      </div>
+    </section>
+
+
+  </div>
+
+  <!-- Modal: Terms -->
+  <div id="terms-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="terms-title">
+    <div class="modal" role="document">
+      <div class="modal-header">
+        <div class="modal-title" id="terms-title">Условия обслуживания</div>
+        <button type="button" id="terms-close" class="close">Закрыть</button>
+      </div>
+      <div class="modal-body">
+        <div id="terms-content" class="terms-content" aria-live="polite">Загрузка…</div>
+      </div>
+      <div class="modal-actions">
+        <a class="ghost" href="../../docs/legal/terms.md" target="_blank">Открыть в новой вкладке</a>
+        <button type="button" id="terms-ok" class="primary">Понятно</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Report Preview -->
+  <div id="report-preview-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true"
+    aria-labelledby="report-preview-title">
+    <div class="modal modal--wide" role="document">
+      <div class="modal-header">
+        <div class="modal-title" id="report-preview-title">Предпросмотр отчёта</div>
+        <button type="button" id="report-preview-close" class="close">Закрыть</button>
+      </div>
+      <div class="modal-body">
+        <iframe id="report-preview-frame" title="Предпросмотр отчёта"
+          style="width:100%;height:60vh;border:1px solid #E5E7EB;border-radius:8px;"></iframe>
+      </div>
+      <div class="modal-actions">
+        <button type="button" id="report-send-sms" class="primary">Отправить по SMS</button>
+        <button type="button" id="report-send-email" class="ghost">Отправить на Email</button>
+        <button type="button" id="report-copy-link" class="ghost">Скопировать ссылку</button>
+        <button type="button" id="report-skip-send" class="secondary">Не отправлять</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Button (fixed position) -->
+  <button type="button" id="settings-button" class="settings-button" aria-label="Открыть настройки источника данных"
+    title="Настройки" data-dev-only hidden>
+    ⚙️
+  </button>
+
+  <!-- Modal: Settings -->
+  <div id="settings-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true"
+    aria-labelledby="settings-title">
+    <div class="modal" role="document">
+      <div class="modal-header">
+        <div class="modal-title" id="settings-title">Настройки источника данных</div>
+        <button type="button" id="settings-close" class="close">Закрыть</button>
+      </div>
+      <div class="modal-body">
+        <div class="form">
+          <label class="field">
+            <span>Источник данных</span>
+            <select id="settings-source">
+              <option value="agent">Локальный агент (по умолчанию)</option>
+              <option value="supabase">Supabase (облачно, read-only)</option>
+            </select>
+          </label>
+
+          <div id="settings-supabase-fields" style="display:none;">
+            <label class="field">
+              <span>Supabase URL</span>
+              <input type="url" id="settings-supabase-url" placeholder="https://your-project.supabase.co" />
+            </label>
+            <label class="field">
+              <span>Supabase Anon Key</span>
+              <input type="password" id="settings-supabase-anon-key" placeholder="eyJhbGciOi..." />
+            </label>
+            <div class="hint">
+              <strong>Важно:</strong> используйте только ANON KEY (публичный ключ).
+              Данный режим поддерживает только чтение публичных VIEW.
+              Управление устройствами недоступно.
+            </div>
+          </div>
+
+          <div id="settings-status" class="hint"></div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" id="settings-save" class="primary">Сохранить</button>
+        <button type="button" id="settings-reset" class="secondary">Сбросить</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin bridge overlay (DEV/Service use only) -->
+  <button type="button" id="admin-bridge-toggle" class="admin-bridge-toggle" aria-label="Открыть служебный мониторинг"
+    data-dev-only hidden>
+    Мониторинг
+  </button>
+
+  <section id="admin-bridge-drawer" class="admin-bridge-drawer hidden" aria-live="polite" data-dev-only
+    data-dev-managed>
+    <div class="admin-bridge-panel">
+      <header class="admin-bridge-header">
+        <div>
+          <div class="admin-bridge-eyebrow">Служебный мониторинг</div>
+          <h3>Admin bridge</h3>
+        </div>
+        <div class="admin-bridge-actions">
+          <span class="admin-bridge-hotkey">Ctrl + Shift + A</span>
+          <button type="button" id="admin-bridge-close" class="close" aria-label="Свернуть мониторинг">Закрыть</button>
+        </div>
+      </header>
+      <div class="admin-bridge-summary" role="status">
+        <article class="admin-summary-card">
+          <div class="admin-summary-label">Текущий экран</div>
+          <div class="admin-summary-value" id="admin-screen-label">screen-attract</div>
+        </article>
+        <article class="admin-summary-card">
+          <div class="admin-summary-label">Источник данных</div>
+          <div class="admin-summary-value" id="admin-data-source">Локальный агент</div>
+          <div class="admin-summary-meta" id="admin-data-source-meta">режим по умолчанию</div>
+        </article>
+        <article class="admin-summary-card">
+          <div class="admin-summary-label">DEV режим</div>
+          <div class="admin-summary-value" id="admin-dev-flag">Выкл</div>
+          <div class="admin-summary-meta">Ctrl + Shift + D</div>
+        </article>
+        <article class="admin-summary-card">
+          <div class="admin-summary-label">Сессии</div>
+          <div class="admin-summary-value admin-summary-value--stacked">
+            <span id="admin-session-thk">Толщиномер: —</span>
+            <span id="admin-session-obd">Диагностика: —</span>
+          </div>
+          <div class="admin-summary-meta">UUID обновляются автоматически</div>
+        </article>
+      </div>
+
+      <div class="admin-device-grid">
+        <article class="admin-device-card" data-device="thickness">
+          <div class="admin-device-head">
+            <div>
+              <div class="admin-device-label">Толщиномер</div>
+              <div class="admin-device-meta">BLE · слот выдачи</div>
+            </div>
+            <span class="admin-device-status" id="admin-device-thickness-status">Нет данных</span>
+          </div>
+          <p id="admin-device-thickness-detail">Ожидаем подключение.</p>
+        </article>
+        <article class="admin-device-card" data-device="obd">
+          <div class="admin-device-head">
+            <div>
+              <div class="admin-device-label">OBD‑адаптер</div>
+              <div class="admin-device-meta">ELM327 · Serial/BLE</div>
+            </div>
+            <span class="admin-device-status" id="admin-device-obd-status">Нет данных</span>
+          </div>
+          <p id="admin-device-obd-detail">Ожидаем подключение.</p>
+        </article>
+      </div>
+
+      <div class="admin-payments-grid">
+        <article class="admin-payment-card">
+          <header>
+            <div class="admin-payment-label">Оплата толщиномера</div>
+            <span id="admin-payment-thk-status" class="admin-payment-status">idle</span>
+          </header>
+          <div class="admin-payment-meta" id="admin-payment-thk-meta">Нет активных intent.</div>
+        </article>
+        <article class="admin-payment-card">
+          <header>
+            <div class="admin-payment-label">Оплата диагностики</div>
+            <span id="admin-payment-obd-status" class="admin-payment-status">idle</span>
+          </header>
+          <div class="admin-payment-meta" id="admin-payment-obd-meta">Нет активных intent.</div>
+        </article>
+      </div>
+
+      <div class="admin-payments-grid admin-reports-grid">
+        <article class="admin-payment-card">
+          <header>
+            <div class="admin-payment-label">Отчёт толщиномера</div>
+            <span id="admin-report-thk-status" class="admin-payment-status">idle</span>
+          </header>
+          <div class="admin-payment-meta" id="admin-report-thk-meta">Отчёт не сформирован.</div>
+        </article>
+        <article class="admin-payment-card">
+          <header>
+            <div class="admin-payment-label">Отчёт диагностики</div>
+            <span id="admin-report-obd-status" class="admin-payment-status">idle</span>
+          </header>
+          <div class="admin-payment-meta" id="admin-report-obd-meta">Отчёт не сформирован.</div>
+        </article>
+      </div>
+
+      <div class="admin-timeline" aria-label="Ход клиентской сессии">
+        <div class="admin-timeline-head">
+          <div>
+            <div class="admin-timeline-title">Session timeline</div>
+            <p class="admin-timeline-desc">Помогает службе поддержки видеть место остановки клиента.</p>
+          </div>
+          <button type="button" id="admin-timeline-reset" class="ghost small" data-dev-only>Сбросить прогресс</button>
+        </div>
+        <ol class="admin-timeline-list" id="admin-session-steps">
+          <li data-step="screen-attract">Attract</li>
+          <li data-step="screen-welcome">Welcome</li>
+          <li data-step="screen-services">Services</li>
+          <li data-step="screen-thk-intro">THK Intro</li>
+          <li data-step="screen-thk-measure">THK Measure</li>
+          <li data-step="screen-obd-intro">OBD Intro</li>
+          <li data-step="screen-obd-scan">OBD Scan</li>
+          <li data-step="screen-obd-results">OBD Results</li>
+        </ol>
+      </div>
+      <div class="admin-events" aria-label="Журнал событий">
+        <div class="admin-events-head">
+          <div>
+            <div class="admin-events-title">События</div>
+            <p class="admin-events-desc">Последние команды, переключения режимов и ответы киоска.</p>
+            <p class="admin-events-info" id="admin-events-info">Показаны все события</p>
+          </div>
+          <div class="admin-events-actions">
+            <button type="button" id="admin-events-filter-reset" class="ghost small">Сбросить фильтр</button>
+            <button type="button" id="admin-events-clear" class="ghost small" data-dev-only>Очистить</button>
+          </div>
+        </div>
+        <div class="admin-events-filters" id="admin-events-filters"></div>
+        <ol class="admin-events-list" id="admin-events-list"></ol>
+        <p class="admin-events-empty" id="admin-events-empty">Событий ещё не было.</p>
+      </div>
+    </div>
+  </section>
+
+  <script type="module" src="./main.js"></script>
+</body>
+
+</html>

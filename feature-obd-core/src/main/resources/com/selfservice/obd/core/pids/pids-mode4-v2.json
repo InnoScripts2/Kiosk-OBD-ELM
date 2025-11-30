@@ -1,0 +1,12 @@
+[
+  {
+    "mode": 4,
+    "pid": "00",
+    "description": "Clear DTCs",
+    "pollIntervalMs": 2000,
+    "sources": [
+      "Dataset: AndroidOBD"
+    ],
+    "status": "supported"
+  }
+]

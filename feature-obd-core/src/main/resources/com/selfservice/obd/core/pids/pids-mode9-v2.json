@@ -1,0 +1,51 @@
+[
+  {
+    "mode": 9,
+    "pid": "00",
+    "description": "Mode 9 supported PIDs",
+    "bytes": 4,
+    "pollIntervalMs": 10000,
+    "sources": [
+      "Dataset: AndroidOBD"
+    ],
+    "status": "supported"
+  },
+  {
+    "mode": 9,
+    "pid": "02",
+    "description": "Автомобиль Identification Number",
+    "unit": "string",
+    "bytes": 20,
+    "pollIntervalMs": 10000,
+    "sources": [
+      "SAE J1979-DA Section 5",
+      "Dataset: AndroidOBD"
+    ],
+    "status": "supported"
+  },
+  {
+    "mode": 9,
+    "pid": "04",
+    "description": "Calibration ID",
+    "unit": "string",
+    "bytes": 16,
+    "pollIntervalMs": 10000,
+    "sources": [
+      "SAE J1979-DA Section 5",
+      "Dataset: AndroidOBD"
+    ],
+    "status": "supported"
+  },
+  {
+    "mode": 9,
+    "pid": "0A",
+    "description": "ECU Name",
+    "unit": "string",
+    "bytes": 20,
+    "pollIntervalMs": 10000,
+    "sources": [
+      "Dataset: AndroidOBD"
+    ],
+    "status": "supported"
+  }
+]

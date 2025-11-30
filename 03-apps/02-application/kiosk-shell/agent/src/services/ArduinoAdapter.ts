@@ -43,6 +43,7 @@ export class ArduinoAdapter extends EventEmitter {
   private parser: ReadlineParser | null = null;
   private config: ArduinoConfig;
   private connected = false;
+  private ready = false;
   private pendingCommands: Map<string, {
     command: ArduinoCommand;
     resolve: (response: ArduinoResponse) => void;
@@ -51,6 +52,7 @@ export class ArduinoAdapter extends EventEmitter {
   }> = new Map();
   private heartbeatTimer: NodeJS.Timeout | null = null;
   private reconnectTimer: NodeJS.Timeout | null = null;
+  private readonly initializationTimeoutMs = 2000;
 
   constructor(config: ArduinoConfig) {
     super();
@@ -66,6 +68,7 @@ export class ArduinoAdapter extends EventEmitter {
     }
 
     try {
+      this.ready = false;
       this.port = new SerialPort({
         path: this.config.port,
         baudRate: this.config.baudRate,
@@ -111,8 +114,8 @@ export class ArduinoAdapter extends EventEmitter {
       // Запустить heartbeat
       this.startHeartbeat();
 
-      // Ожидание инициализации Arduino (отправляет READY при запуске)
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Ожидание инициализации Arduino (ожидаем READY или таймаут)
+      await this.waitForReadySignal();
 
       // Проверка связи
       await this.sendCommand('PING');
@@ -130,6 +133,7 @@ export class ArduinoAdapter extends EventEmitter {
    */
   async disconnect(): Promise<void> {
     this.stopHeartbeat();
+    this.ready = false;
     
     if (this.reconnectTimer) {
       clearTimeout(this.reconnectTimer);
@@ -201,6 +205,11 @@ export class ArduinoAdapter extends EventEmitter {
 
     const response = this.parseResponse(line);
     this.emit('response', response);
+
+    if (response.action === 'READY') {
+      this.ready = true;
+      this.emit('ready');
+    }
 
     // Найти и выполнить pending команду
     if (response.type !== 'LOG') {
@@ -346,6 +355,7 @@ export class ArduinoAdapter extends EventEmitter {
     
     this.reconnectTimer = setTimeout(async () => {
       this.reconnectTimer = null;
+      this.ready = false;
       try {
         await this.connect();
       } catch (error) {
@@ -360,5 +370,39 @@ export class ArduinoAdapter extends EventEmitter {
    */
   isConnected(): boolean {
     return this.connected && this.port !== null && this.port.isOpen;
+  }
+
+  /**
+   * Ожидаем READY-сообщение от Arduino с запасным таймаутом
+   */
+  private waitForReadySignal(timeoutMs = this.initializationTimeoutMs): Promise<void> {
+    if (this.ready) {
+      return Promise.resolve();
+    }
+
+    return new Promise((resolve) => {
+      let timeout: NodeJS.Timeout | null = null;
+
+      const cleanup = (): void => {
+        if (timeout) {
+          clearTimeout(timeout);
+          timeout = null;
+        }
+        this.off('ready', onReady);
+      };
+
+      const onReady = (): void => {
+        cleanup();
+        this.ready = true;
+        resolve();
+      };
+
+      timeout = setTimeout(() => {
+        cleanup();
+        resolve();
+      }, timeoutMs);
+
+      this.on('ready', onReady);
+    });
   }
 }

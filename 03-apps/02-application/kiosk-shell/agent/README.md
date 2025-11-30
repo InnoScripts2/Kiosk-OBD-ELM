@@ -84,6 +84,9 @@ npm run build
 # Запуск production
 npm start
 
+# Воркёр доставки отчётов (poll Supabase)
+npm run worker:reports
+
 # Линтинг
 npm run lint
 
@@ -101,14 +104,26 @@ npm test -- --test-name-pattern supabase
 | Метод  | Путь                         | Назначение                                                         |
 | ------ | ---------------------------- | ------------------------------------------------------------------ |
 | `GET`  | `/health`                    | Сводное состояние сервисов (платежи, замки, отчёты)                |
+| `GET`  | `/ui/*`                      | Выдача собранного фронтенда (`platform/ui/web/kiosk-frontend/dist`) |
 | `POST` | `/payments/intent`           | Создать платёжный интент (тело: `amount`, `sessionId`)             |
 | `GET`  | `/payments/:intentId/status` | Получить статус созданного интента                                 |
 | `POST` | `/payments/confirm-dev`      | Подтвердить платёж в DEV (доступно только при `PAYMENT_MOCK=true`) |
 | `GET`  | `/locks/status`              | Текущий статус замков толщиномера и OBD-адаптера                   |
-| `POST` | `/locks/:device/open`        | Открыть слот (`device = thickness                                  | adapter`) |
+| `POST` | `/locks/:device/open`        | Открыть слот (`device = thickness / adapter`)                      |
 | `POST` | `/locks/:device/close`       | Закрыть слот устройства                                            |
+| `POST` | `/reports/intake`            | Поставить отчёт (diagnostics/thickness) в очередь Supabase         |
+| `PUT`  | `/reports/:id/state`         | Обновить состояние отчёта (watchdog, ретраи, ошибки)               |
 
 Веб-сокет `/ws/obd` транслирует обновления состояния устройств и статуса контроллера каждые 5 секунд. Фронтенд автоматом подключается к этому адресу на том же хосте/порту.
+
+### Хостинг фронтенда
+
+- Сборка UI: `npm --prefix platform/ui/web/kiosk-frontend run build`
+- Бандл кладётся в `platform/ui/web/kiosk-frontend/dist`
+- Агент автоматически ищет этот путь (или `KIOSK_UI_DIST_PATH`) и отдаёт его по `/ui`
+- Настроить путь/префикс можно переменными `KIOSK_UI_DIST_PATH`, `KIOSK_UI_ROUTE_PREFIX`, `KIOSK_UI_INDEX_FILE`
+- Для резервного CDN запустите `pwsh scripts/powershell/publish-kiosk-frontend.ps1 -ClearBucket -UpdateAndroidString -AppendCacheBuster`, чтобы синхронизировать `dist/` с бакетом `kiosk-ui` и автоматически обновить `kiosk_url_remote`
+- Supabase теперь используется только как резервный CDN, основной сценарий — локальный `/ui`
 
 Чтобы фронтенд знал базовый URL агента, используйте параметр `?agent=http://<host>:<port>` или сохраните значение в `localStorage.AGENT_API_BASE`. По умолчанию используется `http://localhost:7070`.
 
@@ -129,6 +144,18 @@ npm test -- --test-name-pattern supabase
 - Отправка по Email (SendGrid)
 - Отправка SMS (Twilio)
 - Edge-cache репликация в Supabase
+
+## Воркер доставки отчётов
+
+- Файл входа: `src/workers/report-delivery-worker.ts`
+- Запуск: `npm run worker:reports` (использует `tsx`, поддерживает hot-reload)
+- Источник данных: `diagnostics_reports` / `thickness_reports` и очереди `*_report_deliveries` в Supabase
+- Каналы: email (HTML отчёт) и SMS (краткое резюме)
+- Повторные попытки: контролируются `REPORT_WORKER_MAX_ATTEMPTS`, между попытками статус возвращается в `queued`
+- Воркёр фильтрует задания по `environment` и `KIOSK_SERIAL_NUMBER`, поэтому каждая стойка обрабатывает только свои отчёты
+- Тайминги и лимиты очереди настраиваются переменными `REPORT_WORKER_*`
+
+Обновите `.env` перед запуском воркера и убедитесь, что указаны `SUPABASE_SERVICE_ROLE_KEY`, `KIOSK_SERIAL_NUMBER` и режим (`APP_MODE`/`KIOSK_ENVIRONMENT`).
 
 ## Интеграция с Supabase
 

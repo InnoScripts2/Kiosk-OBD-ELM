@@ -52,61 +52,50 @@ applyTo: "**"
 Общие правила UX: все переходы без задержек (< 100 мс на локальных переходах, < 500 мс при подключении к устройствам). Состояния ясны и видны (прогресс, ошибки, статусы). Нет потерянных состояний (клиент всегда знает, где он и что дальше). Кнопки крупные (минимум 60px высота на сенсорных экранах). Текст контрастный (WCAG AA минимум).
 
 4 Техническая архитектура
-Макро-уровень. Frontend-киоск: кроссплатформенное desktop-приложение (Electron на Windows или Web в киоск-режиме браузера; стек: TypeScript, React/Vue, Tailwind). Бэкенд/агент киоска: локальный Node.js/TypeScript сервис, взаимодействует с устройствами (BLE/Serial), управляет замками выдачи (реле/GPIO), обрабатывает платежи, генерирует отчёты, хранит конфигурацию и логи. Драйверный слой: OBD-II (собственная реализация протокола ISO-TP/UDS поверх ELM327 или официальный SDK адаптера); толщиномер (официальный SDK вендора или открытый BLE GATT-профиль; реверс-инжиниринг запрещён). Хранилище: локальное (SQLite или файловая система) для сессий, логов, квитанций. Персональные данные хранятся минимально, только контакты клиента (телефон/email) на 30 дней максимум, затем удаляются. Коммуникации: email/SMS-шлюз (SendGrid, Twilio или аналог) для отправки отчётов; на ранних этапах — генерация локальных PDF без отправки, только просмотр на экране.
+Макро-уровень. В корне `My project/` живёт единый репозиторий: Android-приложение (Gradle, Kotlin DSL), платформенные слои, донорские материалы, фронтенд киоска, локальные агенты и документация. Основные подсистемы:
+- Android-приложение и доменные модули: `app/`, `core/`, `feature-*`, `platform/*` (background, bluetooth, bluetooth/kable-core, bluetooth/reaktive, data, logging, ui, ui/flowext).
+- Сервисные агенты и веб-части: `03-apps/02-application/kiosk-shell/agent/` (актуальный TypeScript/Electron сервис), `03-apps/02-application/kiosk-agent/` и `kiosk-agent-legacy/` (исторические ветви), `platform/ui/web/` (фронтенд киоска).
+- Документация и артефакты: `09-docs/**`, `docs/`, `docs-unified/`, `AI_AGENT_BRIEFING.md`, `ANDROID_UI_ROADMAP.md`, `design-audit-report.md`, `implementation-guide.md`.
+- Инструменты и DevOps: `scripts/`, `tools/`, `hardware/arduino/`, `supabase/`, `outbox/change-reports/`.
+- DONORS (`DONORS/*`) — внешние источники кода (read-only).
 
-Слои и границы. UI-слой (Pages/Flows/Components): не имеет прямого доступа к устройствам, вся логика через сервис-слой. Service-слой (Application Layer): оркестрирует бизнес-логику (управление сессиями, переходы между шагами, таймауты, ошибки). Domain-слой: модели данных, политики валидации, расчётные функции. Device Drivers-слой: изолированно, чёткие интерфейсы, абстрактные методы (connect, disconnect, read, write). Infrastructure-слой: интеграции с платёжкой, email/SMS, хранилище, управление замками.
+Слои и границы. UI-слой (Compose в `app/`, веб-компоненты в `platform/ui/web/`) не имеет прямого доступа к устройствам. Вся логика идёт через сервисные слои (`core/`, `feature-*`). Domain-слой содержит модели, валидацию и расчёты. Device Drivers — в `feature-obd-core`, `feature-thickness`, `platform/bluetooth/**`. Инфраструктура (платежи, отчёты, хранилище) — `feature-payment`, `feature-payments`, `feature-reports`, `platform-data`, `03-apps/02-application/kiosk-shell/agent`. Агент общается с UI через IPC/HTTP/WebSockets и управляет устройствами (BLE/Serial, замки, платежи, отчёты).
 
-Монорепо структура. Android-монореп в папке android/ (Gradle, Kotlin DSL): содержит app (основное приложение), core (общие утилиты), feature-obd-* (модули диагностики OBD-II), feature-thickness (модули толщиномера), platform (платформенные сервисы — логирование, background tasks, storage). Папка 03-apps/02-application/kiosk-shell/agent/: основной локальный TypeScript сервис (Electron, Node.js). Папка 03-apps/02-application/kiosk-agent/: кироск-агент (наследуемая, используется отдельными задачами, редактируется по требованию). Папка packages/: общие пакеты (device-obd, device-thickness, report, payments). Папка docs/ и docs-unified/: документация, обязательна к поддержанию. Папка infra/scripts/: DevOps-скрипты, жёстко привязаны к путям.
-
-4.1 Обязательная интеграция доноров `рес 1`–`рес 7`
-Каталоги `рес 1` … `рес 7` (каждый содержит одноимённую вложенную папку с исходниками) — отдельная волна доноров. Они находятся в корне репозитория, не редактируются напрямую и служат только источником кода для переноса в модули `android/`. До завершения миграции поддерживаем их в виде read-only слепков и фиксируем прогресс в `android/scripts/session-05-archive-plan.ps1`.
+4.1 Обязательная интеграция доноров `DONORS/*`
+Все внешние каталоги складываются в `DONORS/` и рассматриваются как read-only источники. Любой перенос начинается с фиксации исходного состояния в `DONOR_STATUS.md` и заканчивается обновлением thousand-line summary. До завершения миграции каждый донор хранится полностью, включая лицензии и README.
 
 | Каталог | Оригинальный проект | Назначение | Обязательный перенос |
 | --- | --- | --- | --- |
-| `рес 1/рес 1` | QRCode-Kotlin | Генератор QR-кодов (KMP, бэкенд/Android) | `src/commonMain`, `src/jvmMain` и `examples/backend` переносим в `android/platform/camera` (подмодуль генерации QR); подключаем обёртку в `android/feature-payments` для оплаты по QR и генерируем unit-тесты на формат шаблонов. |
-| `рес 2/рес 2` | Kiosk-Launcher | Android-лаунчер с Device Owner/Device Admin, расписанием рестартов | `app/src/main/java` (DeviceAdminReceiver, BootReceiver, KioskAccessibilityService, RestartScheduler) и `app/src/main/res` переносим в `android/feature-kiosk-mode` и `android/app`; политики whitelists/intent-фильтры описываем в `android/platform/ui`. |
-| `рес 3/рес 3` | KasirPraktis | Jetpack Compose POS (оплата, товары, QR) | Все экраны `app/src/main/java` (Home, Master Data, Transactions, QR) и связанные `app/src/main/res` структуры переносим в `android/feature-payments` (витрина услуги, кассовые сценарии) и `android/app`; модели/DAO адаптируем под Room `platform/data`. |
-| `рес 4/рес 4` | Kable | Kotlin Multiplatform BLE-стек | Модули `kable-core`, `kable-default-permissions`, `kable-btleplug-ffi`, `kable-log-engine-khronicle` переносим в `android/feature-obd-core` и `android/platform/bluetooth`; интерфейсы BLE и Flow-обёртки подключаем к `ObdConnectionManager`. |
-| `рес 5/рес 5` | Compose Multiplatform | Компоненты и best practices JetBrains Compose | Папки `components/`, `compose/` (особенно material3 adaptive), `tutorials/`, `html/` переносим в `android/app` и `android/platform/ui`; на их базе формируем UI-кит киоска и покрываем snapshot-тестами. |
-| `рес 6/рес 6` | blessed-kotlin | Компактная BLE-библиотека (сканер, централь, периферия) | Каталоги `blessed/` и `peripheral/` (включая `BluetoothBytesParser`, `BluetoothCentralManager`, `BluetoothPeripheralManager`) переносим в `android/feature-obd-core` и `android/platform/bluetooth`; тесты и утилиты логирования включаем в `feature-obd-core:test`. |
-| `рес 7/рес 7` | Android OBD Library | Полный стек ELM327 (OBDCommand, PIDUtils, ObdInitSequence) | `obd/src/main/java`, `obd/src/main/res` и `obd/src/test` переносим в `android/feature-obd-core` и `android/feature-obd-diagnostics`; классы `ObdModes`, `PidCatalog`, `ElmPidSnapshotGenerator` становятся основой тестов `ElmPidCatalogParityTest`. |
+| `DONORS/qrcode-kotlin` | QRCode-Kotlin | Генератор QR-кодов (KMP, backend) | `src/commonMain`, `src/jvmMain`, `examples/backend` → `platform/ui`, `feature-payment`, `feature-payments` для генерации платёжных QR + unit-тесты. |
+| `DONORS/kiosk-launcher` | Kiosk-Launcher | Device Owner / Device Admin | `app/src/main/java` (DeviceAdminReceiver, BootReceiver, AccessibilityService, RestartScheduler) → `feature-kiosk-mode`, `app/AndroidManifest.xml`. |
+| `DONORS/kasirpraktis` | KasirPraktis | POS UI, QR-оплата | Compose-экраны и DAO → `feature-payments`, UI-паттерны → `platform/ui`. |
+| `DONORS/kable` | Kable BLE stack | Multiplatform BLE | `kable-core`, `default-permissions`, `btleplug-ffi`, `log-engine` → `platform/bluetooth/kable-core`, `feature-obd-core` (Flow/Peripheral/Central API). |
+| `DONORS/compose-multiplatform` | Compose Multiplatform samples | UI best practices | `components/`, `compose/`, `tutorials/`, `html/` → `app/`, `platform/ui` для адаптивных layout-ов и snapshot-тестов. |
+| `DONORS/blessed-kotlin` | blessed-kotlin | BLE утилиты | `blessed/`, `peripheral/` → `platform/bluetooth`, `feature-obd-core`; тесты `ByteArrayExtensions` обязательны. |
+| `DONORS/android-obd-library` | Android OBD Library | ELM327 стек, PID/DTC данные | `obd/src/main/java|res|test`, `assets` → `feature-obd-core`, `feature-obd-diagnostics`, `feature-obd-elm-port`. |
+
+Дополнительные доноры (новые поставщики устройств, UI-kit, платежи) также попадают в `DONORS/` и добавляются в таблицу по мере подключения. Пустые каталоги создаём заранее, чтобы не плодить копии в корне.
 
 Команда переноса. Каждое копирование выполняем из корня репозитория и только для нужных подсекций:
 
 ```
-robocopy "<repo_root>\рес N\рес N\<source>" "<repo_root>\android\<target>" /E /XD .git .github .gradle build gradle .idea .run .vscode node_modules release /XF *.iml *.bat *.sh *.cmd
+robocopy "<repo_root>\DONORS\<donor>\<source>" "<repo_root>\<target>" /E /XD .git .github .gradle build gradle .idea .run .vscode node_modules release /XF *.iml *.bat *.sh *.cmd
 ```
 
-После каждого запуска команды переносим также тестовые данные, README/лицензионные примечания и сразу адаптируем код под архитектуру `android/`. В отчёте сессии фиксируем: что именно скопировано, в какой модуль встроено, какие тесты добавлены и как изменился вес APK. Нельзя править файлы непосредственно внутри `рес N` — все изменения делаем только после копирования в `android/`.
+После копирования переносим тестовые данные, README, лицензионные заголовки и адаптируем код под архитектуру проекта. Каждый шаг фиксируем в `DONOR_STATUS.md` и в thousand-line summary (описание, объём, новые тесты, изменение веса APK). Редактировать файлы прямо в `DONORS/*` запрещено.
 
-4.2 Политика консолидации в `android/`
-- Вся активная разработка живёт в `android/`. Любые новые файлы (Kotlin, TypeScript,
-	JavaScript, TSX, CJS, PowerShell, INO, скрипты сборки, генераторы) создаются
-	только внутри соответствующих модулей Android-монорепо (`app`, `core`,
-	`feature-*`, `platform/*`, `scripts`).
-- Каталоги вне `android/` рассматриваются как доноры или временные staging-области.
-	После переноса содержимого в монорепо исходные папки помечаются как
-	"utilized" и подлежат удалению/архивации.
-- Никаких параллельных копий одного и того же компонента. Если требуется версия
-	для TypeScript, PowerShell или Arduino, она создаётся в `android/platform-ui`,
-	`android/scripts/powershell`, `android/hardware/arduino` и подключается
-	через Gradle/NPM-таски, запускаемые из `android/`.
-- BKG-агент и сессионные отчёты обязаны проверять, что новые файлы не появились
-	за пределами `android/`. При нарушении сборка блокируется до миграции.
+4.2 Политика консолидации
+- Вся активная разработка ведётся в каталогах корня (`app`, `core`, `feature-*`, `platform/*`, `03-apps/02-application/kiosk-shell/agent`, `03-apps/02-application/kiosk-agent`, `platform/ui/web/*`, `scripts/`, `tools/`). Новые файлы создаём только внутри соответствующих модулей.
+- Каталоги вне этого списка считаются донорскими или временными staging-зонами. После переноса содержимого исходные папки помечаются как «utilized» и удаляются/архивируются.
+- Все доноры живут в `DONORS/`. Новые источники добавляем туда же и сразу отражаем в `DONOR_STATUS.md`.
+- Read-only копии удаляем только после завершения переноса, обновления `DONOR_STATUS.md` и thousand-line summary.
+- Никаких параллельных копий компонентов. Если нужна версия для TS/PowerShell/Arduino, создаём её в `platform/ui/web`, `03-apps/02-application/kiosk-shell/agent`, `hardware/arduino`, `scripts/*` и привязываем к Gradle/npm-пайплайну из корня.
+- План полиязычной консолидации ведём в `plan-multi-language-consolidation.md` (корень). Любые работы по новым языкам без записи в этом документе запрещены.
 
 4.3 Политика полиязычных компонентов
-- Kotlin остаётся основным языком приложения. Дополнительные технологии (TS/JS,
-	TSX/CJS, PowerShell, INO и т. д.) допускаются только если напрямую поддерживают
-	киоск: веб-интерфейсы, локальные агенты, прошивки замков.
-- Все такие артефакты должны иметь прямую привязку к модулю Android
-	(README со ссылкой на родительский модуль, Gradle-tasks или npm-скрипты внутри
-	`android/`). Самостоятельные проекты вне монорепо запрещены.
-- Кросс-языковые пайплайны управляются из Gradle (через `exec`, `npm` wrapper
-	или специализированные таски), чтобы CI и локальные сборки были единообразны.
-- План внедрения и миграции языков оформляется отдельным документом
-	`android/plan-multi-language-consolidation.md` (создаётся и обновляется
-	командой при появлении новых артефактов). Любые работы по новым языкам без
-	записи в этом плане запрещены.
+- Kotlin остаётся основным языком приложения. Дополнительные технологии (TS/JS, TSX/CJS, PowerShell, INO и т. п.) допускаются только если напрямую поддерживают киоск.
+- Каждый артефакт на другом языке должен иметь README со ссылкой на родительский модуль и подключение к Gradle/npm-таскам. Самостоятельные проекты вне структуры запрещены.
+- Кросс-языковые пайплайны управляются из Gradle или `scripts/`, чтобы CI и локальные сборки были единообразны.
 
 5 Интеграция с устройствами (без нарушений)
 OBD-II адаптер. Поддержка ELM327-совместимых адаптеров (Bluetooth Classic, Serial COM, USB). Для Windows-киоска нужен доступ к COM-портам или USB-интерфейсам. Реализуются команды: инициализация (AT Z, AT E0), выбор протокола (AT SP 6 для ISO 15765-2), чтение DTC (22 F1 87), статусы MIL, чтение PID для ключевых параметров, сброс ошибок (14 FF FF FF). Таблица расшифровки DTC: используются только открытые источники (SAE, OEM публикации); собственная база DTC хранится в packages/device-obd/data/dtc-reference.json с атрибуцией. Операция Clear DTC выполняется только с явным подтверждением клиента, логируется, отражается в отчёте с timestamp и сокращением DTC. Таймаут соединения: 5 сек (если адаптер не отвечает за 5 сек, выводим ошибку). Максимальное время сканирования: 90 сек (если за 90 сек сканирование не завершилось, показываем прогресс и даём возможность отменить или повторить).
@@ -150,13 +139,17 @@ OBD-II адаптер. Поддержка ELM327-совместимых адап
 Структура кода (обязательно). UI-слой не имеет доступа к устройствам. Все логики потока идут через Service. Domain не зависит от Infrastructure. Интерфейсы явные (interface/abstract class), не скрытые. Не использовать глобальные переменные, всё через DI или параметры функций.
 
 10 Процесс разработки для сессий
-Запрос команды продолжай запускает следующую сессию. В ответе обязательно: номер текущей сессии, номера активных параллельных сессий (максимум 5–7 параллельно), перечисление выполненных шагов за сессию, результаты прогона тестов (количество пройденных/провалено), состояние артефактов (размер APK, если Android; размер бандла, если frontend).
+Команда «продолжай» запускает следующую сессию. В ответе всегда указываем: номер текущей сессии, номера активных параллельных сессий (максимум 5–7), выполненные шаги, результаты прогона тестов (пройдено/провалено) и состояние артефактов (размер APK, фронтенд-бандлы и т. п.). За один запрос продвигаем одну, максимум две независимые сессии. Каждая сессия завершается статусом COMPLETE / IN_PROGRESS / BLOCKED (с указанием причины).
 
-За один запрос можно продвигать одну, максимум две сессии, но при условии что они независимы (разные модули). Каждая сессия должна завершаться со статусом: COMPLETE, IN_PROGRESS, BLOCKED (указать причину).
+Основные команды:
+- Android (Gradle): `./gradlew clean test assembleDebug` из корня. `build/` каталоги не коммитим.
+- Kiosk-shell агент: `npm --prefix 03-apps/02-application/kiosk-shell/agent run lint` и `npm --prefix 03-apps/02-application/kiosk-shell/agent test`.
+- Kiosk-agent (исторический): `npm --prefix 03-apps/02-application/kiosk-agent test` после любых правок устройств/платежей/отчётов.
+- Глобальный JS/TS линт: `npm run lint` (покрывает исторические Node/JS части).
 
-Перед коммитом: прогон npm run lint, ./gradlew lint detekt (Android), запуск всех тестов текущей сессии. Если линт или тесты падают — сессия не закрывается, даётся время на исправление. Коммит содержит только измененные файлы, артефакты (build/, node_modules) игнорируются.
+Перед коммитом обязательно запускаем `npm run lint`, `./gradlew lint detekt` и все тесты текущей сессии. Если линт или тесты падают — сессию не закрываем до исправления. В коммит попадают только изменённые файлы; артефакты (`build/`, `node_modules`) исключаем.
 
-После каждой завершённой сессии: обновление прогресса в plan-80-session-roadmap.md (отметить номер сессии как DONE, добавить дату). Проверка метрик: размер APK каждые 10 сессий, покрытие тестами каждые 5 сессий.
+После каждой завершённой сессии обновляем `AI_AGENT_BRIEFING.md` (номер, дата, статус, ключевые артефакты). Там же фиксируем размер APK (каждые 10 сессий) и покрытие тестов (каждые 5 сессий).
 
 11 Контракты модулей (высокоуровневые)
 DeviceObd (packages/device-obd или feature-obd-core). Вход: конфигурация соединения, команда (readDtc, clearDtc, readPid, init). Выход: структуры DTC (код, описание, статус), параметры авто, ошибки. Ошибки обработаны: ConnectionError (адаптер не найден), TimeoutError (соединение разорвано), ProtocolError (неизвестный ответ). Тесты: mock адаптер с фиксированными DTC, проверка парсинга, проверка таймаутов.
@@ -206,11 +199,19 @@ Smoke-тесты: после каждой сессии запускается п
 Покрытие: минимум 70% для Service/Domain, минимум 40% для UI (обычно UI testing сложнее). Инструменты: Jest + Istanbul для TypeScript, JaCoCo для Kotlin. CI запускает тесты и валидирует покрытие; если падает ниже минимума — PR блокируется.
 
 16 Структура репозитория и файлы
-Основные папки: android/ (Gradle монорепо). 03-apps/02-application/kiosk-shell/agent/ (TypeScript агент). packages/ (общие пакеты). docs/, docs-unified/ (документация, обязательна). infra/scripts/ (DevOps). .github/instructions/ (этот файл и будущие инструкции). infra/workflows/ (CI).
+Основные каталоги:
+- `app/`, `core/`, `feature-*`, `platform/*` — модули Android-приложения (Gradle).
+- `03-apps/02-application/kiosk-shell/agent/` — основной TypeScript/Electron агент.
+- `03-apps/02-application/kiosk-agent/`, `kiosk-agent-legacy/` — исторические агенты (редактируем только по задаче).
+- `platform/ui/web/kiosk-frontend/` — статический фронтенд киоска.
+- `09-docs/`, `docs/`, `docs-unified/` — документация и runbook.
+- `scripts/`, `tools/`, `hardware/`, `supabase/`, `outbox/` — инфраструктурные артефакты и утилиты.
+- `DONORS/` — внешние проекты (только чтение, см. раздел 4.1).
+- `.github/` — workflow, инструкции, шаблоны.
 
-Ключевые файлы при разработке: android/app/build.gradle.kts (зависимости, версии), android/feature-obd-core/src/main/java/... (OBD логика), packages/device-obd/src/index.ts (экспорт OBD модуля), 03-apps/02-application/kiosk-shell/agent/src/services/PaymentService.ts (платежи), packages/report/src/generator.ts (генерация отчётов), docs/tech/architecture.md (диаграммы архитектуры).
+Ключевые файлы: `build.gradle.kts`, `settings.gradle.kts`, `gradle.properties`, `tsconfig.json`, `AI_AGENT_BRIEFING.md`, `design-audit-report.md`, `implementation-guide.md`, `DONOR_STATUS.md`, `plan-multi-language-consolidation.md`, `scripts/session-05-archive-plan.ps1` (dry-run перед каждой сессией интеграции доноров).
 
-При каждом добавлении нового модуля/файла: добавить краткое описание в соответствующий раздел структуры (выше или в README модуля). Если создан новый пакет — добавить entry в package.json (если monorepo) или создать отдельный package.json.
+При добавлении нового модуля/файла описываем его в README соответствующего каталога или в профильном разделе структуры. Для новых npm-пакетов обновляем package.json; для Gradle-модулей прописываем include в `settings.gradle.kts`.
 
 17 Трассировка изменений и версионирование
 Любая ветка разработки именуется: feature/session-XX-description или fix/session-XX-description. Перед merge в main требуется:
@@ -221,10 +222,10 @@ Smoke-тесты: после каждой сессии запускается п
 
 Обновление этого файла инструкций, если поведение изменилось.
 
-Версионирование: для Android используется семантическое версионирование в android/build.gradle (versionCode, versionName). Для TypeScript пакетов — в package.json. Тэги в git: v0.1.0, v0.2.0 при релизах.
+Версионирование: для Android используется семантическое версионирование в `build.gradle.kts`/`app/build.gradle.kts` (versionCode, versionName). Для TypeScript пакетов — в package.json. Git-тэги: v0.1.0, v0.2.0 и т. д.
 
 18 Критерии завершения сессии
-Сессия считается завершённой, когда: весь код написан и протестирован, все тесты проходят (100% green), код залинтован без ошибок (lint, format clean), код залит в feature-branch, PR создан и готов к review, документация обновлена (если нужна). Статус сессии обновлён в plan-80-session-roadmap.md (DONE + дата). Если сессия зависит от другой сессии — она может быть на статусе IN_PROGRESS до завершения зависимости, затем переводится в DONE.
+Сессия считается завершённой, когда: весь код написан и протестирован, все тесты проходят (100% green), код залинтован без ошибок (lint, format clean), код залит в feature-branch, PR создан и готов к review, документация обновлена (если нужна). Статус сессии обновлён в `AI_AGENT_BRIEFING.md` (DONE + дата). Если сессия зависит от другой сессии — она может быть на статусе IN_PROGRESS до завершения зависимости, затем переводится в DONE.
 
 19 Коммуникация и эскалации
 Комментарии в коде и PR: по делу, на русском, с терминологией из инструкций. Если возникает конфликт с требованиями инструкций (например, давление написать фейк-данные в prod) — остановиться и запросить письменное подтверждение от владельца проекта. Если задача требует изменение этого документа — изменение должно быть явно согласовано и задокументировано в PR.
@@ -247,4 +248,4 @@ Smoke-тесты: после каждой сессии запускается п
 21 Резюме обязательных правил
 Самообслуживание: минимум действий клиента, максимум ясности. Две услуги: толщиномер и диагностика OBD-II. Ноль симуляций в production, только реальные данные от устройств. Dev-режим: кнопка Пропустить для навигации, без фейк-данных. Все устройства через открытые протоколы и официальную документацию. Отчёты по делу, без лишних персональных данных. Платежи: имитация на старте, реальный PSP в production. Безопасность киоска: киоск-режим, блокировка, авто-сброс сессий, логирование. Тестирование: 70% покрытие для логики, все тесты зелёные перед коммитом. Код на TypeScript/Kotlin с явными типами, strict mode. Линтинг clean, форматирование Prettier/Detekt.
 
-Этот документ — живой артефакт. При каждой значимой итерации обновляются соответствующие разделы. Все отклонения от требований должны быть явно согласованы, задокументированы и зафиксированы в PR с пояснением. Любые изменения в инструкциях требуют пересчёта графика сессий и обновления plan-80-session-roadmap.md.
+Этот документ — живой артефакт. При каждой значимой итерации обновляются соответствующие разделы. Все отклонения от требований должны быть явно согласованы, задокументированы и зафиксированы в PR с пояснением. Любые изменения в инструкциях автоматически отражаем в `AI_AGENT_BRIEFING.md`.

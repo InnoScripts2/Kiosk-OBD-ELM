@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import type { Request, Response } from 'express';
 import { asyncHandler } from '../http/async-handler.js';
 import type { DeviceType, LockController, LockStatus } from '../services/LockController.js';
 
@@ -8,22 +9,22 @@ function isDeviceType(value: unknown): value is DeviceType {
   return value === 'thickness' || value === 'adapter';
 }
 
-function formatStatus(status: LockStatus) {
+function formatStatus(status: LockStatus): Omit<LockStatus, 'error'> & { error: string | null } {
   return {
     ...status,
     error: status.error ?? null,
-  };
+  } as Omit<LockStatus, 'error'> & { error: string | null };
 }
 
-export function createLocksRouter(lockController: LockControllerPort) {
+export function createLocksRouter(lockController: LockControllerPort): Router {
   const router = Router();
 
-  router.get('/status', asyncHandler(async (req, res) => {
+  router.get('/status', asyncHandler(async (_req: Request, res: Response): Promise<void> => {
     const status = await lockController.getStatus();
     res.json({ status: formatStatus(status) });
   }));
 
-  router.post('/:device/open', asyncHandler(async (req, res) => {
+  router.post('/:device/open', asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { device } = req.params;
     if (!isDeviceType(device)) {
       res.status(400).json({ error: 'invalid_device' });
@@ -35,7 +36,7 @@ export function createLocksRouter(lockController: LockControllerPort) {
     res.json({ status: formatStatus(status) });
   }));
 
-  router.post('/:device/close', asyncHandler(async (req, res) => {
+  router.post('/:device/close', asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { device } = req.params;
     if (!isDeviceType(device)) {
       res.status(400).json({ error: 'invalid_device' });

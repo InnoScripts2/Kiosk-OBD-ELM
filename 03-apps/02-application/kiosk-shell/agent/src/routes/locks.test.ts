@@ -10,20 +10,20 @@ class MockLockController {
     connected: true,
   };
 
-  async getStatus() {
+  async getStatus(): Promise<LockStatus> {
     return { ...this.status };
   }
 
-  async openSlot(device: DeviceType) {
+  async openSlot(device: DeviceType): Promise<void> {
     this.status = { ...this.status, [device]: 'open' };
   }
 
-  async closeSlot(device: DeviceType) {
+  async closeSlot(device: DeviceType): Promise<void> {
     this.status = { ...this.status, [device]: 'closed' };
   }
 }
 
-function createApp() {
+function createApp(): express.Application {
   const controller = new MockLockController();
   const app = express();
   app.use(express.json());

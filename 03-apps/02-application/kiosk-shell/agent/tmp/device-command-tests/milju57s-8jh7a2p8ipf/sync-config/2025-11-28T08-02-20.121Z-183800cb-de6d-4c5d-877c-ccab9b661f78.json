@@ -1,0 +1,32 @@
+{
+  "kioskId": "KIOSK-SYNC",
+  "syncedAt": "2025-11-30T10:00:01.050Z",
+  "requestedBy": "ops@example.com",
+  "sections": [
+    "deviceCommands",
+    "heartbeat"
+  ],
+  "reason": "manual refresh",
+  "commandId": "cmd-sync-config",
+  "previousConfig": {
+    "pollIntervalMs": 500,
+    "activePollIntervalMs": 100,
+    "maxBatchSize": 5,
+    "includeBroadcast": true,
+    "rebootGracePeriodMs": 1200
+  },
+  "updatedConfig": {
+    "pollIntervalMs": 800,
+    "activePollIntervalMs": 150,
+    "maxBatchSize": 9,
+    "includeBroadcast": false,
+    "rebootGracePeriodMs": 2500
+  },
+  "changedFields": [
+    "pollIntervalMs",
+    "activePollIntervalMs",
+    "maxBatchSize",
+    "includeBroadcast",
+    "rebootGracePeriodMs"
+  ]
+}

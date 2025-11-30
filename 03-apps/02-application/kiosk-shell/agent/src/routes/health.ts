@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import type { Request, Response } from 'express';
 import { asyncHandler } from '../http/async-handler.js';
 import type { PaymentService } from '../services/PaymentService.js';
 import type { LockController } from '../services/LockController.js';
@@ -11,10 +12,10 @@ interface HealthRouterOptions {
   buildInfo?: Record<string, unknown>;
 }
 
-export function createHealthRouter(options: HealthRouterOptions) {
+export function createHealthRouter(options: HealthRouterOptions): Router {
   const router = Router();
 
-  router.get('/', asyncHandler(async (req, res) => {
+  router.get('/', asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const lockStatus = await options.lockController.getStatus();
 
     res.json({

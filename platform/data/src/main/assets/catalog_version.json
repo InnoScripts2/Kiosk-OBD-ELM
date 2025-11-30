@@ -1,0 +1,26 @@
+{
+  "version": "1.0.0",
+  "build_timestamp": "2025-11-27T12:56:30.187319+00:00",
+  "generic_entries": 17973,
+  "manufacturer_entries": 58217,
+  "manufacturers": [
+    "BMW",
+    "Lexus",
+    "Manufacturer-specific",
+    "Nissan",
+    "OBD2 Codes List (6)",
+    "Toyota"
+  ],
+  "sources": {
+    "csharp_catalog": "base\\OBDII.DTC-main\\DTC.cs",
+    "dtc_mapping": "base\\dtcmapping.json",
+    "manufacturer_directories": [
+      "All BMW OBD2 Codes List (7)",
+      "All Lexus OBD2 Codes List (5)",
+      "All Manufacturer-specific OBD2 Codes (4)",
+      "All Nissan OBD2 Codes List (3)",
+      "All Toyota OBD2 Codes List (2)",
+      "Generic OBD2 Codes List (6)"
+    ]
+  }
+}

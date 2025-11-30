@@ -3,7 +3,7 @@ import request from 'supertest';
 import { createPaymentsRouter } from './payments.js';
 import { PaymentService } from '../services/PaymentService.js';
 
-function createApp(service: PaymentService) {
+function createApp(service: PaymentService): express.Application {
   const app = express();
   app.use(express.json());
   app.use('/payments', createPaymentsRouter(service));

@@ -32,13 +32,15 @@ export class DeviceStatusGateway {
     this.wss = new WebSocketServer({ server: options.server, path: '/ws/obd' });
 
     this.wss.on('connection', (socket) => {
-      this.pushSnapshot(socket);
+      this.pushSnapshot(socket).catch((error) => {
+        console.warn('[ws] Failed to push initial snapshot', error);
+      });
     });
 
     this.startBroadcastLoop();
   }
 
-  async pushSnapshot(socket: WebSocket) {
+  async pushSnapshot(socket: WebSocket): Promise<void> {
     const payload = await this.buildPayload();
     const envelope: DeviceStatusEnvelope = { type: 'status-update', payload };
     if (socket.readyState === WebSocket.OPEN) {
@@ -46,7 +48,7 @@ export class DeviceStatusGateway {
     }
   }
 
-  private startBroadcastLoop() {
+  private startBroadcastLoop(): void {
     if (this.broadcastTimer) {
       clearInterval(this.broadcastTimer);
     }
@@ -57,7 +59,7 @@ export class DeviceStatusGateway {
     }, this.intervalMs);
   }
 
-  private async broadcast() {
+  private async broadcast(): Promise<void> {
     const payload = await this.buildPayload();
     const envelope: DeviceStatusEnvelope = { type: 'status-update', payload };
     const serialized = JSON.stringify(envelope);
@@ -80,7 +82,7 @@ export class DeviceStatusGateway {
     };
   }
 
-  async stop() {
+  async stop(): Promise<void> {
     if (this.broadcastTimer) {
       clearInterval(this.broadcastTimer);
       this.broadcastTimer = null;

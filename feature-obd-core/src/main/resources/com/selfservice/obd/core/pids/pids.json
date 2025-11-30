@@ -1,0 +1,974 @@
+[
+  {
+    "mode": "0x01",
+    "pid": "0x01",
+    "label": "Статус монитора с момента очистки DTC",
+    "pollIntervalMs": 15000,
+    "notes": "SAE J1979-DA Table A-2; Dataset: AndroidOBD",
+    "min": 0,
+    "max": 1,
+    "formula": "(A/128)>=1"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x04",
+    "label": "Расчётная нагрузка двигателя",
+    "unit": "percent",
+    "conversion": "PERCENT_FROM_A",
+    "min": 0,
+    "max": 100,
+    "formula": "A*100/255",
+    "pollIntervalMs": 1000,
+    "notes": "SAE J1979-DA Table A-2; Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x05",
+    "label": "Температура охлаждающей жидкости двигателя",
+    "unit": "degC",
+    "conversion": "TEMP_FROM_A",
+    "min": -40,
+    "max": 215,
+    "formula": "A-40",
+    "pollIntervalMs": 2000,
+    "notes": "SAE J1979-DA Table A-2; Dataset: AndroidOBD; Imperial: ((A-40) * 1.8) + 32 degF"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x06",
+    "label": "Краткосрочная коррекция топлива - Ряд 1",
+    "unit": "percent",
+    "conversion": "FUEL_TRIM_PERCENT",
+    "min": -100,
+    "max": 99.22,
+    "formula": "(A-128)*100/128",
+    "pollIntervalMs": 1000,
+    "notes": "SAE J1979-DA Table A-2"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x07",
+    "label": "Долгосрочная коррекция топлива - Ряд 1",
+    "unit": "percent",
+    "conversion": "FUEL_TRIM_PERCENT",
+    "min": -100,
+    "max": 99.22,
+    "formula": "(A-128)*100/128",
+    "pollIntervalMs": 5000,
+    "notes": "SAE J1979-DA Table A-2"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x0A",
+    "label": "Давление топлива",
+    "unit": "kPa_gauge",
+    "min": 0,
+    "max": 765,
+    "formula": "A*3",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD; Imperial: (A*3)*0.145037738 psi_gauge"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x0B",
+    "label": "Абсолютное давление во впускном коллекторе",
+    "unit": "kPa",
+    "conversion": "INTAKE_PRESSURE_KPA",
+    "min": 0,
+    "max": 255,
+    "formula": "A",
+    "pollIntervalMs": 1000,
+    "notes": "SAE J1979-DA Table A-2; Dataset: AndroidOBD; Imperial: A*0.145037738 psi_absolute"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x0C",
+    "label": "Обороты двигателя",
+    "unit": "rpm",
+    "conversion": "RPM_FROM_AB",
+    "min": 0,
+    "max": 8000,
+    "formula": "((A*256)+B)/4",
+    "pollIntervalMs": 500,
+    "notes": "SAE J1979-DA Table A-2; Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x0D",
+    "label": "Скорость автомобиля",
+    "unit": "km_per_h",
+    "conversion": "SPEED_FROM_A",
+    "min": 0,
+    "max": 255,
+    "formula": "A",
+    "pollIntervalMs": 500,
+    "notes": "SAE J1979-DA Table A-2; Dataset: AndroidOBD; Imperial: A*0.62137 miles_per_h"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x0E",
+    "label": "Угол опережения зажигания",
+    "unit": "deg",
+    "conversion": "TIMING_ADVANCE_DEG",
+    "min": -64,
+    "max": 63.5,
+    "formula": "(A/2)-64",
+    "pollIntervalMs": 500,
+    "notes": "SAE J1979-DA Table A-2; Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x0F",
+    "label": "Температура впускного воздуха",
+    "unit": "degC",
+    "conversion": "TEMP_FROM_A",
+    "min": -40,
+    "max": 215,
+    "formula": "A-40",
+    "pollIntervalMs": 2000,
+    "notes": "SAE J1979-DA Table A-2; Dataset: AndroidOBD; Imperial: ((A-40) * 1.8) + 32 degF"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x10",
+    "label": "Массовый Воздух Поток Датчик",
+    "unit": "grams_per_sec",
+    "conversion": "MAF_GRAMS_PER_SEC",
+    "min": 0,
+    "max": 655.35,
+    "formula": "((A*256)+B)/100",
+    "pollIntervalMs": 500,
+    "notes": "SAE J1979-DA Table A-2; Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x11",
+    "label": "Положение дроссельной заслонки",
+    "unit": "percent",
+    "conversion": "THROTTLE_PERCENT",
+    "min": 0,
+    "max": 100,
+    "formula": "A*100/255",
+    "pollIntervalMs": 500,
+    "notes": "SAE J1979-DA Table A-2; Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x14",
+    "label": "датчик кислорода 1 Напряжение",
+    "unit": "volt",
+    "conversion": "OXYGEN_SENSOR_VOLTAGE",
+    "min": 0,
+    "max": 1.275,
+    "formula": "A/200",
+    "pollIntervalMs": 1000,
+    "notes": "SAE J1979-DA Table A-2"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x1F",
+    "label": "Время работы с момента запуска двигателя",
+    "unit": "seconds",
+    "conversion": "RUN_TIME_SECONDS",
+    "min": 0,
+    "max": 65535,
+    "formula": "((A*256)+B)",
+    "pollIntervalMs": 5000,
+    "notes": "SAE J1979-DA Table A-2; Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x21",
+    "label": "Пройденное расстояние with MIL on",
+    "unit": "km",
+    "conversion": "DISTANCE_TRAVELED_KM",
+    "min": 0,
+    "max": 65535,
+    "formula": "((A*256)+B)",
+    "pollIntervalMs": 10000,
+    "notes": "SAE J1979-DA Table A-2; Dataset: AndroidOBD; Imperial: ((A*256)+B)*0.62137 miles"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x22",
+    "label": "Давление в топливной рампе (Относительное to Коллектор Разрежение)",
+    "unit": "kPa",
+    "min": 0,
+    "max": 5177.265,
+    "formula": "((A*256)+B) * 0.079",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD; Imperial: (((A*256)+B) * 0.079)*0.145037738 psi"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x23",
+    "label": "Давление в топливной рампе (diesel. or gasoline direct inject)",
+    "unit": "kPa_gauge",
+    "min": 0,
+    "max": 655.35,
+    "formula": "((A*256)+B) * 10",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD; Imperial: (((A*256)+B) * 10)*0.145037738 psi"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x2C",
+    "label": "Запрошенный Испарительная Продувка",
+    "unit": "percent",
+    "conversion": "EVAP_PURGE_PERCENT",
+    "min": 0,
+    "max": 100,
+    "formula": "A*100/255",
+    "pollIntervalMs": 1000,
+    "notes": "SAE J1979-DA Table A-2; Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x2D",
+    "label": "Рециркуляция ОГ Error",
+    "unit": "percent",
+    "min": -100,
+    "max": 99.22,
+    "formula": "(A-128) * 100/128",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x2E",
+    "label": "Запрошенный Испарительная Продувка",
+    "unit": "percent",
+    "min": 0,
+    "max": 100,
+    "formula": "100*A/255",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x2F",
+    "label": "Топливо level Вход",
+    "unit": "percent",
+    "conversion": "FUEL_LEVEL_PERCENT",
+    "min": 0,
+    "max": 100,
+    "formula": "A*100/255",
+    "pollIntervalMs": 5000,
+    "notes": "SAE J1979-DA Table A-2; Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x30",
+    "label": "# of warm-ups since codes Очищен",
+    "min": 0,
+    "max": 255,
+    "formula": "A",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x31",
+    "label": "Пройденное расстояние since codes Очищен",
+    "unit": "km",
+    "min": 0,
+    "max": 65.535,
+    "formula": "(A*256)+B",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD; Imperial: ((A*256)+B)*0.62137 miles"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x32",
+    "label": "Система улавливания паров. Система Vapor Давление",
+    "unit": "pa",
+    "min": -8.192,
+    "max": 8.192,
+    "formula": "((A*256)+B)/4",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x33",
+    "label": "Барометрическое Давление",
+    "unit": "kPa",
+    "conversion": "BAROMETRIC_PRESSURE_KPA",
+    "min": 0,
+    "max": 255,
+    "formula": "A",
+    "pollIntervalMs": 4000,
+    "notes": "SAE J1979-DA Table A-2; Dataset: AndroidOBD; Imperial: A*0.145037738 psi_absolute"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x34",
+    "label": "O2S1_WR_lambda(1):",
+    "min": 0,
+    "max": 1.999,
+    "formula": "((A*256)+B)/32.768",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x35",
+    "label": "O2S2_WR_lambda",
+    "min": 0,
+    "max": 2,
+    "formula": "((A*256)+B)/32.768",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x36",
+    "label": "O2S3_WR_lambda",
+    "min": 0,
+    "max": 2,
+    "formula": "((A*256)+B)/32768",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x37",
+    "label": "O2S4_WR_lambda",
+    "min": 0,
+    "max": 2,
+    "formula": "((A*256)+B)/32.768",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x38",
+    "label": "O2S5_WR_lambda",
+    "min": 0,
+    "max": 2,
+    "formula": "((A*256)+B)/32.768",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x39",
+    "label": "O2S6_WR_lambda",
+    "min": 0,
+    "max": 2,
+    "formula": "((A*256)+B)/32.768",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x3A",
+    "label": "O2S7_WR_lambda",
+    "min": 0,
+    "max": 2,
+    "formula": "((A*256)+B)/32.768",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x3B",
+    "label": "O2S8_WR_lambda",
+    "min": 0,
+    "max": 2,
+    "formula": "((A*256)+B)/32.768",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x3C",
+    "label": "Катализатор Температура (Ряд 1 Датчик 1)",
+    "unit": "degC",
+    "conversion": "CATALYST_TEMP_DEGC",
+    "min": -40,
+    "max": 6513.5,
+    "formula": "((A*256)+B)/10-40",
+    "pollIntervalMs": 2000,
+    "notes": "SAE J1979-DA Table A-2; Dataset: AndroidOBD; Imperial: ((((A*256)+B)/10 - 40) * 1.8) + 32 degF"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x3D",
+    "label": "Катализатор Температура Ряд 2 Датчик 1",
+    "unit": "degC",
+    "min": -40,
+    "formula": "((A*256)+B)/10 - 40",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD; Imperial: ((((A*256)+B)/10 - 40) * 1.8) + 32 degF"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x3E",
+    "label": "Катализатор Температура Ряд 1 Датчик 2",
+    "unit": "degC",
+    "min": -40,
+    "formula": "((A*256)+B)/10 - 40",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD; Imperial: ((((A*256)+B)/10 - 40) * 1.8) + 32 degF"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x3F",
+    "label": "Катализатор Температура Ряд 2 Датчик 2",
+    "unit": "degC",
+    "min": -40,
+    "formula": "((A*256)+B)/10 - 40",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD; Imperial: ((((A*256)+B)/10 - 40) * 1.8) + 32 degF"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x42",
+    "label": "Напряжение блока управления",
+    "unit": "volt",
+    "conversion": "CONTROL_MODULE_VOLTAGE",
+    "min": 0,
+    "max": 65.535,
+    "formula": "((A*256)+B)/1000",
+    "pollIntervalMs": 1000,
+    "notes": "SAE J1979-DA Table A-2; Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x43",
+    "label": "Абсолютное значение нагрузки",
+    "unit": "percent",
+    "conversion": "ABSOLUTE_LOAD_PERCENT",
+    "min": 0,
+    "max": 100,
+    "formula": "((A*256)+B)*100/255",
+    "pollIntervalMs": 1000,
+    "notes": "SAE J1979-DA Table A-2; Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x44",
+    "label": "Command equivalence ratio",
+    "min": 0,
+    "max": 2,
+    "formula": "((A*256)+B)/32768",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x45",
+    "label": "Относительное положение дросселя",
+    "unit": "percent",
+    "min": 0,
+    "max": 100,
+    "formula": "A*100/255",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x46",
+    "label": "Окружающая среда Воздух Температура",
+    "unit": "degC",
+    "conversion": "TEMP_FROM_A",
+    "min": -40,
+    "max": 215,
+    "formula": "A-40",
+    "pollIntervalMs": 4000,
+    "notes": "SAE J1979-DA Table A-2; Dataset: AndroidOBD; Imperial: ((A-40) * 1.8) + 32 degF"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x47",
+    "label": "Абсолютное положение дросселя B",
+    "unit": "percent",
+    "min": 0,
+    "max": 100,
+    "formula": "A*100/255",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x48",
+    "label": "Абсолютное положение дросселя C",
+    "unit": "percent",
+    "min": 0,
+    "max": 100,
+    "formula": "A*100/255",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x49",
+    "label": "Положение педали акселератора D",
+    "unit": "percent",
+    "min": 0,
+    "max": 100,
+    "formula": "A*100/255",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x4A",
+    "label": "Положение педали акселератора E",
+    "unit": "percent",
+    "min": 0,
+    "max": 100,
+    "formula": "A*100/255",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x4B",
+    "label": "Положение педали акселератора F",
+    "unit": "percent",
+    "min": 0,
+    "max": 100,
+    "formula": "A*100/255",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x4C",
+    "label": "Запрошенный Дроссельная заслонка Привод",
+    "unit": "percent",
+    "conversion": "THROTTLE_PERCENT",
+    "min": 0,
+    "max": 100,
+    "formula": "A*100/255",
+    "pollIntervalMs": 1000,
+    "notes": "SAE J1979-DA Table A-2; Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x4D",
+    "label": "Time run with MIL on",
+    "unit": "minutes",
+    "min": 0,
+    "max": 65.535,
+    "formula": "(A*256)+B",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x4E",
+    "label": "Time since trouble codes Очищен",
+    "unit": "minutes",
+    "min": 0,
+    "max": 65.535,
+    "formula": "(A*256)+B",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x51",
+    "label": "Тип топлива",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x52",
+    "label": "Топливо с этанолом %",
+    "unit": "percent",
+    "min": 0,
+    "max": 100,
+    "formula": "A*100/255",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x53",
+    "label": "Абсолютное Система улавливания паров Система Vapour Давление",
+    "unit": "kPa",
+    "min": 0,
+    "max": 327.675,
+    "formula": "((A*256)+B)/200",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD; Imperial: (((A*256)+B)/200)*0.145037738 psi"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x54",
+    "label": "Система улавливания паров Система vapor Давление",
+    "unit": "pa",
+    "min": -32.767,
+    "max": 32.768,
+    "formula": "A*256+B - 32768",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x59",
+    "label": "Давление в топливной рампе (Абсолютное)",
+    "unit": "kPa",
+    "min": 0,
+    "max": 655.35,
+    "formula": "((A*256)+B) * 10",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD; Imperial: (((A*256)+B) * 10)*0.145037738 psi"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x5A",
+    "label": "Относительное Положение педали акселератора",
+    "unit": "percent",
+    "min": 0,
+    "max": 100,
+    "formula": "A*100/255",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x5B",
+    "label": "Батарея гибридной установки оставшийся ресурс",
+    "unit": "percent",
+    "min": 0,
+    "max": 100,
+    "formula": "A*100/255",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x5C",
+    "label": "Двигатель oil Температура",
+    "unit": "degC",
+    "conversion": "TEMP_FROM_A",
+    "min": -40,
+    "max": 215,
+    "formula": "A-40",
+    "pollIntervalMs": 2000,
+    "notes": "SAE J1979-DA Table A-2; Dataset: AndroidOBD; Imperial: ((A-40) * 1.8) + 32 degF"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x5D",
+    "label": "Топливо injection Синхронизация",
+    "min": -210,
+    "max": 301.992,
+    "formula": "(((A*256)+B)-26.880)/128",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x5E",
+    "label": "Двигатель Топливо Расход",
+    "unit": "l_per_h",
+    "min": 0,
+    "max": 3212.75,
+    "formula": "((A*256)+B)*0.05",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x61",
+    "label": "Водитель's demand Двигатель - percent torque",
+    "unit": "percent",
+    "min": -125,
+    "max": 125,
+    "formula": "A-125",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x62",
+    "label": "Фактический Двигатель - percent torque",
+    "unit": "percent",
+    "min": -125,
+    "max": 125,
+    "formula": "A-125",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x63",
+    "label": "Двигатель reference torque",
+    "unit": "nm",
+    "min": 0,
+    "max": 65.535,
+    "formula": "A*256+B",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x65",
+    "label": "Auxiliary Вход-Выход supported",
+    "formula": "Bit Encoded",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x66",
+    "label": "Массовый Воздух Поток Датчик",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x67",
+    "label": "Температура охлаждающей жидкости двигателя",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x68",
+    "label": "Температура впускного воздуха Датчик",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x69",
+    "label": "Запрошенный Рециркуляция ОГ and Рециркуляция ОГ Error",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x6B",
+    "label": "Выхлоп gas recirculation Температура",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x6D",
+    "label": "Давление топлива Управление Система",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x6E",
+    "label": "Injection Давление Управление Система",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x6F",
+    "label": "Турбонагнетатель compressor inlet Давление",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x70",
+    "label": "Наддув Давление Управление",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x71",
+    "label": "Variable Geometry Турбо (VGT) Управление",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x72",
+    "label": "Вестгейт Управление",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x73",
+    "label": "Выхлоп Давление",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x74",
+    "label": "Турбонагнетатель Обороты",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x75",
+    "label": "Турбонагнетатель Температура",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x76",
+    "label": "Турбонагнетатель Температура",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x77",
+    "label": "Charge Воздух cooler Температура (CACT)",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x7A",
+    "label": "Diesel particulate filter (DPF)",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x7B",
+    "label": "Diesel particulate filter (DPF)",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x7C",
+    "label": "Diesel Particulate filter (DPF) Температура",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x7D",
+    "label": "NOx NTE Управление area Состояние",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x7E",
+    "label": "PM NTE Управление area Состояние",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x7F",
+    "label": "Двигатель run time",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x81",
+    "label": "Двигатель run time for AECD",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x82",
+    "label": "Двигатель run time for AECD",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x83",
+    "label": "NOx Датчик",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x84",
+    "label": "Коллектор surface Температура",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x85",
+    "label": "NOx reagent Система",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x86",
+    "label": "Particulate matter (PM) Датчик",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0x87",
+    "label": "Абсолютное давление во впускном коллекторе",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x01",
+    "pid": "0xA6",
+    "label": "Odometer",
+    "unit": "km",
+    "min": 0,
+    "max": 429496729.5,
+    "formula": "(A*(2^24)+B*(2^16)+C*(2^8)+D)/10",
+    "pollIntervalMs": 1000,
+    "notes": "Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x04",
+    "pid": "0x00",
+    "label": "Clear DTCs",
+    "pollIntervalMs": 2000,
+    "notes": "Dataset: AndroidOBD"
+  },
+  {
+    "mode": "0x09",
+    "pid": "0x00",
+    "label": "Mode 9 supported PIDs",
+    "pollIntervalMs": 10000,
+    "notes": "Dataset: AndroidOBD",
+    "payloadLengthBytes": 4
+  },
+  {
+    "mode": "0x09",
+    "pid": "0x02",
+    "label": "Автомобиль Identification Number",
+    "unit": "string",
+    "notes": "SAE J1979-DA Section 5; Dataset: AndroidOBD",
+    "pollIntervalMs": 10000,
+    "payloadLengthBytes": 20
+  },
+  {
+    "mode": "0x09",
+    "pid": "0x04",
+    "label": "Calibration ID",
+    "unit": "string",
+    "notes": "SAE J1979-DA Section 5; Dataset: AndroidOBD",
+    "pollIntervalMs": 10000,
+    "payloadLengthBytes": 16
+  },
+  {
+    "mode": "0x09",
+    "pid": "0x0A",
+    "label": "ECU Name",
+    "unit": "string",
+    "pollIntervalMs": 10000,
+    "notes": "Dataset: AndroidOBD",
+    "payloadLengthBytes": 20
+  }
+]

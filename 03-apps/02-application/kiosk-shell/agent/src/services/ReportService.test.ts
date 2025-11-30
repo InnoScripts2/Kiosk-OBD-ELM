@@ -39,22 +39,55 @@ describe('ReportService', () => {
       sessionId: 'test_session_2',
       timestamp: new Date('2025-11-23T12:00:00Z'),
       vehicleBrand: 'Toyota',
+      vin: 'JTDKB20U993456789',
+      adapter: 'ELM327 BLE',
+      scanDuration: 75,
+      price: 480,
       dtcCodes: [
-        { code: 'P0420', description: 'Catalyst System Efficiency Below Threshold', status: 'warning' },
-        { code: 'P0171', description: 'System Too Lean Bank 1', status: 'critical' },
+        {
+          code: 'P0420',
+          description: 'Catalyst System Efficiency Below Threshold',
+          severity: 'warning',
+          system: 'Powertrain',
+          recommendation: 'Проверить состояние катализатора',
+        },
+        {
+          code: 'P0171',
+          description: 'System Too Lean Bank 1',
+          severity: 'critical',
+          system: 'Fuel system',
+          recommendation: 'Диагностика впрыска топлива',
+        },
       ],
-      clearedCount: 1,
+      stats: {
+        totalCodes: 2,
+        critical: 1,
+        warnings: 1,
+        info: 0,
+        cleared: 1,
+      },
+      milStatus: 'on',
+      contact: { email: 'client@example.com' },
+      mode: 'DEV',
+      clearResult: {
+        timestamp: new Date('2025-11-23T12:10:00Z'),
+        clearedCodes: ['P0171'],
+        success: true,
+        confirmationMethod: 'client_consent',
+      },
     };
 
     const html = service.toHTML(report);
 
     expect(html).toContain('<!DOCTYPE html>');
-    expect(html).toContain('Отчёт диагностики');
+    expect(html).toContain('Отчёт диагностики OBD-II');
     expect(html).toContain('test_session_2');
     expect(html).toContain('Toyota');
-    expect(html).toContain('P0420');
-    expect(html).toContain('P0171');
-    expect(html).toContain('Сброшено ошибок: 1');
+    expect(html).toContain('ELM327 BLE');
+    expect(html).toContain('Обнаружено 2 кодов');
+    expect(html).toContain('Powertrain');
+    expect(html).toContain('Результат сброса ошибок');
+    expect(html).toContain('[МОК-РЕЖИМ]');
   });
 
   test('sendEmail в DEV режиме возвращает success', async () => {

@@ -20,5 +20,7 @@
   ],
   "[typescript]": {
     "editor.defaultFormatter": "denoland.vscode-deno"
-  }
+  },
+  "livePreview.defaultPreviewPath": "/platform/ui/web/kiosk-frontend/dist/index.html",
+  "powershell.pester.codeLens": false
 }

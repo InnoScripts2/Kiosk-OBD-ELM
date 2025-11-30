@@ -430,18 +430,27 @@ CREATE OR REPLACE FUNCTION public.purge_expired_kiosk_sessions(
     session_id TEXT,
     expired_at TIMESTAMPTZ
 ) AS $$
+DECLARE
+    v_limit INTEGER := GREATEST(COALESCE(p_limit, 100), 1);
 BEGIN
     RETURN QUERY
-    UPDATE public.kiosk_sessions
+    WITH expired_targets AS (
+        SELECT session_id
+        FROM public.kiosk_sessions
+        WHERE status IN ('created', 'awaiting_payment', 'in_progress')
+          AND expires_at IS NOT NULL
+          AND expires_at < NOW()
+        ORDER BY expires_at ASC
+        LIMIT v_limit
+        FOR UPDATE SKIP LOCKED
+    )
+    UPDATE public.kiosk_sessions AS ks
        SET status = 'expired',
            ended_at = NOW(),
            updated_at = NOW()
-     WHERE status IN ('created', 'awaiting_payment', 'in_progress')
-       AND expires_at IS NOT NULL
-       AND expires_at < NOW()
-     ORDER BY expires_at ASC
-     LIMIT COALESCE(p_limit, 100)
-     RETURNING session_id, NOW();
+      FROM expired_targets et
+     WHERE ks.session_id = et.session_id
+     RETURNING ks.session_id, NOW();
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 

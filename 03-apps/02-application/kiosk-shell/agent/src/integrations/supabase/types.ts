@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      agent_metrics: {
+        Row: {
+          created_at: string
+          environment: string
+          kiosk_id: string | null
+          metric_id: string
+          metric_type: string
+          payload: Json | null
+          recorded_at: string
+          source: string | null
+          value_number: number | null
+          value_text: string | null
+        }
+        Insert: {
+          created_at?: string
+          environment: string
+          kiosk_id?: string | null
+          metric_id?: string
+          metric_type: string
+          payload?: Json | null
+          recorded_at: string
+          source?: string | null
+          value_number?: number | null
+          value_text?: string | null
+        }
+        Update: {
+          created_at?: string
+          environment?: string
+          kiosk_id?: string | null
+          metric_id?: string
+          metric_type?: string
+          payload?: Json | null
+          recorded_at?: string
+          source?: string | null
+          value_number?: number | null
+          value_text?: string | null
+        }
+        Relationships: []
+      }
       comments: {
         Row: {
           content: string
@@ -560,6 +599,66 @@ export type Database = {
           service_type?: string
           session_id?: string
           status?: string | null
+        }
+        Relationships: []
+      }
+      report_ingest_queue: {
+        Row: {
+          contact_email: string | null
+          contact_phone: string | null
+          created_at: string
+          environment: string
+          ingest_id: string
+          kiosk_id: string | null
+          last_error: string | null
+          payload: Json
+          priority: number
+          received_at_ms: number
+          report_type: string
+          retries: number
+          session_id: string
+          sla_deadline_ms: number
+          status: string
+          trace_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          environment: string
+          ingest_id?: string
+          kiosk_id?: string | null
+          last_error?: string | null
+          payload?: Json
+          priority?: number
+          received_at_ms: number
+          report_type: string
+          retries?: number
+          session_id: string
+          sla_deadline_ms: number
+          status: string
+          trace_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          environment?: string
+          ingest_id?: string
+          kiosk_id?: string | null
+          last_error?: string | null
+          payload?: Json
+          priority?: number
+          received_at_ms?: number
+          report_type?: string
+          retries?: number
+          session_id?: string
+          sla_deadline_ms?: number
+          status?: string
+          trace_id?: string | null
+          updated_at?: string
         }
         Relationships: []
       }

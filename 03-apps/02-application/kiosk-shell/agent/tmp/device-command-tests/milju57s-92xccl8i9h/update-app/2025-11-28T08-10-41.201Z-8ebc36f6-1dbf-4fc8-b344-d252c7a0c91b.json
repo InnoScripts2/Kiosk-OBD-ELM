@@ -1,0 +1,14 @@
+{
+  "kioskId": "KIOSK-UPDATE",
+  "version": "2.0.1",
+  "channel": "beta",
+  "artifactUrl": "https://cdn.example.com/build.zip",
+  "checksum": "abc123",
+  "notes": "nightly rollout",
+  "requestedBy": "ops@example.com",
+  "requestedAt": "2025-11-30T10:00:01.050Z",
+  "forceRestart": true,
+  "restartDelayMs": 900,
+  "commandId": "cmd-update-app",
+  "source": "admin"
+}

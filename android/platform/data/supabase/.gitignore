@@ -1,8 +1,0 @@
-# Project exclude paths
-**/.gradle/**
-**/build/**
-/test/
-.idea
-local.properties
-.kotlin
-kotlin-js-store

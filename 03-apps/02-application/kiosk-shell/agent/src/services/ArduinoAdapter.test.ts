@@ -36,6 +36,7 @@ describe('ArduinoAdapter', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockParser.removeAllListeners();
     
     config = {
       port: '/dev/ttyUSB0',
@@ -91,6 +92,37 @@ describe('ArduinoAdapter', () => {
 
       expect(connectedSpy).toHaveBeenCalled();
     });
+
+    it('should emit ready event when Arduino reports READY', async () => {
+      const readySpy = jest.fn();
+      adapter.on('ready', readySpy);
+
+      const connectPromise = adapter.connect();
+
+      setTimeout(() => {
+        mockParser.emit('data', 'READY:DISPENCER:v1.0');
+      }, 50);
+
+      setTimeout(() => {
+        mockParser.emit('data', 'PONG');
+      }, 100);
+
+      await connectPromise;
+
+      expect(readySpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('should still connect if READY is missed (timeout fallback)', async () => {
+      const connectPromise = adapter.connect();
+
+      setTimeout(() => {
+        mockParser.emit('data', 'PONG');
+      }, 2500);
+
+      await connectPromise;
+
+      expect(adapter.isConnected()).toBe(true);
+    }, 10000);
   });
 
   describe('sendCommand', () => {
@@ -157,7 +189,7 @@ describe('ArduinoAdapter', () => {
 
       setTimeout(() => {
         mockParser.emit('data', 'PONG');
-      }, 2050);
+      }, 60);
 
       await connectPromise;
 
