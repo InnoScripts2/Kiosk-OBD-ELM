@@ -32,3 +32,22 @@ coverage/
 .env.local
 # Local-only credential notes
 09-docs/02-application/security/local-credential-notes.local.md
+
+# Temporary export/work files
+tmp/
+**/tmp/
+
+# Duplicate directories (consolidated elsewhere)
+platform/data/serialization-formats/
+
+# IDE-specific files (additional)
+**/*.iml
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Agent logs (consolidated)
+**/logs/sessions/*.json
+**/logs/sessions/*.log
+!**/logs/sessions/README.md
