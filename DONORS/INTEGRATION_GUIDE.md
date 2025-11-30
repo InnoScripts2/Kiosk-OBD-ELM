@@ -8,6 +8,90 @@
 
 ---
 
+## Прогресс интеграции
+
+| Фаза | Компонент | Статус | Дата |
+|------|-----------|--------|------|
+| 1 | bluetooth-discovery.ts | ✅ Завершено | 2025-11-30 |
+| 2 | obd-protocol.ts | ✅ Завершено | 2025-11-30 |
+| 3 | dtc-scanner.ts | ✅ Завершено | 2025-11-30 |
+| 4 | error-handler.ts | ✅ Завершено | 2025-11-30 |
+| 5 | Unit tests | ✅ Завершено | 2025-11-30 |
+| 6 | Frontend integration | ⏳ Pending | - |
+
+**Всего тестов**: 172 passing (96 новых для OBD-сервисов)
+
+---
+
+## Реализованные сервисы
+
+### 1. BluetoothDiscoveryService (`bluetooth-discovery.ts`)
+
+**Адаптировано из**: `DONORS/1-begaz-OBDII/lib/obd2_plugin.dart`
+
+**Функции**:
+- `scanForDevices()` - сканирование доступных OBD устройств
+- `isObdDevice(name)` - фильтрация по паттернам ("OBDII", "Ediag", "Ediag Plus")
+- `connectToDevice(device)` - подключение с авто-определением baud rate
+- Авто-переподключение при разрыве
+
+**Константы**:
+- `OBD_DEVICE_PATTERNS` = ['obdii', 'ediag', 'ediag plus']
+- `BAUD_RATES` = [38400, 115200]
+- `DEFAULT_CONNECTION_TIMEOUT` = 5000ms
+
+### 2. ObdProtocolService (`obd-protocol.ts`)
+
+**Адаптировано из**: `DONORS/2-PowerBroker2-ELMduino/src/ELMduino.cpp`
+
+**Функции**:
+- `initialize()` - инициализация ELM327 (ATZ → ATE0 → ATL0 → ATS0 → ATSP0)
+- `queryPid(service, pid)` - запрос PID с парсингом ответа
+- `getRpm()`, `getSpeed()`, `getEngineCoolantTemp()` - convenience методы
+- `deduplicateResponse()` - обработка двойных ответов Ediag
+
+**Константы**:
+- `PROTOCOL_IDS` - все поддерживаемые протоколы
+- `SERVICE_MODES` - режимы OBD-II (01, 02, 03, 04, 07, 09)
+- `PIDS` - все стандартные PID'ы
+
+### 3. DtcScannerService (`dtc-scanner.ts`)
+
+**Адаптировано из**: 
+- `DONORS/2-PowerBroker2-ELMduino/src/ELMduino.cpp` (currentDTCCodes)
+- `DONORS/1-begaz-OBDII/lib/obd2_plugin.dart` (_getDtcsFrom)
+
+**Функции**:
+- `getCurrentDtc()` - чтение сохранённых кодов ошибок (Mode 03)
+- `getPendingDtc()` - чтение pending кодов (Mode 07)
+- `clearDtc()` - очистка кодов ошибок (Mode 04)
+- `getMonitorStatus()` - статус MIL и количество ошибок
+
+**Парсинг DTC**:
+- P (Powertrain) - биты 00
+- C (Chassis) - биты 01
+- B (Body) - биты 10
+- U (Network) - биты 11
+
+### 4. ObdErrorHandler (`error-handler.ts`)
+
+**Адаптировано из**:
+- `DONORS/2-PowerBroker2-ELMduino/src/ELMduino.h` (error codes)
+- `DONORS/1-begaz-OBDII/NOTES.md` (reconnection logic)
+
+**Функции**:
+- `createErrorContext()` - создание контекста ошибки
+- `getRetryStrategy()` - стратегия повтора для разных типов ошибок
+- `withRetry()` - выполнение функции с автоматическими повторами
+- `withTimeout()` - выполнение с таймаутом
+- `withErrorHandling()` - обёртка для функций
+
+**Коды ошибок**:
+- `SUCCESS`, `NO_RESPONSE`, `BUFFER_OVERFLOW`, `GARBAGE`
+- `UNABLE_TO_CONNECT`, `NO_DATA`, `STOPPED`, `TIMEOUT`
+
+---
+
 ## Структура DONORS
 
 ```
