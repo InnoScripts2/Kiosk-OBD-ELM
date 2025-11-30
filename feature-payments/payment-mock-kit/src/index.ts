@@ -34,9 +34,57 @@ export interface PaymentMockService {
 }
 
 /**
+ * In-memory mock implementation of PaymentMockService for development.
+ */
+class InMemoryPaymentMockService implements PaymentMockService {
+  private intents: Map<string, PaymentIntent> = new Map();
+
+  async createIntent(amount: number, sessionId: string): Promise<PaymentIntent> {
+    const id = `mock_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+    const intent: PaymentIntent = {
+      id,
+      amount,
+      currency: 'RUB',
+      status: 'pending',
+      qrCodeUrl: `https://example.com/qr/${id}`,
+      sessionId,
+      createdAt: new Date(),
+    };
+    this.intents.set(id, intent);
+    return intent;
+  }
+
+  async getStatus(intentId: string): Promise<PaymentIntent> {
+    const intent = this.intents.get(intentId);
+    if (!intent) {
+      throw new Error(`Payment intent not found: ${intentId}`);
+    }
+    return intent;
+  }
+
+  async simulateConfirmation(intentId: string): Promise<PaymentIntent> {
+    const intent = this.intents.get(intentId);
+    if (!intent) {
+      throw new Error(`Payment intent not found: ${intentId}`);
+    }
+    intent.status = 'confirmed';
+    return intent;
+  }
+
+  async simulateFailure(intentId: string): Promise<PaymentIntent> {
+    const intent = this.intents.get(intentId);
+    if (!intent) {
+      throw new Error(`Payment intent not found: ${intentId}`);
+    }
+    intent.status = 'failed';
+    return intent;
+  }
+}
+
+/**
  * Factory function for creating payment mock service.
- * Only for DEV mode; production uses real payment gateway.
+ * Returns in-memory implementation for DEV mode testing.
  */
 export function createPaymentMockService(): PaymentMockService {
-  throw new Error('PaymentMockService not implemented.');
+  return new InMemoryPaymentMockService();
 }

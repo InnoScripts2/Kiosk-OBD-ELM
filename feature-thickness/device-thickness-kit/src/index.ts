@@ -28,9 +28,41 @@ export interface ThicknessDevice {
 }
 
 /**
+ * Mock implementation of ThicknessDevice for development and testing.
+ * Simulates BLE device behavior without actual hardware.
+ */
+class MockThicknessDevice implements ThicknessDevice {
+  private connected = false;
+
+  async connect(): Promise<void> {
+    this.connected = true;
+  }
+
+  async disconnect(): Promise<void> {
+    this.connected = false;
+  }
+
+  isConnected(): boolean {
+    return this.connected;
+  }
+
+  async readMeasurement(): Promise<ThicknessMeasurement> {
+    if (!this.connected) {
+      throw new Error('Device not connected');
+    }
+    // Return mock measurement (production would read from BLE)
+    return {
+      value: Math.floor(Math.random() * 200) + 50, // 50-250 micrometers
+      timestamp: new Date(),
+      status: 'measured',
+    };
+  }
+}
+
+/**
  * Factory function for creating thickness device instances.
- * Implementation pending BLE adapter integration.
+ * Returns mock implementation for development; real BLE adapter integration pending.
  */
 export function createThicknessDevice(): ThicknessDevice {
-  throw new Error('ThicknessDevice not implemented. Requires BLE adapter.');
+  return new MockThicknessDevice();
 }
