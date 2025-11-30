@@ -4,18 +4,18 @@ on:
   push:
     branches: [ main, develop ]
     paths:
-      - 'android/feature-obd-core/device-obd-kit/**'
-      - 'android/feature-thickness/device-thickness-kit/**'
-      - 'android/feature-reports/report-kit/**'
-      - 'android/feature-payments/payment-mock-kit/**'
+      - 'feature-obd-core/device-obd-kit/**'
+      - 'feature-thickness/device-thickness-kit/**'
+      - 'feature-reports/report-kit/**'
+      - 'feature-payments/payment-mock-kit/**'
       - '.github/workflows/packages-ci.yml'
   pull_request:
     branches: [ main, develop ]
     paths:
-      - 'android/feature-obd-core/device-obd-kit/**'
-      - 'android/feature-thickness/device-thickness-kit/**'
-      - 'android/feature-reports/report-kit/**'
-      - 'android/feature-payments/payment-mock-kit/**'
+      - 'feature-obd-core/device-obd-kit/**'
+      - 'feature-thickness/device-thickness-kit/**'
+      - 'feature-reports/report-kit/**'
+      - 'feature-payments/payment-mock-kit/**'
 
 jobs:
   test-packages:
@@ -59,7 +59,7 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
-          cache-dependency-path: 'android/${{ matrix.module }}/${{ matrix.package }}/package-lock.json'
+          cache-dependency-path: '${{ matrix.module }}/${{ matrix.package }}/package-lock.json'
       
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
@@ -69,7 +69,7 @@ jobs:
       - name: Check if package exists
         id: check-package
         run: |
-          PACKAGE_PATH="android/${{ matrix.module }}/${{ matrix.package }}"
+          PACKAGE_PATH="${{ matrix.module }}/${{ matrix.package }}"
           if [ -d "$PACKAGE_PATH" ] && [ -f "$PACKAGE_PATH/package.json" ]; then
             echo "exists=true" >> $GITHUB_OUTPUT
             echo "✅ Package exists: $PACKAGE_PATH"
@@ -81,14 +81,13 @@ jobs:
       - name: Run npm install via Gradle
         if: steps.check-package.outputs.exists == 'true'
         run: |
-          cd android
           ./gradlew :${{ matrix.module }}:${{ matrix.task }} --no-daemon || echo "::warning::npm install task not found or failed"
         continue-on-error: true
       
       - name: Run tests via npm (if available)
         if: steps.check-package.outputs.exists == 'true'
         run: |
-          PACKAGE_PATH="android/${{ matrix.module }}/${{ matrix.package }}"
+          PACKAGE_PATH="${{ matrix.module }}/${{ matrix.package }}"
           cd $PACKAGE_PATH
           
           # Check if src/ directory exists (indicates actual source code)
@@ -103,7 +102,7 @@ jobs:
       - name: Run lint via npm (if available)
         if: steps.check-package.outputs.exists == 'true'
         run: |
-          PACKAGE_PATH="android/${{ matrix.module }}/${{ matrix.package }}"
+          PACKAGE_PATH="${{ matrix.module }}/${{ matrix.package }}"
           cd $PACKAGE_PATH
           
           # Check if lint script exists
@@ -125,7 +124,7 @@ jobs:
           echo "- **Status**: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           
-          PACKAGE_PATH="android/${{ matrix.module }}/${{ matrix.package }}"
+          PACKAGE_PATH="${{ matrix.module }}/${{ matrix.package }}"
           if [ -f "$PACKAGE_PATH/package.json" ]; then
             echo "### package.json" >> $GITHUB_STEP_SUMMARY
             echo "\`\`\`json" >> $GITHUB_STEP_SUMMARY
