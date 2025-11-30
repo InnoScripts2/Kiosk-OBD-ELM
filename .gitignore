@@ -12,15 +12,11 @@ __pycache__/
 .pytest_cache/
 
 # Logs (keep structure, ignore content)
-logs/sessions/*.log
-logs/sessions/*.json
+**/logs/sessions/*.log
+**/logs/sessions/*.json
 logs/issues/*.json
-!logs/sessions/README.md
+!**/logs/sessions/README.md
 !logs/issues/README.md
-
-# Agent logs
-03-apps/02-application/kiosk-shell/agent/logs/**/*.json
-03-apps/02-application/kiosk-shell/agent/logs/**/*.log
 
 # Build artifacts
 dist/
@@ -46,8 +42,3 @@ platform/data/serialization-formats/
 # OS-specific
 .DS_Store
 Thumbs.db
-
-# Agent logs (consolidated)
-**/logs/sessions/*.json
-**/logs/sessions/*.log
-!**/logs/sessions/README.md

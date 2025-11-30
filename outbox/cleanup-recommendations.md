@@ -1,8 +1,8 @@
 # Cleanup Recommendations — 2025-11-30
 
-Автор: Cleanup Agent  
-Ветка: My-project  
-Цель: Оптимизация репозитория без нарушения работоспособности
+Author: Cleanup Agent  
+Branch: My-project  
+Goal: Repository optimization without breaking functionality
 
 ---
 
