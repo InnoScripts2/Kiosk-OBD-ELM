@@ -91,3 +91,57 @@ dependencies {
     testImplementation("androidx.compose.ui:ui-test-junit4:1.6.8")
     debugImplementation("androidx.compose.ui:ui-test-manifest:1.6.8")
 }
+
+// ========================================================================================
+// npm Tasks для report-kit
+// ========================================================================================
+
+val reportKitDir = file("report-kit")
+
+tasks.register<Exec>("npmInstallReportKit") {
+    group = "device-kit"
+    description = "Install npm dependencies for report-kit"
+    workingDir = reportKitDir
+    commandLine("npm", "install")
+    onlyIf { reportKitDir.exists() && file("$reportKitDir/package.json").exists() }
+    
+    inputs.file("$reportKitDir/package.json")
+    outputs.dir("$reportKitDir/node_modules")
+}
+
+tasks.register<Exec>("buildReportKit") {
+    group = "device-kit"
+    description = "Build TypeScript report-kit (npm run build)"
+    dependsOn("npmInstallReportKit")
+    workingDir = reportKitDir
+    commandLine("npm", "run", "build")
+    onlyIf { reportKitDir.exists() && file("$reportKitDir/package.json").exists() }
+    
+    inputs.dir("$reportKitDir/src")
+    inputs.file("$reportKitDir/tsconfig.json")
+    outputs.dir("$reportKitDir/dist")
+}
+
+tasks.register<Exec>("testReportKit") {
+    group = "device-kit"
+    description = "Run Jest tests for report-kit"
+    dependsOn("npmInstallReportKit")
+    workingDir = reportKitDir
+    commandLine("npm", "test")
+    onlyIf { reportKitDir.exists() && file("$reportKitDir/package.json").exists() }
+    
+    inputs.dir("$reportKitDir/src")
+    outputs.upToDateWhen { false }
+}
+
+tasks.register<Exec>("lintReportKit") {
+    group = "device-kit"
+    description = "Run linting for report-kit"
+    dependsOn("npmInstallReportKit")
+    workingDir = reportKitDir
+    commandLine("npm", "run", "lint")
+    onlyIf { reportKitDir.exists() && file("$reportKitDir/package.json").exists() }
+    
+    inputs.dir("$reportKitDir/src")
+    outputs.upToDateWhen { false }
+}
