@@ -1,4 +1,0 @@
-// Non-spec inputs that we accept with allowComments = true setting:
-n_object_trailing_comment.json
-n_object_trailing_comment_slash_open.json
-n_structure_object_with_comment.json
